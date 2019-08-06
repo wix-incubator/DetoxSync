@@ -9,14 +9,15 @@
 #import "ViewController.h"
 @import DetoxSync;
 
-#define print_sync_resources(sync) {\
+#define print_sync_resources(sync) do {\
+	if([NSUserDefaults.standardUserDefaults boolForKey:@"ExamplePrintSyncResources"] == NO) { break; } \
 	dispatch_group_t __await_response = dispatch_group_create();\
 	if(sync) { dispatch_group_enter(__await_response); }\
 	[DTXSyncManager idleStatusWithCompletionHandler:^(NSString* response) {\
 		printf("⚠️⚠️⚠️ %s\n", response.UTF8String);\
 		if(sync) { dispatch_group_leave(__await_response); }\
 	}];\
-}
+} while(false);
 
 
 @interface NSRunLoop ()

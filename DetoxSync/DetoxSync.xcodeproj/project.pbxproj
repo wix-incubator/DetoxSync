@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		397CA5FD22F9F9A1005024D0 /* DTXLogging.m in Sources */ = {isa = PBXBuildFile; fileRef = 397CA5FB22F9F9A1005024D0 /* DTXLogging.m */; };
+		397CA5FE22F9F9A1005024D0 /* DTXLogging.h in Headers */ = {isa = PBXBuildFile; fileRef = 397CA5FC22F9F9A1005024D0 /* DTXLogging.h */; };
 		399678CE22F9C90400BAF0A8 /* _DTXObjectDeallocHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 399678CC22F9C90400BAF0A8 /* _DTXObjectDeallocHelper.h */; };
 		399678CF22F9C90400BAF0A8 /* _DTXObjectDeallocHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 399678CD22F9C90400BAF0A8 /* _DTXObjectDeallocHelper.m */; };
 		39A6C13122F9AF8300187B56 /* DTXRunLoopSyncResource.h in Headers */ = {isa = PBXBuildFile; fileRef = 39A6C12F22F9AF8300187B56 /* DTXRunLoopSyncResource.h */; };
@@ -60,6 +62,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		397CA5FB22F9F9A1005024D0 /* DTXLogging.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DTXLogging.m; path = DTXLoggingInfra/DTXLogging.m; sourceTree = SOURCE_ROOT; };
+		397CA5FC22F9F9A1005024D0 /* DTXLogging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTXLogging.h; path = DTXLoggingInfra/DTXLogging.h; sourceTree = SOURCE_ROOT; };
+		397CA5FF22F9F9B2005024D0 /* DTXLoggingSubsystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DTXLoggingSubsystem.h; sourceTree = "<group>"; };
 		399678CC22F9C90400BAF0A8 /* _DTXObjectDeallocHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = _DTXObjectDeallocHelper.h; sourceTree = "<group>"; };
 		399678CD22F9C90400BAF0A8 /* _DTXObjectDeallocHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = _DTXObjectDeallocHelper.m; sourceTree = "<group>"; };
 		39A6C12F22F9AF8300187B56 /* DTXRunLoopSyncResource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DTXRunLoopSyncResource.h; sourceTree = "<group>"; };
@@ -229,6 +234,9 @@
 				39DE8F9022F707F400780546 /* DTXOrigDispatch.m */,
 				399678CC22F9C90400BAF0A8 /* _DTXObjectDeallocHelper.h */,
 				399678CD22F9C90400BAF0A8 /* _DTXObjectDeallocHelper.m */,
+				397CA5FC22F9F9A1005024D0 /* DTXLogging.h */,
+				397CA5FB22F9F9A1005024D0 /* DTXLogging.m */,
+				397CA5FF22F9F9B2005024D0 /* DTXLoggingSubsystem.h */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -257,6 +265,7 @@
 				39DE8F5722F707DD00780546 /* DetoxSync.h in Headers */,
 				39DE8F9422F707F400780546 /* DTXNSTimerSyncResource-Private.h in Headers */,
 				39DE8F9D22F707F400780546 /* DTXNSTimerSyncResource.h in Headers */,
+				397CA5FE22F9F9A1005024D0 /* DTXLogging.h in Headers */,
 				39DE8FA222F707F400780546 /* NSURLSession+DTXSpy.h in Headers */,
 				39DE8FA822F707F400780546 /* UIScrollView+DTXSpy.h in Headers */,
 				39DE8FA422F707F400780546 /* UIAnimation+DTXSpy.h in Headers */,
@@ -352,6 +361,7 @@
 				39DE8F9A22F707F400780546 /* DTXSingleUseSyncResource.m in Sources */,
 				39DE8FBB22F707F400780546 /* DTXOrigDispatch.m in Sources */,
 				39DE8FB622F707F400780546 /* UIAnimation+DTXSpy.m in Sources */,
+				397CA5FD22F9F9A1005024D0 /* DTXLogging.m in Sources */,
 				39DE8FAA22F707F400780546 /* NSObject+DTXSpy.m in Sources */,
 				39DE8FB322F707F400780546 /* UIApplication+DTXSpy.m in Sources */,
 				39DE8F9722F707F400780546 /* DTXNSTimerSyncResource.m in Sources */,

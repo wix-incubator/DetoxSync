@@ -14,6 +14,13 @@
 
 #include <dlfcn.h>
 
+#import "DTXLogging.h"
+DTX_CREATE_LOG("SyncManager")
+__unused static BOOL _enableVerboseLogging = NO;
+#define dtx_log_verbose(format, ...) __extension__({ \
+if(_enableVerboseLogging) { __dtx_log(__prepare_and_return_file_log(), OS_LOG_TYPE_DEBUG, __current_log_prefix, format, ##__VA_ARGS__); } \
+})
+
 @import OSLog;
 
 typedef void (^DTXIdleBlock)(void);
@@ -38,6 +45,8 @@ static NSHashTable<NSThread*>* _trackedThreads;
 {
 	@autoreleasepool
 	{
+		_enableVerboseLogging = [NSUserDefaults.standardUserDefaults boolForKey:@"DTXEnableVerboseSyncResources"];
+		
 		__detox_sync_orig_dispatch_sync = dlsym(RTLD_DEFAULT, "dispatch_sync");
 		__detox_sync_orig_dispatch_async = dlsym(RTLD_DEFAULT, "dispatch_async");
 		
@@ -78,7 +87,7 @@ static void _performUpdateFunc(void(*func)(dispatch_queue_t queue, void(^)(void)
 		BOOL isBusy = block();
 		if(wasBusy != isBusy)
 		{
-			NSLog(@"%@ %@", isBusy ? @"👎" : @"👍", resource);
+			dtx_log_verbose(@"%@ %@", isBusy ? @"👎" : @"👍", resource);
 		}
 		
 		[_resourceMapping setObject:@(isBusy) forKey:resource];
