@@ -1,0 +1,3 @@
+[submodule "DetoxSync/DTXLoggingInfra"]
+	path = DetoxSync/DTXLoggingInfra
+	url = https://LeoNatan@github.com/wix/DTXLoggingInfra.git
