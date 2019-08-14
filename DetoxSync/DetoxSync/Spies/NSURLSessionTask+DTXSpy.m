@@ -44,7 +44,7 @@ static const void* _DTXNetworkTaskSRKey = &_DTXNetworkTaskSRKey;
 
 - (void)__detox_sync_resume
 {
-	id<DTXSingleUsage> sr = [DTXSingleUseSyncResource deallocatingSingleUseSyncResourceWithObject:self description:[NSString stringWithFormat:@"Network request with URL: “%@”", self.originalRequest.URL.absoluteString]];
+	id<DTXSingleUse> sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObject:self description:[NSString stringWithFormat:@"Network request with URL: “%@”", self.originalRequest.URL.absoluteString]];
 	objc_setAssociatedObject(self, _DTXNetworkTaskSRKey, sr, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	
 	[self __detox_sync_resume];
@@ -52,7 +52,7 @@ static const void* _DTXNetworkTaskSRKey = &_DTXNetworkTaskSRKey;
 
 - (void)__detox_sync_untrackTask
 {
-	id<DTXSingleUsage> sr = objc_getAssociatedObject(self, _DTXNetworkTaskSRKey);
+	id<DTXSingleUse> sr = objc_getAssociatedObject(self, _DTXNetworkTaskSRKey);
 	[sr endUse];
 	objc_setAssociatedObject(self, _DTXNetworkTaskSRKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }

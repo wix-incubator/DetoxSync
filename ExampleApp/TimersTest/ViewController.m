@@ -19,13 +19,6 @@
 	}];\
 } while(false);
 
-
-@interface NSRunLoop ()
-
-+ (id)_new:(id)arg1;
-
-@end
-
 @interface ViewController () <CAAnimationDelegate, NSURLSessionDataDelegate>
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *topLayoutConstraintRed;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *topLayoutConstraintGreen;
@@ -37,7 +30,10 @@
 @implementation ViewController
 {
 	NSURLSession* _urlSession;
-	CABasicAnimation* _animation;
+	CASpringAnimation* _animation;
+	
+	CGFloat _angle;
+	CADisplayLink* _displayLink;
 }
 
 - (void)_timer2:(NSTimer*)timer
@@ -66,15 +62,14 @@
 	
 	[self performSelector:@selector(goAwayNow) onThread:NSThread.mainThread withObject:nil waitUntilDone:NO];
 	
-	[DTXSyncManager queueIdleBlock:^{
+	[DTXSyncManager enqueueIdleBlock:^{
 		NSLog(@"✅ Idle!");
 	}];
 	
-	[DTXSyncManager queueIdleBlock:^{
+	[DTXSyncManager enqueueIdleBlock:^{
 		NSLog(@"✅ Idle on main queue!");
 	} queue:dispatch_get_main_queue()];
 	
-	[DTXSyncManager trackRunLoop:NSRunLoop.mainRunLoop];
 	print_sync_resources(YES);
 //	[DTXSyncManager untrackRunLoop:NSRunLoop.mainRunLoop];
 	
@@ -102,21 +97,21 @@
 	
 	print_sync_resources(YES);
 	
-	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 		self.topLayoutConstraintRed.constant = 400;
-		[UIView animateWithDuration:5 animations:^{
+		[UIView animateWithDuration:2 animations:^{
 			[self.view layoutIfNeeded];
 		}];
 
 		self.topLayoutConstraintGreen.constant = 400;
-		[UIView animateWithDuration:5 animations:^{
+		[UIView animateWithDuration:2 animations:^{
 			[self.view layoutIfNeeded];
 		} completion:^(BOOL finished) {
 			NSLog(@"📱 Animation 2");
 		}];
 
 		self.topLayoutConstraintBlue.constant = 400;
-		[UIView animateWithDuration:5 delay:0.0 usingSpringWithDamping:500 initialSpringVelocity:0.0 options:0 animations:^{
+		[UIView animateWithDuration:2 delay:0.0 usingSpringWithDamping:500 initialSpringVelocity:0.0 options:0 animations:^{
 			[self.view layoutIfNeeded];
 		} completion:^(BOOL finished) {
 			NSLog(@"📱 Animation 3");
@@ -187,11 +182,33 @@
 	});
 }
 
+- (void)displayLinkDidTick
+{
+	_angle += 2;
+	_greenView.layer.transform = CATransform3DRotate(_greenView.layer.transform, _angle * M_PI / 180.0, 0, 0, 1);
+	
+	if(_angle == 360)
+	{
+		[_displayLink invalidate];
+	
+		[self performSelectorOnMainThread:@selector(selectorForBackground) withObject:nil waitUntilDone:NO];
+	}
+}
+
 - (void)animationDidStop:(CAAnimation *)anim finished:(BOOL)flag
 {
 	NSLog(@"📱 CAAnimation stop");
 	
-	[self performSelectorOnMainThread:@selector(selectorForBackground) withObject:nil waitUntilDone:NO];
+	_displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(displayLinkDidTick)];
+	_displayLink.paused = YES;
+	
+	[DTXSyncManager trackDisplayLink:_displayLink];
+	
+	[_displayLink addToRunLoop:NSRunLoop.mainRunLoop forMode:NSDefaultRunLoopMode];
+	
+	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+		_displayLink.paused = NO;
+	});
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(nullable NSError *)error
@@ -206,13 +223,19 @@
 		
 		dispatch_async(dispatch_get_main_queue(), ^{
 			
-			_animation = [CABasicAnimation animationWithKeyPath:@"transform"];
+			_animation = [CASpringAnimation animationWithKeyPath:@"transform"];
 			_animation.fromValue = @(CATransform3DIdentity);
-			_animation.toValue = @(CATransform3DMakeScale(4.0, 4.0, 4.0));
-			_animation.duration = 5.0;
+//			_animation.duration = 2.0;
+			_animation.stiffness = 54.83363359078326;
+			_animation.damping = 3.702486785620688;
+			_animation.mass = 1.0;
+			_animation.initialVelocity = 0.0;
+			_animation.duration = _animation.settlingDuration;
 			_animation.fillMode = kCAFillModeForwards;
-			_animation.removedOnCompletion = NO;
+			_animation.removedOnCompletion = YES;
 			_animation.delegate = self;
+			
+			_greenView.layer.transform = CATransform3DMakeScale(4.0, 4.0, 4.0);
 
 			[_greenView.layer addAnimation:_animation forKey:@"basic"];
 			

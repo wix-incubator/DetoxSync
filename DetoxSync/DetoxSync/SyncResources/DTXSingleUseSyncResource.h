@@ -10,16 +10,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol DTXSingleUsage <NSObject>
+@protocol DTXSingleUse <NSObject>
 
 - (void)endUse;
 
 @end
 
-@interface DTXSingleUseSyncResource : DTXSyncResource <DTXSingleUsage>
+@interface DTXSingleUseSyncResource : DTXSyncResource <DTXSingleUse>
 
-+ (id<DTXSingleUsage>)singleUseSyncResourceWithObject:(nullable id)object description:(NSString*)description;
-+ (id<DTXSingleUsage>)deallocatingSingleUseSyncResourceWithObject:(nullable id)object description:(NSString*)description;
++ (id<DTXSingleUse>)singleUseSyncResourceWithObject:(nullable id)object description:(NSString*)description;
 
 - (void)endUse;
 

@@ -6,8 +6,10 @@
 //  Copyright © 2019 wix. All rights reserved.
 //
 
-#import "DTXSyncResource.h"
+#import "DTXSyncResource-Private.h"
 #import "DTXSyncManager-Private.h"
+
+@import ObjectiveC;
 
 @implementation DTXSyncResource
 

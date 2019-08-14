@@ -8,29 +8,30 @@
 
 #import "DTXSingleUseSyncResource.h"
 #import "DTXSyncManager-Private.h"
+#import "_DTXObjectDeallocHelper.h"
 
-@interface _DTXSingleUseDeallocationHelper : NSObject <DTXSingleUsage> @end
+@interface _DTXSingleUseDeallocationHelper : _DTXObjectDeallocHelper <DTXSingleUse> @end
 @implementation _DTXSingleUseDeallocationHelper
-{
-	id<DTXSingleUsage> _underlying;
-}
 
-- (instancetype)initWithUnderlying:(id<DTXSingleUsage>)underlying
+- (instancetype)initWithSyncResource:(__kindof DTXSyncResource *)syncResource
 {
-	self = [super init];
-	if(self) { _underlying = underlying; }
+	self = [super initWithSyncResource:syncResource];
+	
+	if(self)
+	{
+		__weak typeof(self) weakSelf = self;
+		self.performOnDealloc = ^{
+			[weakSelf.syncResource endUse];
+		};
+	}
+	
 	return self;
 }
 
 - (void)endUse
 {
-	[_underlying endUse];
-	_underlying = nil;
-}
-
-- (void)dealloc
-{
-	[self endUse];
+	[self.syncResource endUse];
+	self.syncResource = nil;
 }
 
 @end
@@ -41,7 +42,7 @@
 	__weak id _object;
 }
 
-+ (instancetype)singleUseSyncResourceWithObject:(id)object description:(NSString*)description
++ (id<DTXSingleUse>)singleUseSyncResourceWithObject:(id)object description:(NSString*)description
 {
 	DTXSingleUseSyncResource* rv = [[DTXSingleUseSyncResource alloc] init];
 	rv->_description = description;
@@ -51,13 +52,7 @@
 		return YES;
 	}];
 	
-	return rv;
-}
-
-+ (id<DTXSingleUsage>)deallocatingSingleUseSyncResourceWithObject:(nullable id)object description:(NSString*)description
-{
-	id<DTXSingleUsage> sr = [self singleUseSyncResourceWithObject:object description:description];
-	_DTXSingleUseDeallocationHelper* helper = [[_DTXSingleUseDeallocationHelper alloc] initWithUnderlying:sr];
+	_DTXSingleUseDeallocationHelper* helper = [[_DTXSingleUseDeallocationHelper alloc] initWithSyncResource:rv];
 	
 	return helper;
 }

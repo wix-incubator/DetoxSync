@@ -13,8 +13,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface _DTXObjectDeallocHelper : NSObject
 
-- (instancetype)initWithSyncResource:(DTXSyncResource*)syncResource;
-- (nullable DTXSyncResource*)syncResource;
+- (instancetype)initWithSyncResource:(nullable __kindof DTXSyncResource*)syncResource;
+
+@property (nonatomic, weak, nullable) __kindof DTXSyncResource* syncResource;
+
+@property (nonatomic, copy, nullable) void (^performOnDealloc)(void);
 
 @end
 

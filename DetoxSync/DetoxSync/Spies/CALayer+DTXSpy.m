@@ -19,28 +19,28 @@
 {
 	@autoreleasepool
 	{
-		Method m1 = class_getInstanceMethod(CALayer.class, @selector(setNeedsLayout));
-		Method m2 = class_getInstanceMethod(CALayer.class, @selector(__detox_sync_setNeedsLayout));
+		Method m1 = class_getInstanceMethod(self.class, @selector(setNeedsLayout));
+		Method m2 = class_getInstanceMethod(self.class, @selector(__detox_sync_setNeedsLayout));
 		method_exchangeImplementations(m1, m2);
 		
-		m1 = class_getInstanceMethod(CALayer.class, @selector(setNeedsDisplay));
-		m2 = class_getInstanceMethod(CALayer.class, @selector(__detox_sync_setNeedsDisplay));
+		m1 = class_getInstanceMethod(self.class, @selector(setNeedsDisplay));
+		m2 = class_getInstanceMethod(self.class, @selector(__detox_sync_setNeedsDisplay));
 		method_exchangeImplementations(m1, m2);
 		
-		m1 = class_getInstanceMethod(CALayer.class, @selector(setNeedsDisplayInRect:));
-		m2 = class_getInstanceMethod(CALayer.class, @selector(__detox_sync_setNeedsDisplayInRect:));
+		m1 = class_getInstanceMethod(self.class, @selector(setNeedsDisplayInRect:));
+		m2 = class_getInstanceMethod(self.class, @selector(__detox_sync_setNeedsDisplayInRect:));
 		method_exchangeImplementations(m1, m2);
 		
-		m1 = class_getInstanceMethod(CALayer.class, @selector(addAnimation:forKey:));
-		m2 = class_getInstanceMethod(CALayer.class, @selector(__detox_sync_addAnimation:forKey:));
+		m1 = class_getInstanceMethod(self.class, @selector(addAnimation:forKey:));
+		m2 = class_getInstanceMethod(self.class, @selector(__detox_sync_addAnimation:forKey:));
 		method_exchangeImplementations(m1, m2);
 		
-		m1 = class_getInstanceMethod(CALayer.class, @selector(removeAnimationForKey:));
-		m2 = class_getInstanceMethod(CALayer.class, @selector(__detox_sync_removeAnimationForKey:));
+		m1 = class_getInstanceMethod(self.class, @selector(removeAnimationForKey:));
+		m2 = class_getInstanceMethod(self.class, @selector(__detox_sync_removeAnimationForKey:));
 		method_exchangeImplementations(m1, m2);
 		
-		m1 = class_getInstanceMethod(CALayer.class, @selector(removeAllAnimations));
-		m2 = class_getInstanceMethod(CALayer.class, @selector(__detox_sync_removeAllAnimations));
+		m1 = class_getInstanceMethod(self.class, @selector(removeAllAnimations));
+		m2 = class_getInstanceMethod(self.class, @selector(__detox_sync_removeAllAnimations));
 		method_exchangeImplementations(m1, m2);
 	}
 }

@@ -41,7 +41,7 @@ static const void* _DTXCAAnimationDelegateProxySRKey = &_DTXCAAnimationDelegateP
 
 - (void)__detox_sync_trackAnimation
 {
-	DTXSingleUseSyncResource* newSr = [DTXSingleUseSyncResource deallocatingSingleUseSyncResourceWithObject:self description:@"CA animation"];
+	id<DTXSingleUse> newSr = [DTXSingleUseSyncResource singleUseSyncResourceWithObject:self description:@"CA animation"];
 	
 	[self __detox_sync_untrackAnimation];
 	

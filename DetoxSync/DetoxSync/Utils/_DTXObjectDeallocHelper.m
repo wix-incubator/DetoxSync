@@ -11,24 +11,21 @@
 #import "DTXSyncManager-Private.h"
 
 @implementation _DTXObjectDeallocHelper
-{
-	__weak DTXSyncResource* _syncResource;
-}
 
-- (instancetype)initWithSyncResource:(DTXSyncResource*)syncResource
+- (instancetype)initWithSyncResource:(__kindof DTXSyncResource*)syncResource
 {
 	self = [super init];
 	if(self) { _syncResource = syncResource; }
 	return self;
 }
 
-- (nullable DTXSyncResource*)syncResource
-{
-	return _syncResource;
-}
-
 - (void)dealloc
 {
+	if(self.performOnDealloc != nil)
+	{
+		self.performOnDealloc();
+	}
+	
 	if(_syncResource != nil)
 	{
 		[DTXSyncManager unregisterSyncResource:_syncResource];

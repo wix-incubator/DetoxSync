@@ -11,6 +11,7 @@
 #import "DTXOrigDispatch.h"
 #import "DTXDispatchQueueSyncResource-Private.h"
 #import "DTXRunLoopSyncResource-Private.h"
+#import "DTXTimerSyncResource.h"
 
 #include <dlfcn.h>
 
@@ -57,6 +58,8 @@ static NSHashTable<NSThread*>* _trackedThreads;
 		
 		_trackedThreads = [NSHashTable weakObjectsHashTable];
 		[_trackedThreads addObject:[NSThread mainThread]];
+		
+		[self _trackCFRunLoop:CFRunLoopGetMain()];
 	}
 }
 
@@ -165,12 +168,12 @@ static void _performUpdateFunc(void(*func)(dispatch_queue_t queue, void(^)(void)
 	}
 }
 
-+ (void)queueIdleBlock:(void(^)(void))block;
++ (void)enqueueIdleBlock:(void(^)(void))block;
 {
-	[self queueIdleBlock:block queue:nil];
+	[self enqueueIdleBlock:block queue:nil];
 }
 
-+ (void)queueIdleBlock:(void(^)(void))block queue:(dispatch_queue_t)queue;
++ (void)enqueueIdleBlock:(void(^)(void))block queue:(dispatch_queue_t)queue;
 {
 	__detox_sync_orig_dispatch_sync(_queue, ^ {
 		_DTXIdleTupple* t = [_DTXIdleTupple new];
@@ -210,6 +213,16 @@ static void _performUpdateFunc(void(*func)(dispatch_queue_t queue, void(^)(void)
 
 + (void)trackCFRunLoop:(CFRunLoopRef)runLoop
 {
+	if(runLoop == CFRunLoopGetMain())
+	{
+		return;
+	}
+	
+	[self _trackCFRunLoop:runLoop];
+}
+
++ (void)_trackCFRunLoop:(CFRunLoopRef)runLoop
+{
 	id sr = [DTXRunLoopSyncResource _existingSyncResourceWithRunLoop:runLoop];
 	if(sr != nil)
 	{
@@ -222,6 +235,16 @@ static void _performUpdateFunc(void(*func)(dispatch_queue_t queue, void(^)(void)
 }
 
 + (void)untrackCFRunLoop:(CFRunLoopRef)runLoop
+{
+	if(runLoop == CFRunLoopGetMain())
+	{
+		return;
+	}
+	
+	[self _untrackCFRunLoop:runLoop];
+}
+
++ (void)_untrackCFRunLoop:(CFRunLoopRef)runLoop
 {
 	id sr = [DTXRunLoopSyncResource _existingSyncResourceWithRunLoop:runLoop];
 	if(sr == nil)
@@ -270,6 +293,16 @@ static void _performUpdateFunc(void(*func)(dispatch_queue_t queue, void(^)(void)
 	});
 	
 	return rv;
+}
+
++ (void)trackDisplayLink:(CADisplayLink*)displayLink
+{
+	[DTXTimerSyncResource startTrackingDisplayLink:displayLink];
+}
+
++ (void)untrackDisplayLink:(CADisplayLink*)displayLink
+{
+	[DTXTimerSyncResource stopTrackingDisplayLink:displayLink];
 }
 
 + (NSString*)_idleStatus:(BOOL)includeAll;
