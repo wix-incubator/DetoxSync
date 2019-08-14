@@ -41,9 +41,9 @@
 	NSLog(@"⏰ Timer 2");
 }
 
-- (void)_timer3:(NSTimer*)timer
+- (void)_timer5:(NSTimer*)timer
 {
-	NSLog(@"⏰ Timer 3");
+	NSLog(@"⏰ Timer 5");
 }
 
 - (void)onMain
@@ -81,7 +81,7 @@
 	
 	[NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(_timer2:) userInfo:nil repeats:NO];
 	
-	NSTimer* timer3 = [NSTimer timerWithTimeInterval:1.0 target:self selector:@selector(_timer3:) userInfo:nil repeats:NO];
+	NSTimer* timer3 = [NSTimer timerWithTimeInterval:1.0 target:self selector:@selector(_timer5:) userInfo:nil repeats:NO];
 	[[NSRunLoop mainRunLoop] addTimer:timer3 forMode:NSDefaultRunLoopMode];
 	[timer3 invalidate];
 	CFRunLoopTimerInvalidate((__bridge CFRunLoopTimerRef)timer3);
@@ -90,6 +90,12 @@
 		NSLog(@"⏰ Timer 4");
 	}];
 	[[NSRunLoop mainRunLoop] addTimer:timer4 forMode:NSDefaultRunLoopMode];
+	
+	NSInvocation* invocation = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:@selector(_timer5:)]];
+	invocation.target = self;
+	invocation.selector = @selector(_timer5:);
+	
+	[NSTimer scheduledTimerWithTimeInterval:1.0 invocation:invocation repeats:NO];
 	
 	[NSOperationQueue.mainQueue addOperationWithBlock:^{
 		NSLog(@"🔄 Operation 1");

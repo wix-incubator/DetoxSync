@@ -82,24 +82,42 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 {
 	[self _stopTracking];
 	
+	__weak __typeof(self) weakSelf = self;
+	
 	_observer = CFBridgingRelease(CFRunLoopObserverCreateWithHandler(NULL, kCFRunLoopEntry | kCFRunLoopBeforeTimers | kCFRunLoopBeforeSources | kCFRunLoopBeforeWaiting | kCFRunLoopAfterWaiting | kCFRunLoopExit, YES, 0, ^(CFRunLoopObserverRef observer, CFRunLoopActivity activity) {
-		BOOL busy;
+		
+		__strong __typeof(weakSelf) strongSelf = weakSelf;
+		if(strongSelf == nil)
+		{
+			CFRunLoopObserverInvalidate(observer);
+			return;
+		}
+		
+		BOOL isBusyNow;
+		BOOL wasBusyBefore = strongSelf._wasPreviouslyBusy;
 		
 		if(activity & kCFRunLoopBeforeWaiting || activity & kCFRunLoopExit)
 		{
-			busy = NO;
+			isBusyNow = NO;
 		}
 		else
 		{
-			busy = YES;
+			isBusyNow = YES;
 		}
 		
-		[self performUpdateBlock:^BOOL{
-			return busy;
-		}];
+		if(isBusyNow != wasBusyBefore)
+		{
+			[strongSelf performUpdateBlock:^BOOL{
+				return isBusyNow;
+			}];
+		}
+		
+		strongSelf._wasPreviouslyBusy = isBusyNow;
 	}));
 	
+	CFRunLoopAddObserver(_runLoop, (__bridge CFRunLoopObserverRef)_observer, kCFRunLoopCommonModes);
 	CFRunLoopAddObserver(_runLoop, (__bridge CFRunLoopObserverRef)_observer, kCFRunLoopDefaultMode);
+	
 	[self performUpdateBlock:^BOOL{
 		return YES;
 	}];
@@ -109,7 +127,7 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 {
 	if(_observer != NULL)
 	{
-		CFRunLoopRemoveObserver(_runLoop, (__bridge CFRunLoopObserverRef)_observer, kCFRunLoopDefaultMode);
+		CFRunLoopObserverInvalidate((__bridge CFRunLoopObserverRef)_observer);
 		_observer = nil;
 	}
 	

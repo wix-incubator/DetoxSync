@@ -14,24 +14,37 @@
 
 @implementation NSTimer (DTXSpy)
 
+__attribute__((__always_inline__))
+static NSTimer* _DTXTimerInit(id instance, SEL selector, BOOL track, NSDate* date, NSTimeInterval ti, id t, SEL s, id ui, BOOL rep)
+{
+	id (*timerInitMsgSend)(id, SEL, id, NSTimeInterval, id, SEL, id, BOOL) = (void*)objc_msgSend;
+	
+	if(rep == YES || date == NSDate.distantFuture)
+	{
+		return timerInitMsgSend(instance, selector, date, ti, t, s, ui, rep);
+	}
+	
+	id<DTXTimerProxy> trampoline = [DTXTimerSyncResource timerProxyWithTarget:t selector:s fireDate:date interval:ti repeats:rep];
+	if(track)
+	{
+		[trampoline track];
+	}
+	NSTimer* rv = timerInitMsgSend(instance, selector, date, ti, trampoline, @selector(fire:), ui, rep);
+	[trampoline setTimer:rv];
+	return rv;
+}
+
 //NSCFTimer (Foundation)
 - (instancetype)__detox_sync_initWithFireDate:(NSDate *)date interval:(NSTimeInterval)ti target:(id)t selector:(SEL)s userInfo:(id)ui repeats:(BOOL)rep
 {
-	id<DTXTimerProxy> trampoline = [DTXTimerSyncResource timerProxyWithTarget:t selector:s fireDate:date interval:ti repeats:rep];
-	NSTimer* rv = [self __detox_sync_initWithFireDate:date interval:ti target:trampoline selector:@selector(fire:) userInfo:ui repeats:rep];
-	[trampoline setTimer:rv];
-	return rv;
+	return _DTXTimerInit(self, @selector(__detox_sync_initWithFireDate:interval:target:selector:userInfo:repeats:), NO, date, ti, t, s, ui, rep);
 }
 
 //__NSCFTimer (CoreFoundation)
 - (instancetype)__detox_sync_initWithFireDate2:(NSDate *)date interval:(NSTimeInterval)ti target:(id)t selector:(SEL)s userInfo:(id)ui repeats:(BOOL)rep
 {
-	id<DTXTimerProxy> trampoline = [DTXTimerSyncResource timerProxyWithTarget:t selector:s fireDate:date interval:ti repeats:rep];
 	//Need to track here because CFRunLoopAddTimer will not be intercepted in this case.
-	[trampoline track];
-	NSTimer* rv = [self __detox_sync_initWithFireDate2:date interval:ti target:trampoline selector:@selector(fire:) userInfo:ui repeats:rep];
-	[trampoline setTimer:rv];
-	return rv;
+	return _DTXTimerInit(self, @selector(__detox_sync_initWithFireDate2:interval:target:selector:userInfo:repeats:), YES, date, ti, t, s, ui, rep);
 }
 
 static void (*__orig_CFRunLoopAddTimer)(CFRunLoopRef rl, CFRunLoopTimerRef timer, CFRunLoopMode mode);

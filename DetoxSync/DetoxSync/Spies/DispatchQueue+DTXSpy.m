@@ -10,6 +10,7 @@
 #import "DTXDispatchQueueSyncResource-Private.h"
 #import "fishhook.h"
 #import "DTXOrigDispatch.h"
+#import "DTXSyncManager-Private.h"
 
 #define __dispatch_wrapper_func_2param(func, param1, param2) { \
 	DTXDispatchQueueSyncResource* sr = [DTXDispatchQueueSyncResource _existingSyncResourceWithQueue:queue]; \
@@ -65,6 +66,20 @@ static void __detox_sync_dispatch_group_notify(dispatch_group_t group, dispatch_
 	__dispatch_wrapper_func_3param(__orig_dispatch_dispatch_group_notify, group, queue, block);
 }
 
+static dispatch_queue_t (*__orig_dispatch_queue_create)(const char *_Nullable label, dispatch_queue_attr_t _Nullable attr);
+dispatch_queue_t __detox_sync_dispatch_queue_create(const char *_Nullable label, dispatch_queue_attr_t _Nullable attr)
+{
+	dispatch_queue_t rv = __orig_dispatch_queue_create(label, attr);
+	
+	if(label != NULL && strncmp(label, "com.apple.NSURLSession-work", strlen("com.apple.NSURLSession-work")) == 0)
+	{
+		[DTXSyncManager trackDispatchQueue:rv];
+	}
+	
+	return rv;
+}
+
+
 __attribute__((constructor))
 static void _install_dispatchqueue_spy(void)
 {
@@ -76,6 +91,7 @@ static void _install_dispatchqueue_spy(void)
 		"dispatch_after", __detox_sync_dispatch_after, (void**)&__orig_dispatch_after,
 		"dispatch_group_async", __detox_sync_dispatch_group_async, (void**)&__orig_dispatch_group_async,
 		"dispatch_group_notify", __detox_sync_dispatch_group_notify, (void**)&__orig_dispatch_dispatch_group_notify,
+		"dispatch_queue_create", __detox_sync_dispatch_queue_create, (void**)&__orig_dispatch_queue_create,
 	};
 	rebind_symbols(r, sizeof(r) / sizeof(struct rebinding));
 }

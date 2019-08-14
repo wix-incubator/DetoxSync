@@ -17,9 +17,13 @@
 
 #import "DTXLogging.h"
 DTX_CREATE_LOG("SyncManager")
-__unused static BOOL _enableVerboseLogging = NO;
-#define dtx_log_verbose(format, ...) __extension__({ \
-if(_enableVerboseLogging) { __dtx_log(__prepare_and_return_file_log(), OS_LOG_TYPE_DEBUG, __current_log_prefix, format, ##__VA_ARGS__); } \
+static BOOL _enableVerboseSystemLogging = NO;
+static BOOL _enableVerboseSyncResourceLogging = NO;
+#define dtx_log_verbose_sync_resource(format, ...) __extension__({ \
+if(_enableVerboseSyncResourceLogging) { __dtx_log(__prepare_and_return_file_log(), OS_LOG_TYPE_DEBUG, __current_log_prefix, format, ##__VA_ARGS__); } \
+})
+#define dtx_log_verbose_sync_system(format, ...) __extension__({ \
+if(_enableVerboseSystemLogging) { __dtx_log(__prepare_and_return_file_log(), OS_LOG_TYPE_DEBUG, __current_log_prefix, format, ##__VA_ARGS__); } \
 })
 
 @import OSLog;
@@ -39,14 +43,16 @@ static NSMapTable* _resourceMapping;
 static NSMutableSet* _registeredResources;
 static NSMutableArray<_DTXIdleTupple*>* _pendingIdleBlocks;
 static NSHashTable<NSThread*>* _trackedThreads;
+static BOOL _systemWasBusy = NO;
 
 @implementation DTXSyncManager
 
-+ (void)load
++ (void)superload
 {
 	@autoreleasepool
 	{
-		_enableVerboseLogging = [NSUserDefaults.standardUserDefaults boolForKey:@"DTXEnableVerboseSyncResources"];
+		_enableVerboseSyncResourceLogging = [NSUserDefaults.standardUserDefaults boolForKey:@"DTXEnableVerboseSyncResources"];
+		_enableVerboseSystemLogging = [NSUserDefaults.standardUserDefaults boolForKey:@"DTXEnableVerboseSyncSystem"];
 		
 		__detox_sync_orig_dispatch_sync = dlsym(RTLD_DEFAULT, "dispatch_sync");
 		__detox_sync_orig_dispatch_async = dlsym(RTLD_DEFAULT, "dispatch_async");
@@ -90,7 +96,7 @@ static void _performUpdateFunc(void(*func)(dispatch_queue_t queue, void(^)(void)
 		BOOL isBusy = block();
 		if(wasBusy != isBusy)
 		{
-			dtx_log_verbose(@"%@ %@", isBusy ? @"👎" : @"👍", resource);
+			dtx_log_verbose_sync_resource(@"%@ %@", isBusy ? @"👎" : @"👍", resource);
 		}
 		
 		[_resourceMapping setObject:@(isBusy) forKey:resource];
@@ -111,12 +117,16 @@ static void _performUpdateFunc(void(*func)(dispatch_queue_t queue, void(^)(void)
 
 + (void)_tryIdleBlocks
 {
-	if(_pendingIdleBlocks.count == 0)
+	if(_pendingIdleBlocks.count == 0 && _enableVerboseSystemLogging == NO)
 	{
 		return;
 	}
 	
-	BOOL systemBusy = NO;
+	__block BOOL systemBusy = NO;
+	dtx_defer {
+		_systemWasBusy = systemBusy;
+	};
+	
 	for(NSNumber* value in _resourceMapping.objectEnumerator)
 	{
 		systemBusy |= value.boolValue;
@@ -127,9 +137,12 @@ static void _performUpdateFunc(void(*func)(dispatch_queue_t queue, void(^)(void)
 		}
 	}
 	
-	//	NSLog(@"🤡 System is %@", systemBusy ? @"busy" : @"idle");
+	if(systemBusy != _systemWasBusy)
+	{
+		dtx_log_verbose_sync_system(systemBusy ? @"❌ Sync system is busy" : @"✅ Sync system idle");
+	}
 	
-	if(systemBusy == YES)
+	if(systemBusy == YES || _pendingIdleBlocks.count == 0)
 	{
 		return;
 	}
@@ -139,12 +152,12 @@ static void _performUpdateFunc(void(*func)(dispatch_queue_t queue, void(^)(void)
 	
 	NSMapTable<dispatch_queue_t, NSMutableArray<DTXIdleBlock>*>* blockDispatches = [NSMapTable strongToStrongObjectsMapTable];
 	
-	[pendingWork enumerateObjectsUsingBlock:^(_DTXIdleTupple* _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+	for (_DTXIdleTupple* obj in pendingWork) {
 		if(obj.queue == nil)
 		{
 			obj.block();
 			
-			return;
+			continue;
 		}
 		
 		NSMutableArray<DTXIdleBlock>* arr = [blockDispatches objectForKey:obj.queue];
@@ -154,7 +167,7 @@ static void _performUpdateFunc(void(*func)(dispatch_queue_t queue, void(^)(void)
 		}
 		[arr addObject:obj.block];
 		[blockDispatches setObject:arr forKey:obj.queue];
-	}];
+	}
 	
 	for(dispatch_queue_t queue in blockDispatches.keyEnumerator)
 	{

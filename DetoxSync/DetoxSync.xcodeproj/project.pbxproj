@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		396C8B1623038CED00979E86 /* CADisplayLink+DTXSpy.h in Headers */ = {isa = PBXBuildFile; fileRef = 396C8B1423038CED00979E86 /* CADisplayLink+DTXSpy.h */; };
 		396C8B1723038CED00979E86 /* CADisplayLink+DTXSpy.m in Sources */ = {isa = PBXBuildFile; fileRef = 396C8B1523038CED00979E86 /* CADisplayLink+DTXSpy.m */; };
+		396C8B842304424E00979E86 /* ReactNativeHeaders.h in Headers */ = {isa = PBXBuildFile; fileRef = 396C8B832304424E00979E86 /* ReactNativeHeaders.h */; };
+		396C8B87230442A300979E86 /* ReactNativeSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 396C8B85230442A300979E86 /* ReactNativeSupport.h */; };
+		396C8B88230442A300979E86 /* ReactNativeSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 396C8B86230442A300979E86 /* ReactNativeSupport.m */; };
 		397CA5FD22F9F9A1005024D0 /* DTXLogging.m in Sources */ = {isa = PBXBuildFile; fileRef = 397CA5FB22F9F9A1005024D0 /* DTXLogging.m */; };
 		397CA5FE22F9F9A1005024D0 /* DTXLogging.h in Headers */ = {isa = PBXBuildFile; fileRef = 397CA5FC22F9F9A1005024D0 /* DTXLogging.h */; };
 		399678CE22F9C90400BAF0A8 /* _DTXObjectDeallocHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 399678CC22F9C90400BAF0A8 /* _DTXObjectDeallocHelper.h */; };
@@ -67,6 +70,10 @@
 		396C8B112303317900979E86 /* DTXSyncResource-Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DTXSyncResource-Private.h"; sourceTree = "<group>"; };
 		396C8B1423038CED00979E86 /* CADisplayLink+DTXSpy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "CADisplayLink+DTXSpy.h"; sourceTree = "<group>"; };
 		396C8B1523038CED00979E86 /* CADisplayLink+DTXSpy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "CADisplayLink+DTXSpy.m"; sourceTree = "<group>"; };
+		396C8B832304424E00979E86 /* ReactNativeHeaders.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReactNativeHeaders.h; sourceTree = "<group>"; };
+		396C8B85230442A300979E86 /* ReactNativeSupport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReactNativeSupport.h; sourceTree = "<group>"; };
+		396C8B86230442A300979E86 /* ReactNativeSupport.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReactNativeSupport.m; sourceTree = "<group>"; };
+		396C8B892304434C00979E86 /* DetoxSync.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DetoxSync.pch; sourceTree = "<group>"; };
 		397CA5FB22F9F9A1005024D0 /* DTXLogging.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DTXLogging.m; path = DTXLoggingInfra/DTXLogging.m; sourceTree = SOURCE_ROOT; };
 		397CA5FC22F9F9A1005024D0 /* DTXLogging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTXLogging.h; path = DTXLoggingInfra/DTXLogging.h; sourceTree = SOURCE_ROOT; };
 		397CA5FF22F9F9B2005024D0 /* DTXLoggingSubsystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DTXLoggingSubsystem.h; sourceTree = "<group>"; };
@@ -136,6 +143,24 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		396C8B822304422200979E86 /* ReactNativeSupport */ = {
+			isa = PBXGroup;
+			children = (
+				39DC2F8623044C3E009E652A /* SyncResources */,
+				396C8B832304424E00979E86 /* ReactNativeHeaders.h */,
+				396C8B85230442A300979E86 /* ReactNativeSupport.h */,
+				396C8B86230442A300979E86 /* ReactNativeSupport.m */,
+			);
+			path = ReactNativeSupport;
+			sourceTree = "<group>";
+		};
+		39DC2F8623044C3E009E652A /* SyncResources */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = SyncResources;
+			sourceTree = "<group>";
+		};
 		39DE8F4822F707DD00780546 = {
 			isa = PBXGroup;
 			children = (
@@ -159,6 +184,8 @@
 				39DE8F7422F707F400780546 /* Spies */,
 				39DE8F6322F707F400780546 /* SyncResources */,
 				39DE8F7022F707F400780546 /* SyncManager */,
+				396C8B822304422200979E86 /* ReactNativeSupport */,
+				396C8B892304434C00979E86 /* DetoxSync.pch */,
 				39DE8F5522F707DD00780546 /* DetoxSync.h */,
 				39DE8F5622F707DD00780546 /* Info.plist */,
 			);
@@ -266,9 +293,11 @@
 				39DE8F9522F707F400780546 /* DTXSingleUseSyncResource.h in Headers */,
 				39DE8F9222F707F400780546 /* DTXDispatchQueueSyncResource-Private.h in Headers */,
 				396C8B1623038CED00979E86 /* CADisplayLink+DTXSpy.h in Headers */,
+				396C8B842304424E00979E86 /* ReactNativeHeaders.h in Headers */,
 				39DE8FBC22F707F400780546 /* DTXOrigDispatch.h in Headers */,
 				39A6C13122F9AF8300187B56 /* DTXRunLoopSyncResource.h in Headers */,
 				39DE8FAD22F707F400780546 /* DispatchQueue+DTXSpy.h in Headers */,
+				396C8B87230442A300979E86 /* ReactNativeSupport.h in Headers */,
 				399678CE22F9C90400BAF0A8 /* _DTXObjectDeallocHelper.h in Headers */,
 				39DE8FA322F707F400780546 /* NSURLSessionTask+DTXSpy.h in Headers */,
 				39DE8F5722F707DD00780546 /* DetoxSync.h in Headers */,
@@ -364,6 +393,7 @@
 				39DE8FB022F707F400780546 /* NSURLSession+DTXSpy.m in Sources */,
 				39DE8FB922F707F400780546 /* CAAnimation+DTXSpy.m in Sources */,
 				39DE8F9922F707F400780546 /* DTXSyncResource.m in Sources */,
+				396C8B88230442A300979E86 /* ReactNativeSupport.m in Sources */,
 				39DE8FAF22F707F400780546 /* NSURLSessionTask+DTXSpy.m in Sources */,
 				39DE8F9E22F707F400780546 /* DTXSyncManager.m in Sources */,
 				39DE8FA522F707F400780546 /* UIView+DTXSpy.m in Sources */,
@@ -513,6 +543,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_PREFIX_HEADER = DetoxSync/DetoxSync.pch;
 				INFOPLIST_FILE = DetoxSync/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -537,6 +568,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_PREFIX_HEADER = DetoxSync/DetoxSync.pch;
 				INFOPLIST_FILE = DetoxSync/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
