@@ -16,6 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)_startTracking;
 - (void)_stopTracking;
 
+- (void)_setBusy:(BOOL)isBusyNow;
 @property (nonatomic, assign, getter=_wasPreviouslyBusy, setter=_setWasPreviouslyBusy:) BOOL _wasPreviouslyBusy;
 
 @end

@@ -14,9 +14,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol DTXTimerProxy <NSObject>
 
+@property (nonatomic, strong) NSDate* fireDate;
+@property (nonatomic, assign) NSTimeInterval interval;
+@property (nonatomic, assign) BOOL repeats;
+
+//NSTimer
 - (void)setTimer:(NSTimer*)timer;
 - (void)fire:(NSTimer*)timer;
 
+//CFRunLoopTimer
+- (void)retainContext;
+- (void)releaseContext;
+
+//CADisplayLink
 - (void)setDisplayLink:(CADisplayLink*)displayLink;
 
 - (void)track;
@@ -27,6 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface DTXTimerSyncResource : DTXSyncResource
 
 + (id<DTXTimerProxy>)timerProxyWithTarget:(id)target selector:(SEL)selector fireDate:(NSDate*)fireDate interval:(NSTimeInterval)ti repeats:(BOOL)rep;
++ (id<DTXTimerProxy>)timerProxyWithCallBack:(CFRunLoopTimerCallBack)callBack context:(CFRunLoopTimerContext*)context fireDate:(NSDate*)fireDate interval:(NSTimeInterval)ti repeats:(BOOL)rep;
 + (id<DTXTimerProxy>)existingTimeProxyWithTimer:(NSTimer*)timer;
 + (void)clearExistingTimeProxyWithTimer:(NSTimer*)timer;
 

@@ -29,6 +29,7 @@
 	if(_syncResource != nil)
 	{
 		[DTXSyncManager unregisterSyncResource:_syncResource];
+		_syncResource = nil;
 	}
 }
 

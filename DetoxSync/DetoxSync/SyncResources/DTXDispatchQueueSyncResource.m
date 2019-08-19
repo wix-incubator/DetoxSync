@@ -20,7 +20,7 @@ static const void* DTXQueueDeallocHelperKey = &DTXQueueDeallocHelperKey;
 	__weak dispatch_queue_t _queue;
 }
 
-+ (void)load
++ (void)superload
 {
 	@autoreleasepool
 	{

@@ -7,11 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		392250E423047179008E811D /* RCTNativeAnimatedNodesManager+DTXSpy.m in Sources */ = {isa = PBXBuildFile; fileRef = 392250E323047179008E811D /* RCTNativeAnimatedNodesManager+DTXSpy.m */; };
+		3923B11E23045B1F009D8780 /* DTXJSTimerSyncResource.h in Headers */ = {isa = PBXBuildFile; fileRef = 3923B11C23045B1F009D8780 /* DTXJSTimerSyncResource.h */; };
+		3923B11F23045B1F009D8780 /* DTXJSTimerSyncResource.m in Sources */ = {isa = PBXBuildFile; fileRef = 3923B11D23045B1F009D8780 /* DTXJSTimerSyncResource.m */; };
 		396C8B1623038CED00979E86 /* CADisplayLink+DTXSpy.h in Headers */ = {isa = PBXBuildFile; fileRef = 396C8B1423038CED00979E86 /* CADisplayLink+DTXSpy.h */; };
 		396C8B1723038CED00979E86 /* CADisplayLink+DTXSpy.m in Sources */ = {isa = PBXBuildFile; fileRef = 396C8B1523038CED00979E86 /* CADisplayLink+DTXSpy.m */; };
 		396C8B842304424E00979E86 /* ReactNativeHeaders.h in Headers */ = {isa = PBXBuildFile; fileRef = 396C8B832304424E00979E86 /* ReactNativeHeaders.h */; };
 		396C8B87230442A300979E86 /* ReactNativeSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 396C8B85230442A300979E86 /* ReactNativeSupport.h */; };
 		396C8B88230442A300979E86 /* ReactNativeSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 396C8B86230442A300979E86 /* ReactNativeSupport.m */; };
+		39725B412304870900B991ED /* NSRunLoop+DTXSpy.h in Headers */ = {isa = PBXBuildFile; fileRef = 39725B3F2304870900B991ED /* NSRunLoop+DTXSpy.h */; };
+		39725B422304870900B991ED /* NSRunLoop+DTXSpy.m in Sources */ = {isa = PBXBuildFile; fileRef = 39725B402304870900B991ED /* NSRunLoop+DTXSpy.m */; };
 		397CA5FD22F9F9A1005024D0 /* DTXLogging.m in Sources */ = {isa = PBXBuildFile; fileRef = 397CA5FB22F9F9A1005024D0 /* DTXLogging.m */; };
 		397CA5FE22F9F9A1005024D0 /* DTXLogging.h in Headers */ = {isa = PBXBuildFile; fileRef = 397CA5FC22F9F9A1005024D0 /* DTXLogging.h */; };
 		399678CE22F9C90400BAF0A8 /* _DTXObjectDeallocHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 399678CC22F9C90400BAF0A8 /* _DTXObjectDeallocHelper.h */; };
@@ -67,6 +72,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		392250E223047161008E811D /* RCTNativeAnimatedNodesManager+DTXSpy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RCTNativeAnimatedNodesManager+DTXSpy.h"; sourceTree = "<group>"; };
+		392250E323047179008E811D /* RCTNativeAnimatedNodesManager+DTXSpy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "RCTNativeAnimatedNodesManager+DTXSpy.m"; sourceTree = "<group>"; };
+		3923B11C23045B1F009D8780 /* DTXJSTimerSyncResource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DTXJSTimerSyncResource.h; sourceTree = "<group>"; };
+		3923B11D23045B1F009D8780 /* DTXJSTimerSyncResource.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DTXJSTimerSyncResource.m; sourceTree = "<group>"; };
 		396C8B112303317900979E86 /* DTXSyncResource-Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DTXSyncResource-Private.h"; sourceTree = "<group>"; };
 		396C8B1423038CED00979E86 /* CADisplayLink+DTXSpy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "CADisplayLink+DTXSpy.h"; sourceTree = "<group>"; };
 		396C8B1523038CED00979E86 /* CADisplayLink+DTXSpy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "CADisplayLink+DTXSpy.m"; sourceTree = "<group>"; };
@@ -74,6 +83,8 @@
 		396C8B85230442A300979E86 /* ReactNativeSupport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReactNativeSupport.h; sourceTree = "<group>"; };
 		396C8B86230442A300979E86 /* ReactNativeSupport.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReactNativeSupport.m; sourceTree = "<group>"; };
 		396C8B892304434C00979E86 /* DetoxSync.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DetoxSync.pch; sourceTree = "<group>"; };
+		39725B3F2304870900B991ED /* NSRunLoop+DTXSpy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSRunLoop+DTXSpy.h"; sourceTree = "<group>"; };
+		39725B402304870900B991ED /* NSRunLoop+DTXSpy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSRunLoop+DTXSpy.m"; sourceTree = "<group>"; };
 		397CA5FB22F9F9A1005024D0 /* DTXLogging.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DTXLogging.m; path = DTXLoggingInfra/DTXLogging.m; sourceTree = SOURCE_ROOT; };
 		397CA5FC22F9F9A1005024D0 /* DTXLogging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTXLogging.h; path = DTXLoggingInfra/DTXLogging.h; sourceTree = SOURCE_ROOT; };
 		397CA5FF22F9F9B2005024D0 /* DTXLoggingSubsystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DTXLoggingSubsystem.h; sourceTree = "<group>"; };
@@ -143,9 +154,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		392250E123047150008E811D /* Spies */ = {
+			isa = PBXGroup;
+			children = (
+				392250E223047161008E811D /* RCTNativeAnimatedNodesManager+DTXSpy.h */,
+				392250E323047179008E811D /* RCTNativeAnimatedNodesManager+DTXSpy.m */,
+			);
+			path = Spies;
+			sourceTree = "<group>";
+		};
 		396C8B822304422200979E86 /* ReactNativeSupport */ = {
 			isa = PBXGroup;
 			children = (
+				392250E123047150008E811D /* Spies */,
 				39DC2F8623044C3E009E652A /* SyncResources */,
 				396C8B832304424E00979E86 /* ReactNativeHeaders.h */,
 				396C8B85230442A300979E86 /* ReactNativeSupport.h */,
@@ -157,6 +178,8 @@
 		39DC2F8623044C3E009E652A /* SyncResources */ = {
 			isa = PBXGroup;
 			children = (
+				3923B11C23045B1F009D8780 /* DTXJSTimerSyncResource.h */,
+				3923B11D23045B1F009D8780 /* DTXJSTimerSyncResource.m */,
 			);
 			path = SyncResources;
 			sourceTree = "<group>";
@@ -238,6 +261,8 @@
 				39DE8F8B22F707F400780546 /* DispatchQueue+DTXSpy.m */,
 				39DE8F8E22F707F400780546 /* NSObject+DTXSpy.h */,
 				39DE8F7E22F707F400780546 /* NSObject+DTXSpy.m */,
+				39725B3F2304870900B991ED /* NSRunLoop+DTXSpy.h */,
+				39725B402304870900B991ED /* NSRunLoop+DTXSpy.m */,
 				39DE8F8522F707F400780546 /* NSTimer+DTXSpy.h */,
 				39DE8F7D22F707F400780546 /* NSTimer+DTXSpy.m */,
 				39DE8F7622F707F400780546 /* NSURLSession+DTXSpy.h */,
@@ -284,6 +309,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				39DE8FA022F707F400780546 /* DTXSyncManager.h in Headers */,
+				3923B11E23045B1F009D8780 /* DTXJSTimerSyncResource.h in Headers */,
 				39DE8F9F22F707F400780546 /* DTXSyncManager-Private.h in Headers */,
 				39DE8F9322F707F400780546 /* DTXDispatchQueueSyncResource.h in Headers */,
 				39DE8F9622F707F400780546 /* DTXSyncResource.h in Headers */,
@@ -298,6 +324,7 @@
 				39A6C13122F9AF8300187B56 /* DTXRunLoopSyncResource.h in Headers */,
 				39DE8FAD22F707F400780546 /* DispatchQueue+DTXSpy.h in Headers */,
 				396C8B87230442A300979E86 /* ReactNativeSupport.h in Headers */,
+				39725B412304870900B991ED /* NSRunLoop+DTXSpy.h in Headers */,
 				399678CE22F9C90400BAF0A8 /* _DTXObjectDeallocHelper.h in Headers */,
 				39DE8FA322F707F400780546 /* NSURLSessionTask+DTXSpy.h in Headers */,
 				39DE8F5722F707DD00780546 /* DetoxSync.h in Headers */,
@@ -391,6 +418,8 @@
 				39DE8FB722F707F400780546 /* DispatchQueue+DTXSpy.m in Sources */,
 				396C8B1723038CED00979E86 /* CADisplayLink+DTXSpy.m in Sources */,
 				39DE8FB022F707F400780546 /* NSURLSession+DTXSpy.m in Sources */,
+				392250E423047179008E811D /* RCTNativeAnimatedNodesManager+DTXSpy.m in Sources */,
+				39725B422304870900B991ED /* NSRunLoop+DTXSpy.m in Sources */,
 				39DE8FB922F707F400780546 /* CAAnimation+DTXSpy.m in Sources */,
 				39DE8F9922F707F400780546 /* DTXSyncResource.m in Sources */,
 				396C8B88230442A300979E86 /* ReactNativeSupport.m in Sources */,
@@ -398,6 +427,7 @@
 				39DE8F9E22F707F400780546 /* DTXSyncManager.m in Sources */,
 				39DE8FA522F707F400780546 /* UIView+DTXSpy.m in Sources */,
 				39A6C13222F9AF8300187B56 /* DTXRunLoopSyncResource.m in Sources */,
+				3923B11F23045B1F009D8780 /* DTXJSTimerSyncResource.m in Sources */,
 				39DE8F9A22F707F400780546 /* DTXSingleUseSyncResource.m in Sources */,
 				39DE8FBB22F707F400780546 /* DTXOrigDispatch.m in Sources */,
 				39DE8FB622F707F400780546 /* UIAnimation+DTXSpy.m in Sources */,

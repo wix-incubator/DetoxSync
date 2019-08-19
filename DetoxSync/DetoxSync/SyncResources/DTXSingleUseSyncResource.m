@@ -30,7 +30,14 @@
 
 - (void)endUse
 {
-	[self.syncResource endUse];
+	DTXSingleUseSyncResource* sr = self.syncResource;
+	if(sr == nil)
+	{
+		return;
+	}
+	
+	[sr endUse];
+	[DTXSyncManager unregisterSyncResource:sr];
 	self.syncResource = nil;
 }
 

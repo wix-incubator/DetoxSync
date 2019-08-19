@@ -1,5 +1,5 @@
 //
-//  ReactNativeSupport.h
+//  RCTNativeAnimatedNodesManager+DTXSpy.h
 //  DetoxSync
 //
 //  Created by Leo Natan (Wix) on 8/14/19.
@@ -10,11 +10,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface ReactNativeSupport : NSObject
-
-+ (BOOL)hasReactNative;
-+ (void)waitForReactNativeLoadWithCompletionHandler:(void (^)(void))handler;
-+ (void)cleanupBeforeReload;
+@interface NSObject (RCTNativeAnimatedNodesManagerDTXSpy)
 
 @end
 

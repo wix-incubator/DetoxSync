@@ -20,15 +20,24 @@ static const void* _DTXTimerTrampolineKey = &_DTXTimerTrampolineKey;
 	id _target;
 	SEL _sel;
 	
+	//NSTimer
 	__weak NSTimer* _timer;
-	NSDate* _fireDate;
-	NSTimeInterval _ti;
-	BOOL _repeats;
 	
+	//CFRunLoopTimer
+	CFRunLoopTimerCallBack _callBack;
+	void* _info;
+    const void* (*_retain)(const void* info);
+    void (*_release)(const void* info);
+	
+	//CADisplayLink
 	__weak CADisplayLink* _displayLink;
 	
 	BOOL _tracking;
 }
+
+@synthesize fireDate=_fireDate;
+@synthesize interval=_ti;
+@synthesize repeats=_repeats;
 
 - (instancetype)initWithTarget:(id)target selector:(SEL)selector fireDate:(NSDate*)fireDate interval:(NSTimeInterval)ti repeats:(BOOL)rep
 {
@@ -43,6 +52,42 @@ static const void* _DTXTimerTrampolineKey = &_DTXTimerTrampolineKey;
 		_repeats = rep;
 	}
 	return self;
+}
+
+- (instancetype)initWithCallBack:(CFRunLoopTimerCallBack)callBack context:(CFRunLoopTimerContext*)context fireDate:(NSDate*)fireDate interval:(NSTimeInterval)ti repeats:(BOOL)rep
+{
+	self = [super init];
+	if(self)
+	{
+		_callBack = callBack;
+		if(context)
+		{
+			_info = context->info;
+			_retain = context->retain;
+			_release = context->release;
+		}
+		
+		_fireDate = fireDate;
+		_ti = ti;
+		_repeats = rep;
+	}
+	return self;
+}
+
+- (void)retainContext
+{
+	if(_retain)
+	{
+		_retain(_info);
+	}
+}
+
+- (void)releaseContext
+{
+	if(_release)
+	{
+		_release(_info);
+	}
 }
 
 - (void)dealloc
@@ -67,6 +112,12 @@ static const void* _DTXTimerTrampolineKey = &_DTXTimerTrampolineKey;
 
 - (void)fire:(id)timer
 {
+	if(_callBack)
+	{
+		_callBack((__bridge CFRunLoopTimerRef)timer, _info);
+		return;
+	}
+	
 	#pragma clang diagnostic push
 	#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
 	[_target performSelector:_sel withObject:timer];
@@ -110,7 +161,7 @@ static const void* _DTXTimerTrampolineKey = &_DTXTimerTrampolineKey;
 		return _displayLink.description;
 	}
 	
-	return [NSString stringWithFormat:@"<%@: %p fireDate: %@ interval: %@ repeats: %@>", _timer.class, _timer, [_dateFormatter stringFromDate:_fireDate], @(_ti), @(_repeats)];
+	return [NSString stringWithFormat:@"<%@: %p fireDate: %@ interval: %@ repeats: %@>", _timer.class, _timer, [_dateFormatter stringFromDate:_fireDate], @(_ti), _repeats ? @"YES" : @"NO"];
 }
 
 @end
@@ -124,6 +175,11 @@ static const void* _DTXTimerTrampolineKey = &_DTXTimerTrampolineKey;
 + (id<DTXTimerProxy>)timerProxyWithTarget:(id)target selector:(SEL)selector fireDate:(NSDate*)fireDate interval:(NSTimeInterval)ti repeats:(BOOL)rep
 {
 	return [[_DTXTimerTrampoline alloc] initWithTarget:target selector:selector fireDate:fireDate interval:ti repeats:rep];
+}
+
++ (id<DTXTimerProxy>)timerProxyWithCallBack:(CFRunLoopTimerCallBack)callBack context:(CFRunLoopTimerContext*)context fireDate:(NSDate*)fireDate interval:(NSTimeInterval)ti repeats:(BOOL)rep
+{
+	return [[_DTXTimerTrampoline alloc] initWithCallBack:callBack context:context fireDate:fireDate interval:ti repeats:rep];
 }
 
 + (id<DTXTimerProxy>)existingTimeProxyWithTimer:(NSTimer*)timer

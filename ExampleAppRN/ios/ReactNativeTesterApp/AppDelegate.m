@@ -13,15 +13,22 @@
 
 #import <DetoxSync/DetoxSync.h>
 
+static void davai(void)
+{
+	[DTXSyncManager enqueueIdleBlock:^{
+		NSLog(@"💚 App is idle!");
+		
+//		davai();
+	}];
+}
+
 @implementation AppDelegate
 
 + (void)load
 {
 	@autoreleasepool
 	{
-		[DTXSyncManager enqueueIdleBlock:^{
-			NSLog(@"✅ Idle!");
-		}];
+		davai();
 	}
 }
 

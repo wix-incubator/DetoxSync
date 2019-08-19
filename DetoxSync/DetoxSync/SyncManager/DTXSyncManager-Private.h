@@ -16,14 +16,17 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)registerSyncResource:(DTXSyncResource*)syncResource;
 + (void)unregisterSyncResource:(DTXSyncResource*)syncResource;
 
-+ (void)perforUpdateForResource:(DTXSyncResource*)resource block:(BOOL(^)(void))block;
 + (void)perforUpdateAndWaitForResource:(DTXSyncResource*)resource block:(BOOL(^)(void))block;
 
 + (BOOL)isTrackedThread:(NSThread*)thread;
+
++ (BOOL)isTrackedRunLoop:(CFRunLoopRef)runLoop;
 
 + (NSString*)idleStatus;
 + (NSString*)syncStatus;
 
 @end
+
+extern void _DTXSyncResourceVerboseLog(NSString* format, ...);
 
 NS_ASSUME_NONNULL_END

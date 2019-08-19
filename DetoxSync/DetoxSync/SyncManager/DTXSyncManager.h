@@ -29,8 +29,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)trackDisplayLink:(CADisplayLink*)displayLink NS_SWIFT_NAME(track(displayLink:));
 + (void)untrackDisplayLink:(CADisplayLink*)displayLink NS_SWIFT_NAME(untrack(displayLink:));
 
-+ (void)enqueueIdleBlock:(void(^)(void))block;
-+ (void)enqueueIdleBlock:(void(^)(void))block queue:(nullable dispatch_queue_t)queue;
++ (void)enqueueIdleBlock:(dispatch_block_t)block;
++ (void)enqueueIdleBlock:(dispatch_block_t)block queue:(nullable dispatch_queue_t)queue;
 
 + (void)idleStatusWithCompletionHandler:(void (^)(NSString* information))completionHandler;
 

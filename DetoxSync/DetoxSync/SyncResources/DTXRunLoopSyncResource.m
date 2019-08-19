@@ -78,6 +78,14 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 	return rv;
 }
 
+- (void)_setBusy:(BOOL)isBusyNow
+{
+	[self performUpdateBlock:^BOOL {
+		self._wasPreviouslyBusy = isBusyNow;
+		return isBusyNow;
+	}];
+}
+
 - (void)_startTracking
 {
 	[self _stopTracking];
@@ -94,7 +102,6 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 		}
 		
 		BOOL isBusyNow;
-		BOOL wasBusyBefore = strongSelf._wasPreviouslyBusy;
 		
 		if(activity & kCFRunLoopBeforeWaiting || activity & kCFRunLoopExit)
 		{
@@ -105,22 +112,19 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 			isBusyNow = YES;
 		}
 		
-		if(isBusyNow != wasBusyBefore)
-		{
-			[strongSelf performUpdateBlock:^BOOL{
-				return isBusyNow;
-			}];
-		}
-		
-		strongSelf._wasPreviouslyBusy = isBusyNow;
+		[strongSelf _setBusy:isBusyNow];
 	}));
 	
 	CFRunLoopAddObserver(_runLoop, (__bridge CFRunLoopObserverRef)_observer, kCFRunLoopCommonModes);
 	CFRunLoopAddObserver(_runLoop, (__bridge CFRunLoopObserverRef)_observer, kCFRunLoopDefaultMode);
 	
-	[self performUpdateBlock:^BOOL{
-		return YES;
-	}];
+	if(CFRunLoopIsWaiting(_runLoop) == NO)
+	{
+		self._wasPreviouslyBusy = YES;
+		[self performUpdateBlock:^BOOL{
+			return YES;
+		}];
+	}
 }
 
 - (void)_stopTracking
@@ -150,7 +154,7 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 
 - (NSString *)description
 {
-	return [NSString stringWithFormat:@"<%@: %p runLoop: <CFRunLoop: %p>>", self.class, self, _runLoop];
+	return [NSString stringWithFormat:@"<%@: %p runLoop: %@>", self.class, self, _runLoop == CFRunLoopGetMain() ? @"mainRunloop" : [NSString stringWithFormat:@"<CFRunLoop: %p>", _runLoop]];
 }
 
 - (NSString *)syncResourceDescription

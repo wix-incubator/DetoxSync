@@ -22,6 +22,7 @@ static void defer_cleanup_block(__strong void(^*block)(void)) {
 #pragma clang diagnostic pop
 
 #define superload load { @autoreleasepool { [self class]; } }\
-+ (void)initialize
++ (void)initialize { static dispatch_once_t onceToken; dispatch_once(&onceToken, ^{ [self __dtxs_initializeOnce]; }); } \
++ (void)__dtxs_initializeOnce
 
 #endif /* DetoxSync_pch */

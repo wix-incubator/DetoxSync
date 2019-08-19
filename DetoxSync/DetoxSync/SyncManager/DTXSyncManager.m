@@ -15,18 +15,16 @@
 
 #include <dlfcn.h>
 
-#import "DTXLogging.h"
+@import OSLog;
+
 DTX_CREATE_LOG("SyncManager")
 static BOOL _enableVerboseSystemLogging = NO;
 static BOOL _enableVerboseSyncResourceLogging = NO;
-#define dtx_log_verbose_sync_resource(format, ...) __extension__({ \
-if(_enableVerboseSyncResourceLogging) { __dtx_log(__prepare_and_return_file_log(), OS_LOG_TYPE_DEBUG, __current_log_prefix, format, ##__VA_ARGS__); } \
-})
 #define dtx_log_verbose_sync_system(format, ...) __extension__({ \
-if(_enableVerboseSystemLogging) { __dtx_log(__prepare_and_return_file_log(), OS_LOG_TYPE_DEBUG, __current_log_prefix, format, ##__VA_ARGS__); } \
+if(__builtin_expect(_enableVerboseSystemLogging, 1)) { __dtx_log(__prepare_and_return_file_log(), OS_LOG_TYPE_DEBUG, __current_log_prefix, format, ##__VA_ARGS__); } \
 })
 
-@import OSLog;
+#define TRY_IDLE_BLOCKS() [self _tryIdleBlocksNow:_useDelayedFire == 0];
 
 typedef void (^DTXIdleBlock)(void);
 
@@ -38,7 +36,25 @@ typedef void (^DTXIdleBlock)(void);
 @end
 @implementation _DTXIdleTupple @end
 
+void _DTXSyncResourceVerboseLog(NSString* format, ...)
+{
+	if(__builtin_expect(!_enableVerboseSyncResourceLogging, 0))
+//	if(_enableVerboseSyncResourceLogging == 0)
+	{
+		return;
+	}
+	
+	va_list argumentList;
+	va_start(argumentList, format);
+	__dtx_logv(__prepare_and_return_file_log(), OS_LOG_TYPE_DEBUG, __current_log_prefix, format, argumentList);
+	va_end(argumentList);
+}
+
 static dispatch_queue_t _queue;
+static void* _queueSpecific = &_queueSpecific;
+static double _useDelayedFire;
+static dispatch_source_t _delayedFire;
+
 static NSMapTable* _resourceMapping;
 static NSMutableSet* _registeredResources;
 static NSMutableArray<_DTXIdleTupple*>* _pendingIdleBlocks;
@@ -58,6 +74,12 @@ static BOOL _systemWasBusy = NO;
 		__detox_sync_orig_dispatch_async = dlsym(RTLD_DEFAULT, "dispatch_async");
 		
 		_queue = dispatch_queue_create("com.wix.syncmanager", NULL);
+		dispatch_queue_set_specific(_queue, _queueSpecific, _queueSpecific, NULL);
+		NSString* DTXEnableDelayedIdleFire = [NSUserDefaults.standardUserDefaults stringForKey:@"DTXEnableDelayedIdleFire"];
+		NSNumberFormatter* nf = [NSNumberFormatter new];
+		NSNumber* value = [nf numberFromString:DTXEnableDelayedIdleFire];
+		_useDelayedFire = [value doubleValue];
+		
 		_resourceMapping = NSMapTable.strongToStrongObjectsMapTable;
 		_registeredResources = [NSMutableSet new];
 		_pendingIdleBlocks = [NSMutableArray new];
@@ -82,40 +104,47 @@ static BOOL _systemWasBusy = NO;
 		[_registeredResources removeObject:syncResource];
 		[_resourceMapping removeObjectForKey:syncResource];
 		
-		[self _tryIdleBlocks];
+		TRY_IDLE_BLOCKS();
 	});
 }
 
-__attribute__((__always_inline__))
-static void _performUpdateFunc(void(*func)(dispatch_queue_t queue, void(^)(void)), DTXSyncResource* resource, BOOL(^block)(void))
++ (void)perforUpdateAndWaitForResource:(DTXSyncResource*)resource block:(BOOL(^)(void))block
 {
-	func(_queue, ^ {
+	__detox_sync_orig_dispatch_sync(_queue, ^ {
 		NSCAssert([_registeredResources containsObject:resource], @"Provided resource %@ is not registered", resource);
 		
 		__unused BOOL wasBusy = [[_resourceMapping objectForKey:resource] boolValue];
 		BOOL isBusy = block();
 		if(wasBusy != isBusy)
 		{
-			dtx_log_verbose_sync_resource(@"%@ %@", isBusy ? @"👎" : @"👍", resource);
+			_DTXSyncResourceVerboseLog(@"%@ %@", isBusy ? @"👎" : @"👍", resource);
 		}
 		
 		[_resourceMapping setObject:@(isBusy) forKey:resource];
 		
-		[DTXSyncManager _tryIdleBlocks];
+		TRY_IDLE_BLOCKS();
 	});
 }
 
-+ (void)perforUpdateForResource:(DTXSyncResource*)resource block:(BOOL(^)(void))block
++ (void)_fireDelayedTimer
 {
-	_performUpdateFunc(__detox_sync_orig_dispatch_async, resource, block);
+	if(_delayedFire != nil)
+	{
+		dispatch_source_set_timer(_delayedFire, dispatch_time(DISPATCH_TIME_NOW, _useDelayedFire * NSEC_PER_SEC), 0, (1ull * NSEC_PER_SEC) / 10);
+		return;
+	}
+	
+	_delayedFire = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, _queue);
+	dispatch_source_set_timer(_delayedFire, dispatch_time(DISPATCH_TIME_NOW, _useDelayedFire * NSEC_PER_SEC), 0, (1ull * NSEC_PER_SEC) / 10);
+	dispatch_source_set_event_handler(_delayedFire, ^{
+		[self _tryIdleBlocksNow:YES];
+		dispatch_source_cancel(_delayedFire);
+		_delayedFire = nil;
+	});
+	dispatch_resume(_delayedFire);
 }
 
-+ (void)perforUpdateAndWaitForResource:(DTXSyncResource*)resource block:(BOOL(^)(void))block
-{
-	_performUpdateFunc(__detox_sync_orig_dispatch_sync, resource, block);
-}
-
-+ (void)_tryIdleBlocks
++ (void)_tryIdleBlocksNow:(BOOL)now
 {
 	if(_pendingIdleBlocks.count == 0 && _enableVerboseSystemLogging == NO)
 	{
@@ -137,13 +166,31 @@ static void _performUpdateFunc(void(*func)(dispatch_queue_t queue, void(^)(void)
 		}
 	}
 	
-	if(systemBusy != _systemWasBusy)
+	if(systemBusy == YES)
 	{
-		dtx_log_verbose_sync_system(systemBusy ? @"❌ Sync system is busy" : @"✅ Sync system idle");
+		if(systemBusy != _systemWasBusy)
+		{
+			dtx_log_verbose_sync_system(@"❌ Sync system is busy");
+		}
+		return;
+	}
+	else
+	{
+		if(systemBusy != _systemWasBusy || now == YES)
+		{
+			BOOL isDelayed = now == NO && _pendingIdleBlocks.count > 0;
+			dtx_log_verbose_sync_system(@"%@ Sync system idle%@", isDelayed ? @"↩️" : @"✅" , isDelayed ? @" (delayed)" : @"");
+		}
 	}
 	
-	if(systemBusy == YES || _pendingIdleBlocks.count == 0)
+	if(_pendingIdleBlocks.count == 0)
 	{
+		return;
+	}
+	
+	if(now == NO)
+	{
+		[self _fireDelayedTimer];
 		return;
 	}
 	
@@ -172,7 +219,7 @@ static void _performUpdateFunc(void(*func)(dispatch_queue_t queue, void(^)(void)
 	for(dispatch_queue_t queue in blockDispatches.keyEnumerator)
 	{
 		NSMutableArray<DTXIdleBlock>* arr = [blockDispatches objectForKey:queue];
-		__detox_sync_orig_dispatch_async(queue, ^ {
+		dispatch_async(queue, ^ {
 			for(DTXIdleBlock block in arr)
 			{
 				block();
@@ -188,15 +235,23 @@ static void _performUpdateFunc(void(*func)(dispatch_queue_t queue, void(^)(void)
 
 + (void)enqueueIdleBlock:(void(^)(void))block queue:(dispatch_queue_t)queue;
 {
-	__detox_sync_orig_dispatch_sync(_queue, ^ {
+	dispatch_block_t outerBlock = ^ {
 		_DTXIdleTupple* t = [_DTXIdleTupple new];
 		t.block = block;
 		t.queue = queue;
 		
 		[_pendingIdleBlocks addObject:t];
 		
-		[self _tryIdleBlocks];
-	});
+		TRY_IDLE_BLOCKS()
+	};
+	
+	if(dispatch_get_specific(_queueSpecific) == _queueSpecific)
+	{
+		__detox_sync_orig_dispatch_async(_queue, outerBlock);
+		return;
+	}
+	
+	__detox_sync_orig_dispatch_sync(_queue, outerBlock);
 }
 
 + (void)trackDispatchQueue:(dispatch_queue_t)dispatchQueue
@@ -267,6 +322,12 @@ static void _performUpdateFunc(void(*func)(dispatch_queue_t queue, void(^)(void)
 	
 	[sr _stopTracking];
 	[self unregisterSyncResource:sr];
+}
+
++ (BOOL)isTrackedRunLoop:(CFRunLoopRef)runLoop
+{
+	id sr = [DTXRunLoopSyncResource _existingSyncResourceWithRunLoop:runLoop];
+	return sr != nil;
 }
 
 + (void)trackThread:(NSThread *)thread
@@ -353,7 +414,7 @@ static void _performUpdateFunc(void(*func)(dispatch_queue_t queue, void(^)(void)
 		
 		prevClass = newClass;
 		
-		[rv appendFormat:@"• %@%@", (includeAll == NO || isBusy == YES) ? @"" : @"Idle: " , includeAll ? sr.description : sr.syncResourceDescription];
+		[rv appendFormat:@"• %@%@", includeAll == NO ? @"" : (isBusy == YES) ? @"❌ " : @"✅ " , includeAll ? sr.description : sr.syncResourceDescription];
 	}
 	
 	if(rv.length == 0)

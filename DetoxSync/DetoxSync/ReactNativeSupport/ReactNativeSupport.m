@@ -9,6 +9,8 @@
 #import "ReactNativeSupport.h"
 #import "ReactNativeHeaders.h"
 #import "DTXSyncManager-Private.h"
+#import "DTXJSTimerSyncResource.h"
+#import "DTXSingleUseSyncResource.h"
 #import <dlfcn.h>
 #import <stdatomic.h>
 #import <fishhook.h>
@@ -29,14 +31,16 @@ static void swz_runRunLoopThread(id self, SEL _cmd)
 	CFRunLoopRef current = CFRunLoopGetCurrent();
 	atomic_store(&__RNRunLoop, current);
 	
-	//This will take the old thread and release it by transfering ownership to ObjC.
 	NSThread* oldThread = CFBridgingRelease(atomic_load(&__RNThread));
-	oldThread = nil;
 	
 	atomic_store(&__RNThread, CFBridgingRetain([NSThread currentThread]));
 
+	[DTXSyncManager trackThread:[NSThread currentThread]];
+	[DTXSyncManager untrackThread:oldThread];
 	[DTXSyncManager trackCFRunLoop:current];
 	[DTXSyncManager untrackCFRunLoop:oldRunloop];
+	
+	oldThread = nil;
 	
 	orig_runRunLoopThread(self, _cmd);
 }
@@ -83,15 +87,26 @@ static int __detox_sync_UIApplication_run(id self, SEL _cmd)
 	return __orig__UIApplication_run_orig(self, _cmd);
 }
 
+typedef void (^RCTSourceLoadBlock)(NSError *error, id source);
 
-@implementation ReactNativeSupport
-
-+ (BOOL)hasReactNative
+static void (*__orig_loadBundleAtURL_onProgress_onComplete)(id self, SEL _cmd, NSURL* url, id onProgress, RCTSourceLoadBlock onComplete);
+static void __detox_sync_loadBundleAtURL_onProgress_onComplete(id self, SEL _cmd, NSURL* url, id onProgress, RCTSourceLoadBlock onComplete)
 {
-	return (NSClassFromString(@"RCTBridge") != nil);
+	[ReactNativeSupport cleanupBeforeReload];
+	
+	dtx_log_info(@"Adding idling resource for RN load");
+	
+	id<DTXSingleUse> sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObject:self description:@"RN bundle load"];
+	
+	[ReactNativeSupport waitForReactNativeLoadWithCompletionHandler:^{
+		[sr endUse];
+	}];
+	
+	__orig_loadBundleAtURL_onProgress_onComplete(self, _cmd, url, onProgress, onComplete);
 }
 
-+ (void)superload
+__attribute__((constructor))
+static void _setupRNSupport()
 {
 	@autoreleasepool
 	{
@@ -100,9 +115,9 @@ static int __detox_sync_UIApplication_run(id self, SEL _cmd)
 		{
 			return;
 		}
-
+		
 		_observedQueues = [NSMutableArray new];
-
+		
 		//Add an idling resource for each module queue.
 		Method m = class_getInstanceMethod(cls, NSSelectorFromString(@"setUpMethodQueue"));
 		void(*orig_setUpMethodQueue_imp)(id, SEL) = (void(*)(id, SEL))method_getImplementation(m);
@@ -117,43 +132,83 @@ static int __detox_sync_UIApplication_run(id self, SEL _cmd)
 				
 				[_observedQueues addObject:queue];
 				
-				dtx_log_info(@"Adding idling resource for queue: %@", queueName);
+				_DTXSyncResourceVerboseLog(@"Adding sync resource for queue: %@", queueName);
 				
 				[DTXSyncManager trackDispatchQueue:queue];
 			}
 		}));
-
+		
 		//Cannot just extern this function - we are not linked with RN, so linker will fail. Instead, look for symbol in runtime.
 		dispatch_queue_t (*RCTGetUIManagerQueue)(void) = dlsym(RTLD_DEFAULT, "RCTGetUIManagerQueue");
-
+		
 		//Must be performed in +load and not in +setUp in order to correctly catch the ui queue, runloop and display link initialization by RN.
 		dispatch_queue_t queue = RCTGetUIManagerQueue();
+		
+		[DTXSyncManager trackDispatchQueue:queue];
+		
 		[_observedQueues addObject:queue];
-
-		dtx_log_info(@"Adding idling resource for RCTUIManagerQueue");
-
+		
+		_DTXSyncResourceVerboseLog(@"Adding sync resource for RCTUIManagerQueue");
+		
 		[DTXSyncManager trackDispatchQueue:queue];
 		
 		m = class_getInstanceMethod(UIApplication.class, NSSelectorFromString(@"_run"));
 		__orig__UIApplication_run_orig = (void*)method_getImplementation(m);
 		method_setImplementation(m, (void*)__detox_sync_UIApplication_run);
-
-		dtx_log_info(@"Adding idling resource for JS timers");
-
-		//TODO:
-//		[[GREYUIThreadExecutor sharedInstance] registerIdlingResource:[WXJSTimerObservationIdlingResource new]];
-
-		dtx_log_info(@"Adding idling resource for RN load");
-
-		//TODO:
-//		[[GREYUIThreadExecutor sharedInstance] registerIdlingResource:[WXRNLoadIdlingResource new]];
-
-		//TODO:
+		
+		_DTXSyncResourceVerboseLog(@"Adding sync resource for JS timers");
+		
+		DTXJSTimerSyncResource* sr = [DTXJSTimerSyncResource new];
+		[DTXSyncManager registerSyncResource:sr];
+		
+//		//TODO:
 //		if([WXAnimatedDisplayLinkIdlingResource isAvailable]) {
-//			dtx_log_info(@"Adding idling resource for Animated display link");
-//
+//			_DTXSyncResourceVerboseLog(@"Adding idling resource for Animated display link");
+//			
 //			[[GREYUIThreadExecutor sharedInstance] registerIdlingResource:[WXAnimatedDisplayLinkIdlingResource new]];
 //		}
+		
+		cls = NSClassFromString(@"RCTJavaScriptLoader");
+		if(cls == nil)
+		{
+			return;
+		}
+		
+		m = class_getClassMethod(cls, NSSelectorFromString(@"loadBundleAtURL:onProgress:onComplete:"));
+		if(m == NULL)
+		{
+			return;
+		}
+		__orig_loadBundleAtURL_onProgress_onComplete = (void*)method_getImplementation(m);
+		method_setImplementation(m, (void*)__detox_sync_loadBundleAtURL_onProgress_onComplete);
+	}
+}
+
+@implementation ReactNativeSupport
+
++ (BOOL)hasReactNative
+{
+	return (NSClassFromString(@"RCTBridge") != nil);
+}
+
++ (void)waitForReactNativeLoadWithCompletionHandler:(void (^)(void))handler
+{
+	__block __weak id observer;
+	
+	observer = [[NSNotificationCenter defaultCenter] addObserverForName:@"RCTJavaScriptDidLoadNotification" object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
+		if(handler)
+		{
+			handler();
+		}
+		
+		[[NSNotificationCenter defaultCenter] removeObserver:observer];
+	}];
+}
+
++ (void)cleanupBeforeReload
+{
+	for (dispatch_queue_t queue in _observedQueues) {
+		[DTXSyncManager untrackDispatchQueue:queue];
 	}
 }
 
