@@ -253,7 +253,7 @@ static const void* _DTXTimerTrampolineKey = &_DTXTimerTrampolineKey;
 {
 	[self performUpdateBlock:^{
 		[_timers addObject:trampoline];
-		return YES;
+		return _timers.count;
 	}];
 }
 
@@ -261,7 +261,7 @@ static const void* _DTXTimerTrampolineKey = &_DTXTimerTrampolineKey;
 {
 	[self performUpdateBlock:^{
 		[_timers removeObject:trampoline];
-		return (BOOL)(_timers.count != 0);
+		return _timers.count;
 	}];
 }
 

@@ -13,7 +13,21 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@protocol DTXSyncManagerDelegate <NSObject>
+
+@optional
+
+- (void)syncSystemDidBecomeIdle;
+- (void)syncSystemDidBecomeBusy;
+
+- (void)syncSystemDidIncreaseTrackedEvents;
+- (void)syncSystemDidDecreaseTrackedEvents;
+
+@end
+
 @interface DTXSyncManager : NSObject
+
+@property (class, nonatomic, weak) id<DTXSyncManagerDelegate> delegate;
 
 + (void)trackDispatchQueue:(dispatch_queue_t)dispatchQueue NS_SWIFT_NAME(track(dispatchQueue:));
 + (void)untrackDispatchQueue:(dispatch_queue_t)dispatchQueue NS_SWIFT_NAME(untrack(dispatchQueue:));

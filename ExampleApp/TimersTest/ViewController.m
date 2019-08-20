@@ -36,6 +36,21 @@
 	CADisplayLink* _displayLink;
 }
 
++ (void)syncSystemDidBecomeIdle
+{
+	NSLog(@"😂");
+}
+
++ (void)syncSystemDidBecomeBusy
+{
+	NSLog(@"🤡");
+}
+
++ (void)load
+{
+	DTXSyncManager.delegate = (id)self;
+}
+
 - (void)_timer2:(NSTimer*)timer
 {
 	NSLog(@"⏰ Timer 2");
@@ -60,8 +75,6 @@
 {
 	[super viewDidLoad];
 	
-	[self performSelector:@selector(goAwayNow) onThread:NSThread.mainThread withObject:nil waitUntilDone:NO];
-	
 	[DTXSyncManager enqueueIdleBlock:^{
 		NSLog(@"✅ Idle!");
 	}];
@@ -69,6 +82,8 @@
 	[DTXSyncManager enqueueIdleBlock:^{
 		NSLog(@"✅ Idle on main queue!");
 	} queue:dispatch_get_main_queue()];
+	
+	[self performSelector:@selector(goAwayNow) onThread:NSThread.mainThread withObject:nil waitUntilDone:NO];
 	
 	print_sync_resources(YES);
 //	[DTXSyncManager untrackRunLoop:NSRunLoop.mainRunLoop];

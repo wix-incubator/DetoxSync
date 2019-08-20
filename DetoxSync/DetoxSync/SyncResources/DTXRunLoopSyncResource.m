@@ -80,7 +80,7 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 
 - (void)_setBusy:(BOOL)isBusyNow
 {
-	[self performUpdateBlock:^BOOL {
+	[self performUpdateBlock:^ NSUInteger {
 		self._wasPreviouslyBusy = isBusyNow;
 		return isBusyNow;
 	}];
@@ -88,8 +88,6 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 
 - (void)_startTracking
 {
-	[self _stopTracking];
-	
 	__weak __typeof(self) weakSelf = self;
 	
 	_observer = CFBridgingRelease(CFRunLoopObserverCreateWithHandler(NULL, kCFRunLoopEntry | kCFRunLoopBeforeTimers | kCFRunLoopBeforeSources | kCFRunLoopBeforeWaiting | kCFRunLoopAfterWaiting | kCFRunLoopExit, YES, 0, ^(CFRunLoopObserverRef observer, CFRunLoopActivity activity) {
@@ -121,8 +119,8 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 	if(CFRunLoopIsWaiting(_runLoop) == NO)
 	{
 		self._wasPreviouslyBusy = YES;
-		[self performUpdateBlock:^BOOL{
-			return YES;
+		[self performUpdateBlock:^ NSUInteger {
+			return 1;
 		}];
 	}
 }
@@ -135,8 +133,8 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 		_observer = nil;
 	}
 	
-	[self performUpdateBlock:^BOOL{
-		return NO;
+	[self performUpdateBlock:^ NSUInteger {
+		return 0;
 	}];
 }
 

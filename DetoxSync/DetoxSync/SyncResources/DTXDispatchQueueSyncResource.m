@@ -58,23 +58,23 @@ static const void* DTXQueueDeallocHelperKey = &DTXQueueDeallocHelperKey;
 
 - (NSString*)syncResourceDescription
 {
-	return [NSString stringWithFormat:@"%lu work blocks on dispatch queue “%@”", _busyCount, _queue];
+	return [NSString stringWithFormat:@"%lu work blocks on dispatch queue “%@”", (unsigned long)_busyCount, _queue];
 }
 
 - (void)increaseWorkBlocks
 {
-	[self performUpdateBlock:^BOOL{
+	[self performUpdateBlock:^NSUInteger{
 		_busyCount += 1;
-		return YES;
+		return _busyCount;
 	}];
 }
 
 - (void)decreaseWorkBlocks
 {
-	[self performUpdateBlock:^BOOL{
+	[self performUpdateBlock:^NSUInteger{
 		_busyCount -= 1;
 		
-		return _busyCount > 0;
+		return _busyCount;
 	}];
 }
 

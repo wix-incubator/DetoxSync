@@ -13,7 +13,7 @@
 
 @interface DTXJSTimerSyncResource ()
 
-- (BOOL)_isBusy;
+- (NSUInteger)_busyCount;
 
 @end
 
@@ -68,14 +68,14 @@
 
 - (void)removeObjectForKey:(NSNumber*)aKey
 {
-	[_syncResource performUpdateBlock:^BOOL{
+	[_syncResource performUpdateBlock:^ {
 		if([_observedTimers containsObject:aKey])
 		{
-			_DTXSyncResourceVerboseLog(@"⏰ Removing observed timer %@", aKey);
+			DTXSyncResourceVerboseLog(@"⏲ Removing observed timer %@", aKey);
 			[_observedTimers removeObject:aKey];
 		}
 		
-		return [_syncResource _isBusy];
+		return [_syncResource _busyCount];
 	}];
 	
 	[_timers removeObjectForKey:aKey];
@@ -117,7 +117,7 @@
 	return @"";
 }
 
-- (BOOL)_isBusy
+- (NSUInteger)_busyCount
 {
 	NSUInteger observedTimersCount = 0;
 	
@@ -126,7 +126,7 @@
 		observedTimersCount += wrapper.countOfObservedTimers;
 	}
 	
-	return observedTimersCount > 0;
+	return observedTimersCount;
 }
 
 - (instancetype)init
@@ -156,7 +156,7 @@
 				return;
 			}
 			
-			[strongSelf performUpdateBlock:^BOOL{
+			[strongSelf performUpdateBlock:^ {
 				_DTXJSTimerObservationWrapper* _observationWrapper = [strongSelf->_observations objectForKey:_self];
 				
 				if(_observationWrapper == nil)
@@ -168,16 +168,16 @@
 				
 				if(duration > 0 && duration <= _durationThreshold && repeats == NO)
 				{
-					_DTXSyncResourceVerboseLog(@"⏰ Observing timer “%@” duration: %@ repeats: %@", timerID, @(duration), @(repeats));
+					DTXSyncResourceVerboseLog(@"⏲ Observing timer “%@” duration: %@ repeats: %@", timerID, @(duration), @(repeats));
 					
 					[_observationWrapper addObservedTimer:timerID];
 				}
 				else
 				{
-					_DTXSyncResourceVerboseLog(@"⏰ Ignoring timer “%@” failure reason: \"%@\"", timerID, [strongSelf failuireReasonForDuration:duration repeats:repeats]);
+					DTXSyncResourceVerboseLog(@"⏲ Ignoring timer “%@” failure reason: \"%@\"", timerID, [strongSelf failuireReasonForDuration:duration repeats:repeats]);
 				}
 				
-				return [self _isBusy];
+				return [self _busyCount];
 			}];
 		}));
 	}

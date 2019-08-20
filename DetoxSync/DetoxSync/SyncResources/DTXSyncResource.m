@@ -13,7 +13,7 @@
 
 @implementation DTXSyncResource
 
-- (void)performUpdateBlock:(BOOL(^)(void))block
+- (void)performUpdateBlock:(NSUInteger(^)(void))block
 {
 	[DTXSyncManager perforUpdateAndWaitForResource:self block:block];
 }

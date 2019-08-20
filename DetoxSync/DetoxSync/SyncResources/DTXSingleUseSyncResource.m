@@ -55,8 +55,8 @@
 	rv->_description = description;
 	rv->_object = object;
 	[DTXSyncManager registerSyncResource:rv];
-	[rv performUpdateBlock:^BOOL{
-		return YES;
+	[rv performUpdateBlock:^ NSUInteger {
+		return 1;
 	}];
 	
 	_DTXSingleUseDeallocationHelper* helper = [[_DTXSingleUseDeallocationHelper alloc] initWithSyncResource:rv];
@@ -66,8 +66,8 @@
 
 - (void)endUse;
 {
-	[self performUpdateBlock:^BOOL{
-		return NO;
+	[self performUpdateBlock:^ NSUInteger {
+		return 0;
 	}];
 	
 	[DTXSyncManager unregisterSyncResource:self];

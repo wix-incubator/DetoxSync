@@ -19,12 +19,14 @@
 
 DTX_CREATE_LOG("SyncManager")
 static BOOL _enableVerboseSystemLogging = NO;
-static BOOL _enableVerboseSyncResourceLogging = NO;
+BOOL __detox_sync_enableVerboseSyncResourceLogging = NO;
 #define dtx_log_verbose_sync_system(format, ...) __extension__({ \
-if(__builtin_expect(_enableVerboseSystemLogging, 1)) { __dtx_log(__prepare_and_return_file_log(), OS_LOG_TYPE_DEBUG, __current_log_prefix, format, ##__VA_ARGS__); } \
+if(__builtin_expect(_enableVerboseSystemLogging, 0)) { __dtx_log(__prepare_and_return_file_log(), OS_LOG_TYPE_DEBUG, __current_log_prefix, format, ##__VA_ARGS__); } \
 })
 
 #define TRY_IDLE_BLOCKS() [self _tryIdleBlocksNow:_useDelayedFire == 0];
+
+#define if_unlikely(x) if(__builtin_expect(x, 0))
 
 typedef void (^DTXIdleBlock)(void);
 
@@ -36,14 +38,8 @@ typedef void (^DTXIdleBlock)(void);
 @end
 @implementation _DTXIdleTupple @end
 
-void _DTXSyncResourceVerboseLog(NSString* format, ...)
+void __detox_sync_DTXSyncResourceVerboseLog(NSString* format, ...)
 {
-	if(__builtin_expect(!_enableVerboseSyncResourceLogging, 0))
-//	if(_enableVerboseSyncResourceLogging == 0)
-	{
-		return;
-	}
-	
 	va_list argumentList;
 	va_start(argumentList, format);
 	__dtx_logv(__prepare_and_return_file_log(), OS_LOG_TYPE_DEBUG, __current_log_prefix, format, argumentList);
@@ -61,13 +57,49 @@ static NSMutableArray<_DTXIdleTupple*>* _pendingIdleBlocks;
 static NSHashTable<NSThread*>* _trackedThreads;
 static BOOL _systemWasBusy = NO;
 
+static __weak id<DTXSyncManagerDelegate> _delegate;
+static BOOL _delegate_syncSystemDidBecomeIdle = NO;
+static BOOL _delegate_syncSystemDidBecomeBusy = NO;
+static BOOL _delegate_syncSystemDidIncreaseTrackedEvents = NO;
+static BOOL _delegate_syncSystemDidDecreaseTrackedEvents = NO;
+
 @implementation DTXSyncManager
+
++ (id<DTXSyncManagerDelegate>)delegate
+{
+	return _delegate;
+}
+
++ (void)setDelegate:(id<DTXSyncManagerDelegate>)delegate
+{
+	_delegate = delegate;
+	
+	_delegate_syncSystemDidBecomeIdle = [_delegate respondsToSelector:@selector(syncSystemDidBecomeIdle)];
+	_delegate_syncSystemDidBecomeBusy = [_delegate respondsToSelector:@selector(syncSystemDidBecomeBusy)];
+	_delegate_syncSystemDidIncreaseTrackedEvents = [_delegate respondsToSelector:@selector(syncSystemDidIncreaseTrackedEvents)];
+	_delegate_syncSystemDidDecreaseTrackedEvents = [_delegate respondsToSelector:@selector(syncSystemDidDecreaseTrackedEvents)];
+	
+	if(_delegate == nil)
+	{
+		return;
+	}
+	
+	BOOL systemBusy = DTXIsSystemBusyNow();
+	if(systemBusy && _delegate_syncSystemDidBecomeBusy)
+	{
+		[_delegate syncSystemDidBecomeBusy];
+	}
+	else if(!systemBusy && _delegate_syncSystemDidBecomeIdle)
+	{
+		[_delegate syncSystemDidBecomeIdle];
+	}
+}
 
 + (void)superload
 {
 	@autoreleasepool
 	{
-		_enableVerboseSyncResourceLogging = [NSUserDefaults.standardUserDefaults boolForKey:@"DTXEnableVerboseSyncResources"];
+		__detox_sync_enableVerboseSyncResourceLogging = [NSUserDefaults.standardUserDefaults boolForKey:@"DTXEnableVerboseSyncResources"];
 		_enableVerboseSystemLogging = [NSUserDefaults.standardUserDefaults boolForKey:@"DTXEnableVerboseSyncSystem"];
 		
 		__detox_sync_orig_dispatch_sync = dlsym(RTLD_DEFAULT, "dispatch_sync");
@@ -108,22 +140,30 @@ static BOOL _systemWasBusy = NO;
 	});
 }
 
-+ (void)perforUpdateAndWaitForResource:(DTXSyncResource*)resource block:(BOOL(^)(void))block
++ (void)perforUpdateAndWaitForResource:(DTXSyncResource*)resource block:(NSUInteger(^)(void))block
 {
-	__detox_sync_orig_dispatch_sync(_queue, ^ {
+	dispatch_block_t outerBlock = ^ {
 		NSCAssert([_registeredResources containsObject:resource], @"Provided resource %@ is not registered", resource);
 		
-		__unused BOOL wasBusy = [[_resourceMapping objectForKey:resource] boolValue];
-		BOOL isBusy = block();
-		if(wasBusy != isBusy)
+		NSUInteger previousBusyCount = [[_resourceMapping objectForKey:resource] unsignedIntegerValue];
+		NSUInteger busyCount = block();
+		if(previousBusyCount != busyCount)
 		{
-			_DTXSyncResourceVerboseLog(@"%@ %@", isBusy ? @"👎" : @"👍", resource);
+			DTXSyncResourceVerboseLog(@"%@ %@ (count: %lu)", busyCount > 0 ? @"👎" : @"👍", resource, (unsigned long)busyCount);
 		}
 		
-		[_resourceMapping setObject:@(isBusy) forKey:resource];
+		[_resourceMapping setObject:@(busyCount) forKey:resource];
 		
 		TRY_IDLE_BLOCKS();
-	});
+	};
+	
+	if(dispatch_get_specific(_queueSpecific) == _queueSpecific)
+	{
+		outerBlock();
+		return;
+	}
+	
+	__detox_sync_orig_dispatch_sync(_queue, outerBlock);
 }
 
 + (void)_fireDelayedTimer
@@ -144,6 +184,24 @@ static BOOL _systemWasBusy = NO;
 	dispatch_resume(_delayedFire);
 }
 
+__attribute__((__always_inline__))
+static BOOL DTXIsSystemBusyNow(void)
+{
+	BOOL systemBusy = NO;
+	
+	for(NSNumber* value in _resourceMapping.objectEnumerator)
+	{
+		systemBusy |= (value.unsignedIntegerValue > 0);
+		
+		if(systemBusy == YES)
+		{
+			break;
+		}
+	}
+	
+	return systemBusy;
+}
+
 + (void)_tryIdleBlocksNow:(BOOL)now
 {
 	if(_pendingIdleBlocks.count == 0 && _enableVerboseSystemLogging == NO)
@@ -156,21 +214,17 @@ static BOOL _systemWasBusy = NO;
 		_systemWasBusy = systemBusy;
 	};
 	
-	for(NSNumber* value in _resourceMapping.objectEnumerator)
-	{
-		systemBusy |= value.boolValue;
-		
-		if(systemBusy == YES)
-		{
-			break;
-		}
-	}
+	systemBusy = DTXIsSystemBusyNow();
 	
 	if(systemBusy == YES)
 	{
 		if(systemBusy != _systemWasBusy)
 		{
 			dtx_log_verbose_sync_system(@"❌ Sync system is busy");
+			if_unlikely(_delegate_syncSystemDidBecomeBusy)
+			{
+				[_delegate syncSystemDidBecomeBusy];
+			}
 		}
 		return;
 	}
@@ -180,6 +234,10 @@ static BOOL _systemWasBusy = NO;
 		{
 			BOOL isDelayed = now == NO && _pendingIdleBlocks.count > 0;
 			dtx_log_verbose_sync_system(@"%@ Sync system idle%@", isDelayed ? @"↩️" : @"✅" , isDelayed ? @" (delayed)" : @"");
+			if_unlikely(_delegate_syncSystemDidBecomeIdle)
+			{
+				[_delegate syncSystemDidBecomeIdle];
+			}
 		}
 	}
 	

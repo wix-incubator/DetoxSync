@@ -132,7 +132,7 @@ static void _setupRNSupport()
 				
 				[_observedQueues addObject:queue];
 				
-				_DTXSyncResourceVerboseLog(@"Adding sync resource for queue: %@", queueName);
+				DTXSyncResourceVerboseLog(@"Adding sync resource for queue: %@", queueName);
 				
 				[DTXSyncManager trackDispatchQueue:queue];
 			}
@@ -148,7 +148,7 @@ static void _setupRNSupport()
 		
 		[_observedQueues addObject:queue];
 		
-		_DTXSyncResourceVerboseLog(@"Adding sync resource for RCTUIManagerQueue");
+		DTXSyncResourceVerboseLog(@"Adding sync resource for RCTUIManagerQueue");
 		
 		[DTXSyncManager trackDispatchQueue:queue];
 		
@@ -156,7 +156,7 @@ static void _setupRNSupport()
 		__orig__UIApplication_run_orig = (void*)method_getImplementation(m);
 		method_setImplementation(m, (void*)__detox_sync_UIApplication_run);
 		
-		_DTXSyncResourceVerboseLog(@"Adding sync resource for JS timers");
+		DTXSyncResourceVerboseLog(@"Adding sync resource for JS timers");
 		
 		DTXJSTimerSyncResource* sr = [DTXJSTimerSyncResource new];
 		[DTXSyncManager registerSyncResource:sr];

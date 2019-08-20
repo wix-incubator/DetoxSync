@@ -31,8 +31,8 @@
 		_selector = selector;
 		
 		[DTXSyncManager registerSyncResource:self];
-		[self performUpdateBlock:^BOOL{
-			return YES;
+		[self performUpdateBlock:^NSUInteger{
+			return 1;
 		}];
 	}
 	
@@ -46,8 +46,8 @@
 	[_target performSelector:_selector withObject:_obj];
 #pragma clang diagnostic pop
 	
-	[self performUpdateBlock:^BOOL{
-		return NO;
+	[self performUpdateBlock:^NSUInteger{
+		return 0;
 	}];
 	
 	[DTXSyncManager unregisterSyncResource:self];
