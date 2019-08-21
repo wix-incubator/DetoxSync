@@ -17,6 +17,8 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 {
 	CFRunLoopRef _runLoop;
 	id _observer;
+	
+	BOOL _isTracking;
 }
 
 + (instancetype)runLoopSyncResourceWithRunLoop:(CFRunLoopRef)runLoop
@@ -88,6 +90,13 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 
 - (void)_startTracking
 {
+	if(_isTracking == YES)
+	{
+		return;
+	}
+	
+	_isTracking = YES;
+	
 	__weak __typeof(self) weakSelf = self;
 	
 	_observer = CFBridgingRelease(CFRunLoopObserverCreateWithHandler(NULL, kCFRunLoopEntry | kCFRunLoopBeforeTimers | kCFRunLoopBeforeSources | kCFRunLoopBeforeWaiting | kCFRunLoopAfterWaiting | kCFRunLoopExit, YES, 0, ^(CFRunLoopObserverRef observer, CFRunLoopActivity activity) {
@@ -127,6 +136,11 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 
 - (void)_stopTracking
 {
+	if(_isTracking == NO)
+	{
+		return;
+	}
+	
 	if(_observer != NULL)
 	{
 		CFRunLoopObserverInvalidate((__bridge CFRunLoopObserverRef)_observer);
@@ -136,6 +150,8 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 	[self performUpdateBlock:^ NSUInteger {
 		return 0;
 	}];
+	
+	_isTracking = NO;
 }
 
 - (void)dealloc
