@@ -32,6 +32,11 @@
 		
 		[sr endUse];
 	}];
+	
+	//Failsafe—sometimes UIKit does not call the completion handler.
+	__detox_sync_orig_dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arg1 + arg2) * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+		[sr endUse];
+	});
 }
 
 + (void)load

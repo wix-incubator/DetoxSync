@@ -53,7 +53,7 @@ static const void* DTXQueueDeallocHelperKey = &DTXQueueDeallocHelperKey;
 
 - (NSString *)description
 {
-	return [NSString stringWithFormat:@"<%@: %p queue: %@>", self.class, self, _queue];
+	return [NSString stringWithFormat:@"<%@: %p queue: %@ work blocks: %lu>", self.class, self, _queue, (unsigned long)_busyCount];
 }
 
 - (NSString*)syncResourceDescription

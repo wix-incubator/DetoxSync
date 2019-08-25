@@ -80,10 +80,13 @@
 
 - (void)__detox_sync_addAnimation:(CAAnimation *)anim forKey:(NSString *)key
 {
+	DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObject:self description:@"Layer pending CA animation"];
+	
 	[self __detox_sync_addAnimation:anim forKey:key];
 	
-	anim = [self animationForKey:key];
-	[anim __detox_sync_trackAnimation];
+	__detox_sync_orig_dispatch_async(dispatch_get_main_queue(), ^ {
+		[sr endUse];
+	});
 }
 
 - (void)__detox_sync_removeAnimationForKey:(NSString *)key

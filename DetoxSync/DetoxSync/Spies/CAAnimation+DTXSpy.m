@@ -67,10 +67,6 @@ static const void* _DTXCAAnimationDelegateProxySRKey = &_DTXCAAnimationDelegateP
 		Method m1 = class_getInstanceMethod(CAAnimation.class, @selector(setDelegate:));
 		Method m2 = class_getInstanceMethod(CAAnimation.class, @selector(__detox_sync_setDelegate:));
 		method_exchangeImplementations(m1, m2);
-		
-		m1 = class_getInstanceMethod(CAAnimation.class, @selector(copyWithZone:));
-		m2 = class_getInstanceMethod(CAAnimation.class, @selector(__detox_sync_copyWithZone:));
-		method_exchangeImplementations(m1, m2);
 	}
 }
 
@@ -112,14 +108,6 @@ static const void* _DTXCAAnimationDelegateProxySRKey = &_DTXCAAnimationDelegateP
 	[self __detox_sync_prepareDelegateIfNeeded:delegate];
 	
 	[self __detox_sync_setDelegate:delegate];
-}
-
-- (id)__detox_sync_copyWithZone:(NSZone *)zone
-{
-	CAAnimation* copy = [self __detox_sync_copyWithZone:zone];
-	[copy __detox_sync_trackAnimation];
-	
-	return copy;
 }
 
 @end

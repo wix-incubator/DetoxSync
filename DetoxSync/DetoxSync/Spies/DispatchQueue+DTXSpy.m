@@ -30,14 +30,16 @@
 	});\
 }
 
+static void (*__orig_dispatch_sync)(dispatch_queue_t queue, dispatch_block_t block);
 static void __detox_sync_dispatch_sync(dispatch_queue_t queue, dispatch_block_t block)
 {
-	__dispatch_wrapper_func_2param(__detox_sync_orig_dispatch_sync, queue, block);
+	__dispatch_wrapper_func_2param(__orig_dispatch_sync, queue, block);
 }
 
+static void (*__orig_dispatch_async)(dispatch_queue_t queue, dispatch_block_t block);
 static void __detox_sync_dispatch_async(dispatch_queue_t queue, dispatch_block_t block)
 {
-	__dispatch_wrapper_func_2param(__detox_sync_orig_dispatch_async, queue, block);
+	__dispatch_wrapper_func_2param(__orig_dispatch_async, queue, block);
 }
 
 static void (*__orig_dispatch_async_and_wait)(dispatch_queue_t queue, dispatch_block_t block);
@@ -85,8 +87,8 @@ static void _install_dispatchqueue_spy(void)
 {
 //	dispatch_async
 	struct rebinding r[] = (struct rebinding[]) {
-		"dispatch_async", __detox_sync_dispatch_async, NULL,
-		"dispatch_sync", __detox_sync_dispatch_sync, NULL,
+		"dispatch_async", __detox_sync_dispatch_async, (void**)&__orig_dispatch_async,
+		"dispatch_sync", __detox_sync_dispatch_sync, (void**)&__orig_dispatch_sync,
 		"dispatch_async_and_wait", __detox_sync_dispatch_async_and_wait, (void**)&__orig_dispatch_async_and_wait,
 		"dispatch_after", __detox_sync_dispatch_after, (void**)&__orig_dispatch_after,
 		"dispatch_group_async", __detox_sync_dispatch_group_async, (void**)&__orig_dispatch_group_async,

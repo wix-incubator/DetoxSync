@@ -1,12 +1,12 @@
 //
-//  ReactNativeSupport.m
+//  DTXReactNativeSupport.m
 //  DetoxSync
 //
 //  Created by Leo Natan (Wix) on 8/14/19.
 //  Copyright © 2019 wix. All rights reserved.
 //
 
-#import "ReactNativeSupport.h"
+#import "DTXReactNativeSupport.h"
 #import "ReactNativeHeaders.h"
 #import "DTXSyncManager-Private.h"
 #import "DTXJSTimerSyncResource.h"
@@ -19,7 +19,7 @@
 @import ObjectiveC;
 @import Darwin;
 
-DTX_CREATE_LOG(ReactNativeSupport);
+DTX_CREATE_LOG(DTXReactNativeSupport);
 
 _Atomic(CFRunLoopRef) __RNRunLoop;
 _Atomic(const void*) __RNThread;
@@ -92,13 +92,13 @@ typedef void (^RCTSourceLoadBlock)(NSError *error, id source);
 static void (*__orig_loadBundleAtURL_onProgress_onComplete)(id self, SEL _cmd, NSURL* url, id onProgress, RCTSourceLoadBlock onComplete);
 static void __detox_sync_loadBundleAtURL_onProgress_onComplete(id self, SEL _cmd, NSURL* url, id onProgress, RCTSourceLoadBlock onComplete)
 {
-	[ReactNativeSupport cleanupBeforeReload];
+	[DTXReactNativeSupport cleanupBeforeReload];
 	
 	dtx_log_info(@"Adding idling resource for RN load");
 	
 	id<DTXSingleUse> sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObject:self description:@"RN bundle load"];
 	
-	[ReactNativeSupport waitForReactNativeLoadWithCompletionHandler:^{
+	[DTXReactNativeSupport waitForReactNativeLoadWithCompletionHandler:^{
 		[sr endUse];
 	}];
 	
@@ -184,7 +184,7 @@ static void _setupRNSupport()
 	}
 }
 
-@implementation ReactNativeSupport
+@implementation DTXReactNativeSupport
 
 + (BOOL)hasReactNative
 {

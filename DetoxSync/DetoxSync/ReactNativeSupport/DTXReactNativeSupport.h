@@ -1,5 +1,5 @@
 //
-//  ReactNativeSupport.h
+//  DTXReactNativeSupport.h
 //  DetoxSync
 //
 //  Created by Leo Natan (Wix) on 8/14/19.
@@ -10,7 +10,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface ReactNativeSupport : NSObject
+@interface DTXReactNativeSupport : NSObject
 
 + (BOOL)hasReactNative;
 + (void)waitForReactNativeLoadWithCompletionHandler:(void (^)(void))handler;

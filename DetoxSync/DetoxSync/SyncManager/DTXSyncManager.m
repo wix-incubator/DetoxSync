@@ -104,6 +104,7 @@ static BOOL _delegate_syncSystemDidDecreaseTrackedEvents = NO;
 		
 		__detox_sync_orig_dispatch_sync = dlsym(RTLD_DEFAULT, "dispatch_sync");
 		__detox_sync_orig_dispatch_async = dlsym(RTLD_DEFAULT, "dispatch_async");
+		__detox_sync_orig_dispatch_after = dlsym(RTLD_DEFAULT, "dispatch_after");
 		
 		_queue = dispatch_queue_create("com.wix.syncmanager", NULL);
 		dispatch_queue_set_specific(_queue, _queueSpecific, _queueSpecific, NULL);
