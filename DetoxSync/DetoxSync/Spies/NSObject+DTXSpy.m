@@ -31,7 +31,7 @@
 
 - (void)__detox_sync_performSelector:(SEL)aSelector withObject:(id)anArgument afterDelay:(NSTimeInterval)delay inModes:(NSArray<NSRunLoopMode> *)modes
 {
-	if([DTXSyncManager isTrackedThread:NSThread.currentThread] == NO)
+	if([DTXSyncManager isTrackedThread:NSThread.currentThread] == NO || delay > DTXSyncManager.maximumAllowedDelayedActionTrackingDuration)
 	{
 		[self __detox_sync_performSelector:aSelector withObject:anArgument afterDelay:delay inModes:modes];
 		return;

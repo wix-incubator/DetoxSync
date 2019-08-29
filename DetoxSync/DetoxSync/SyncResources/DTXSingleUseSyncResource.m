@@ -21,14 +21,14 @@
 	{
 		__weak typeof(self) weakSelf = self;
 		self.performOnDealloc = ^{
-			[weakSelf.syncResource endUse];
+			[weakSelf.syncResource endTracking];
 		};
 	}
 	
 	return self;
 }
 
-- (void)endUse
+- (void)endTracking
 {
 	DTXSingleUseSyncResource* sr = self.syncResource;
 	if(sr == nil)
@@ -36,7 +36,7 @@
 		return;
 	}
 	
-	[sr endUse];
+	[sr endTracking];
 	[DTXSyncManager unregisterSyncResource:sr];
 	self.syncResource = nil;
 }
@@ -64,7 +64,7 @@
 	return helper;
 }
 
-- (void)endUse;
+- (void)endTracking;
 {
 	[self performUpdateBlock:^ NSUInteger {
 		return 0;

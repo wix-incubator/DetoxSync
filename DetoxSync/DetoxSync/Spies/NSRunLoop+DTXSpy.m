@@ -28,7 +28,7 @@ static void __detox_sync_CFRunLoopPerformBlock(CFRunLoopRef rl, CFTypeRef mode, 
 	__orig_CFRunLoopPerformBlock(rl, mode, ^ {
 		block();
 		
-		[sr endUse];
+		[sr endTracking];
 	});
 }
 

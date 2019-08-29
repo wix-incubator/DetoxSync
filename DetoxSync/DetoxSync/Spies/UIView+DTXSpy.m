@@ -30,12 +30,12 @@
 			completion(finished);
 		}
 		
-		[sr endUse];
+		[sr endTracking];
 	}];
 	
 	//Failsafe—sometimes UIKit does not call the completion handler.
 	__detox_sync_orig_dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arg1 + arg2) * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-		[sr endUse];
+		[sr endTracking];
 	});
 }
 
@@ -68,7 +68,7 @@
 	[self __detox_sync_setNeedsLayout];
 	
 	__detox_sync_orig_dispatch_async(dispatch_get_main_queue(), ^ {
-		[sr endUse];
+		[sr endTracking];
 	});
 }
 
@@ -79,7 +79,7 @@
 	[self __detox_sync_setNeedsDisplay];
 	
 	__detox_sync_orig_dispatch_async(dispatch_get_main_queue(), ^ {
-		[sr endUse];
+		[sr endTracking];
 	});
 }
 
@@ -90,7 +90,7 @@
 	[self __detox_sync_setNeedsDisplayInRect:rect];
 	
 	__detox_sync_orig_dispatch_async(dispatch_get_main_queue(), ^ {
-		[sr endUse];
+		[sr endTracking];
 	});
 }
 

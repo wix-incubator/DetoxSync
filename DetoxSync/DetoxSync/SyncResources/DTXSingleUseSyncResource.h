@@ -7,12 +7,13 @@
 //
 
 #import "DTXSyncResource.h"
+#import "DTXSyncManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol DTXSingleUse <NSObject>
+@protocol DTXSingleUse <DTXEventTracker>
 
-- (void)endUse;
+- (void)endTracking;
 
 @end
 
@@ -20,7 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (id<DTXSingleUse>)singleUseSyncResourceWithObject:(nullable id)object description:(NSString*)description;
 
-- (void)endUse;
+- (void)endTracking;
 
 @end
 

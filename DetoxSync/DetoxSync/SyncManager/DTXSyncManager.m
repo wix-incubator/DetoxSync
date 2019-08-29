@@ -12,6 +12,8 @@
 #import "DTXDispatchQueueSyncResource-Private.h"
 #import "DTXRunLoopSyncResource-Private.h"
 #import "DTXTimerSyncResource.h"
+#import "DTXSingleUseSyncResource.h"
+#import "_DTXObjectDeallocHelper.h"
 
 #include <dlfcn.h>
 
@@ -63,7 +65,31 @@ static BOOL _delegate_syncSystemDidBecomeBusy = NO;
 static BOOL _delegate_syncSystemDidIncreaseTrackedEvents = NO;
 static BOOL _delegate_syncSystemDidDecreaseTrackedEvents = NO;
 
+static NSTimeInterval _maximumAllowedDelayedActionTrackingDuration;
+static NSTimeInterval _maximumTimerIntervalTrackingDuration;
+
 @implementation DTXSyncManager
+
++ (NSTimeInterval)maximumAllowedDelayedActionTrackingDuration
+{
+	return _maximumAllowedDelayedActionTrackingDuration;
+}
+
++ (void)setMaximumAllowedDelayedActionTrackingDuration:(NSTimeInterval)maximumAllowedDelayedActionTrackingDuration
+{
+	_maximumAllowedDelayedActionTrackingDuration = maximumAllowedDelayedActionTrackingDuration;
+}
+
++ (NSTimeInterval)maximumTimerIntervalTrackingDuration
+{
+	return _maximumAllowedDelayedActionTrackingDuration;
+}
+
++ (void)setMaximumTimerIntervalTrackingDuration:(NSTimeInterval)maximumTimerIntervalTrackingDuration
+{
+	_maximumTimerIntervalTrackingDuration = maximumTimerIntervalTrackingDuration;
+}
+
 
 + (id<DTXSyncManagerDelegate>)delegate
 {
@@ -99,6 +125,8 @@ static BOOL _delegate_syncSystemDidDecreaseTrackedEvents = NO;
 {
 	@autoreleasepool
 	{
+		_maximumAllowedDelayedActionTrackingDuration = 1.5;
+		
 		__detox_sync_enableVerboseSyncResourceLogging = [NSUserDefaults.standardUserDefaults boolForKey:@"DTXEnableVerboseSyncResources"];
 		_enableVerboseSystemLogging = [NSUserDefaults.standardUserDefaults boolForKey:@"DTXEnableVerboseSyncSystem"];
 		
@@ -436,6 +464,11 @@ static BOOL DTXIsSystemBusyNow(void)
 + (void)untrackDisplayLink:(CADisplayLink*)displayLink
 {
 	[DTXTimerSyncResource stopTrackingDisplayLink:displayLink];
+}
+
++ (id<DTXEventTracker>)trackEventWithObject:(id)object description:(NSString *)description
+{
+	return [DTXSingleUseSyncResource singleUseSyncResourceWithObject:object description:description];
 }
 
 + (NSString*)_idleStatus:(BOOL)includeAll;

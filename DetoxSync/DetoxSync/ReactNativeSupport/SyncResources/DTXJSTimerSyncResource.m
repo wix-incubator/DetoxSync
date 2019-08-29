@@ -86,17 +86,11 @@
 @implementation DTXJSTimerSyncResource
 {
 	NSMapTable<id, _DTXJSTimerObservationWrapper*>* _observations;
-	NSTimeInterval _durationThreshold;
 }
 
 - (NSMapTable<id,id> *)observations
 {
 	return (id)_observations;
-}
-
-- (void)setDurationThreshold:(NSTimeInterval)durationThreshold
-{
-	_durationThreshold = durationThreshold;
 }
 
 - (NSString*)failuireReasonForDuration:(NSTimeInterval)duration repeats:(BOOL)repeats
@@ -109,9 +103,9 @@
 	{
 		return @"repeats==true";
 	}
-	else if(duration > _durationThreshold)
+	else if(duration > DTXSyncManager.maximumTimerIntervalTrackingDuration)
 	{
-		return [NSString stringWithFormat:@"duration>%@", @(_durationThreshold)];
+		return [NSString stringWithFormat:@"duration>%@", @(DTXSyncManager.maximumTimerIntervalTrackingDuration)];
 	}
 	
 	return @"";
@@ -135,7 +129,6 @@
 	if(self)
 	{
 		_observations = [NSMapTable mapTableWithKeyOptions:NSMapTableWeakMemory valueOptions:NSMapTableStrongMemory];
-		_durationThreshold = 10000000000;
 		
 		__weak __typeof(self) weakSelf = self;
 		
@@ -166,7 +159,7 @@
 					[strongSelf->_observations setObject:_observationWrapper forKey:_self];
 				}
 				
-				if(duration > 0 && duration <= _durationThreshold && repeats == NO)
+				if(duration > 0 && duration <= DTXSyncManager.maximumTimerIntervalTrackingDuration && repeats == NO)
 				{
 					DTXSyncResourceVerboseLog(@"⏲ Observing timer “%@” duration: %@ repeats: %@", timerID, @(duration), @(repeats));
 					

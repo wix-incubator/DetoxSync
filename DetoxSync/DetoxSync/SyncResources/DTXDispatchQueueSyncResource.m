@@ -17,6 +17,7 @@ static const void* DTXQueueDeallocHelperKey = &DTXQueueDeallocHelperKey;
 @implementation DTXDispatchQueueSyncResource
 {
 	NSUInteger _busyCount;
+	NSMutableArray* _busyBlocks;
 	__weak dispatch_queue_t _queue;
 }
 
@@ -51,9 +52,19 @@ static const void* DTXQueueDeallocHelperKey = &DTXQueueDeallocHelperKey;
 	return (id)[((_DTXObjectDeallocHelper*)objc_getAssociatedObject(queue, DTXQueueDeallocHelperKey)) syncResource];
 }
 
+- (instancetype)init
+{
+	self = [super init];
+	if(self)
+	{
+		_busyBlocks = [NSMutableArray new];
+	}
+	return self;
+}
+
 - (NSString *)description
 {
-	return [NSString stringWithFormat:@"<%@: %p queue: %@ work blocks: %lu>", self.class, self, _queue, (unsigned long)_busyCount];
+	return [NSString stringWithFormat:@"<%@: %p queue: %@ work blocks: %@>", self.class, self, _queue, _busyBlocks];
 }
 
 - (NSString*)syncResourceDescription
@@ -61,19 +72,20 @@ static const void* DTXQueueDeallocHelperKey = &DTXQueueDeallocHelperKey;
 	return [NSString stringWithFormat:@"%lu work blocks on dispatch queue “%@”", (unsigned long)_busyCount, _queue];
 }
 
-- (void)increaseWorkBlocks
+- (void)addWorkBlock:(id)block
 {
 	[self performUpdateBlock:^NSUInteger{
 		_busyCount += 1;
+		[_busyBlocks addObject:block];
 		return _busyCount;
 	}];
 }
 
-- (void)decreaseWorkBlocks
+- (void)removeWorkBlock:(id)block
 {
 	[self performUpdateBlock:^NSUInteger{
 		_busyCount -= 1;
-		
+		[_busyBlocks removeObject:block];
 		return _busyCount;
 	}];
 }

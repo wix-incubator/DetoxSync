@@ -56,7 +56,7 @@ static const void* _DTXCAAnimationDelegateProxySRKey = &_DTXCAAnimationDelegateP
 		return;
 	}
 	
-	[sr endUse];
+	[sr endTracking];
 	objc_setAssociatedObject(self, _DTXCAAnimationDelegateProxySRKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 

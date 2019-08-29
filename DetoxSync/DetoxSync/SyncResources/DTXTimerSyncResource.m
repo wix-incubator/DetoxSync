@@ -38,6 +38,8 @@ static const void* _DTXTimerTrampolineKey = &_DTXTimerTrampolineKey;
 @synthesize fireDate=_fireDate;
 @synthesize interval=_ti;
 @synthesize repeats=_repeats;
+@synthesize timer=_timer;
+@synthesize displayLink=_displayLink;
 
 - (instancetype)initWithTarget:(id)target selector:(SEL)selector fireDate:(NSDate*)fireDate interval:(NSTimeInterval)ti repeats:(BOOL)rep
 {
@@ -263,6 +265,19 @@ static const void* _DTXTimerTrampolineKey = &_DTXTimerTrampolineKey;
 		[_timers removeObject:trampoline];
 		return _timers.count;
 	}];
+}
+
+- (NSString *)description
+{
+	id x = nil;
+	
+	@try {
+		x = [NSString stringWithFormat:@"<%@: %p timers: %@", self, self, [_timers.allObjects valueForKey:@"description"]];
+	} @catch (NSException *exception) {
+		NSLog(@"🤡 %@", exception);
+	}
+	
+	return x;
 }
 
 - (NSString*)syncResourceDescription

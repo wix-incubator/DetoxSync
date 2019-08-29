@@ -25,9 +25,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+@protocol DTXEventTracker <NSObject>
+
+- (void)endTracking;
+
+@end
+
 @interface DTXSyncManager : NSObject
 
+@property (class, nonatomic) NSTimeInterval maximumAllowedDelayedActionTrackingDuration;
+@property (class, nonatomic) NSTimeInterval maximumTimerIntervalTrackingDuration;
+
 @property (class, nonatomic, weak) id<DTXSyncManagerDelegate> delegate;
+
++ (void)enqueueIdleBlock:(dispatch_block_t)block;
++ (void)enqueueIdleBlock:(dispatch_block_t)block queue:(nullable dispatch_queue_t)queue;
 
 + (void)trackDispatchQueue:(dispatch_queue_t)dispatchQueue NS_SWIFT_NAME(track(dispatchQueue:));
 + (void)untrackDispatchQueue:(dispatch_queue_t)dispatchQueue NS_SWIFT_NAME(untrack(dispatchQueue:));
@@ -43,8 +55,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)trackDisplayLink:(CADisplayLink*)displayLink NS_SWIFT_NAME(track(displayLink:));
 + (void)untrackDisplayLink:(CADisplayLink*)displayLink NS_SWIFT_NAME(untrack(displayLink:));
 
-+ (void)enqueueIdleBlock:(dispatch_block_t)block;
-+ (void)enqueueIdleBlock:(dispatch_block_t)block queue:(nullable dispatch_queue_t)queue;
++ (id<DTXEventTracker>)trackEventWithObject:(nullable id)object description:(NSString*)description NS_SWIFT_NAME(track(eventWithObject:description:));
 
 + (void)idleStatusWithCompletionHandler:(void (^)(NSString* information))completionHandler;
 

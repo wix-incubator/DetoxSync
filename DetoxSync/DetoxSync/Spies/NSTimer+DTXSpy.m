@@ -15,6 +15,36 @@
 
 @implementation NSTimer (DTXSpy)
 
+static NSString* failuireReasonForTrampoline(id<DTXTimerProxy> trampoline, CFRunLoopRef rl)
+{
+	if([DTXSyncManager isTrackedRunLoop:rl] == NO)
+	{
+		return @"untracked runloop";
+	}
+	else if(trampoline.repeats == YES)
+	{
+		return @"repeats==true";
+	}
+	else if([trampoline.fireDate timeIntervalSinceNow] > DTXSyncManager.maximumTimerIntervalTrackingDuration)
+	{
+		return [NSString stringWithFormat:@"duration>%@", @([trampoline.fireDate timeIntervalSinceNow])];
+	}
+	
+	return @"";
+}
+
+static void _DTXTrackTimerTrampolineIfNeeded(id<DTXTimerProxy> trampoline, CFRunLoopRef rl)
+{
+	if(trampoline != nil && [DTXSyncManager isTrackedRunLoop:rl] && trampoline.repeats != YES && [trampoline.fireDate timeIntervalSinceNow] <= DTXSyncManager.maximumTimerIntervalTrackingDuration)
+	{
+		[trampoline track];
+	}
+	else
+	{
+		DTXSyncResourceVerboseLog(@"⏲ Ignoring timer “%@” failure reason: \"%@\"", trampoline.timer, failuireReasonForTrampoline(trampoline, rl));
+	}
+}
+
 static const void* _DTXCFTimerTrampolineRetain(const void* info)
 {
 	const void* rv = CFRetain(info);
@@ -72,39 +102,34 @@ CFRunLoopTimerRef __detox_sync_CFRunLoopTimerCreateWithHandler(CFAllocatorRef al
 	return (__bridge_retained CFRunLoopTimerRef)[[NSTimer alloc] initWithFireDate:CFBridgingRelease(CFDateCreate(allocator, fireDate)) interval:interval repeats:interval > 0 block:block];
 }
 
-__attribute__((__always_inline__))
-static NSTimer* _DTXTimerInit(id instance, SEL selector, BOOL track, NSDate* date, NSTimeInterval ti, id t, SEL s, id ui, BOOL rep)
-{
-	id (*timerInitMsgSend)(id, SEL, id, NSTimeInterval, id, SEL, id, BOOL) = (void*)objc_msgSend;
-	
-	id<DTXTimerProxy> trampoline = [DTXTimerSyncResource timerProxyWithTarget:t selector:s fireDate:date interval:ti repeats:rep];
-	if(track)
-	{
-		[trampoline track];
-	}
-	NSTimer* rv = timerInitMsgSend(instance, selector, date, ti, trampoline, @selector(fire:), ui, rep);
-	[trampoline setTimer:rv];
-	return rv;
-}
-
-//__NSCFTimer (CoreFoundation)
-- (instancetype)__detox_sync_initWithFireDate2:(NSDate *)date interval:(NSTimeInterval)ti target:(id)t selector:(SEL)s userInfo:(id)ui repeats:(BOOL)rep
-{
-	//Need to track here because CFRunLoopTimerCreate/CFRunLoopAddTimer will not be intercepted in this case.
-	return _DTXTimerInit(self, @selector(__detox_sync_initWithFireDate2:interval:target:selector:userInfo:repeats:), YES, date, ti, t, s, ui, rep);
-}
+//__attribute__((__always_inline__))
+//static NSTimer* _DTXTimerInit(id instance, SEL selector, BOOL track, NSDate* date, NSTimeInterval ti, id t, SEL s, id ui, BOOL rep)
+//{
+//	id (*timerInitMsgSend)(id, SEL, id, NSTimeInterval, id, SEL, id, BOOL) = (void*)objc_msgSend;
+//
+//	id<DTXTimerProxy> trampoline = [DTXTimerSyncResource timerProxyWithTarget:t selector:s fireDate:date interval:ti repeats:rep];
+//	if(track)
+//	{
+//		[trampoline track];
+//	}
+//	NSTimer* rv = timerInitMsgSend(instance, selector, date, ti, trampoline, @selector(fire:), ui, rep);
+//	[trampoline setTimer:rv];
+//	return rv;
+//}
+//
+////__NSCFTimer (CoreFoundation)
+//- (instancetype)__detox_sync_initWithFireDate2:(NSDate *)date interval:(NSTimeInterval)ti target:(id)t selector:(SEL)s userInfo:(id)ui repeats:(BOOL)rep
+//{
+//	//Need to track here because CFRunLoopTimerCreate/CFRunLoopAddTimer will not be intercepted in this case.
+//	return _DTXTimerInit(self, @selector(__detox_sync_initWithFireDate2:interval:target:selector:userInfo:repeats:), YES, date, ti, t, s, ui, rep);
+//}
 
 static void (*__orig_CFRunLoopAddTimer)(CFRunLoopRef rl, CFRunLoopTimerRef timer, CFRunLoopMode mode);
 void __detox_sync_CFRunLoopAddTimer(CFRunLoopRef rl, CFRunLoopTimerRef timer, CFRunLoopMode mode)
 {
 	id<DTXTimerProxy> trampoline = [DTXTimerSyncResource existingTimeProxyWithTimer:(__bridge NSTimer*)timer];
 	
-	//trampoline.repeats != YES && trampoline.fireDate != NSDate.distantFuture
-
-	if(trampoline && [DTXSyncManager isTrackedRunLoop:rl] && trampoline.repeats != YES)
-	{
-		[trampoline track];
-	}
+	_DTXTrackTimerTrampolineIfNeeded(trampoline, rl);
 	
 	__orig_CFRunLoopAddTimer(rl, timer, mode);
 }
@@ -113,13 +138,6 @@ void __detox_sync_CFRunLoopAddTimer(CFRunLoopRef rl, CFRunLoopTimerRef timer, CF
 {
 	@autoreleasepool
 	{
-		Method m1;
-		Method m2;
-		
-		m1 = class_getInstanceMethod(NSClassFromString(@"__NSCFTimer"), @selector(initWithFireDate:interval:target:selector:userInfo:repeats:));
-		m2 = class_getInstanceMethod(NSTimer.class, @selector(__detox_sync_initWithFireDate2:interval:target:selector:userInfo:repeats:));
-		method_exchangeImplementations(m1, m2);
-		
 		struct rebinding r[] = (struct rebinding[]) {
 			"CFRunLoopAddTimer", __detox_sync_CFRunLoopAddTimer, (void*)&__orig_CFRunLoopAddTimer,
 			"CFRunLoopTimerCreate", __detox_sync_CFRunLoopTimerCreate, (void*)&__orig_CFRunLoopTimerCreate,

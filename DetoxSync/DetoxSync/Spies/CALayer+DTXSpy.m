@@ -52,7 +52,7 @@
 	[self __detox_sync_setNeedsLayout];
 	
 	__detox_sync_orig_dispatch_async(dispatch_get_main_queue(), ^ {
-		[sr endUse];
+		[sr endTracking];
 	});
 }
 
@@ -63,7 +63,7 @@
 	[self __detox_sync_setNeedsDisplay];
 	
 	__detox_sync_orig_dispatch_async(dispatch_get_main_queue(), ^ {
-		[sr endUse];
+		[sr endTracking];
 	});
 }
 
@@ -74,7 +74,7 @@
 	[self __detox_sync_setNeedsDisplayInRect:rect];
 	
 	__detox_sync_orig_dispatch_async(dispatch_get_main_queue(), ^ {
-		[sr endUse];
+		[sr endTracking];
 	});
 }
 
@@ -85,7 +85,7 @@
 	[self __detox_sync_addAnimation:anim forKey:key];
 	
 	__detox_sync_orig_dispatch_async(dispatch_get_main_queue(), ^ {
-		[sr endUse];
+		[sr endTracking];
 	});
 }
 

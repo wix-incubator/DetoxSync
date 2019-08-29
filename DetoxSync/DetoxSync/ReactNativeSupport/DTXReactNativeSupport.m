@@ -99,7 +99,7 @@ static void __detox_sync_loadBundleAtURL_onProgress_onComplete(id self, SEL _cmd
 	id<DTXSingleUse> sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObject:self description:@"RN bundle load"];
 	
 	[DTXReactNativeSupport waitForReactNativeLoadWithCompletionHandler:^{
-		[sr endUse];
+		[sr endTracking];
 	}];
 	
 	__orig_loadBundleAtURL_onProgress_onComplete(self, _cmd, url, onProgress, onComplete);

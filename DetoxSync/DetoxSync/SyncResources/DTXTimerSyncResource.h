@@ -19,7 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) BOOL repeats;
 
 //NSTimer
-- (void)setTimer:(NSTimer*)timer;
+@property (nonatomic, weak) NSTimer* timer;
 - (void)fire:(NSTimer*)timer;
 
 //CFRunLoopTimer
@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)releaseContext;
 
 //CADisplayLink
-- (void)setDisplayLink:(CADisplayLink*)displayLink;
+@property (nonatomic, weak) CADisplayLink* displayLink;
 
 - (void)track;
 - (void)untrack;

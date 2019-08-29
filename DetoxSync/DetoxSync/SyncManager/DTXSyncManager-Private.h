@@ -15,7 +15,7 @@ __attribute__((visibility("hidden")))
 extern BOOL __detox_sync_enableVerboseSyncResourceLogging;
 __attribute__((visibility("hidden")))
 void __detox_sync_DTXSyncResourceVerboseLog(NSString* format, ...)  NS_FORMAT_FUNCTION(1,2);
-#define DTXSyncResourceVerboseLog(...) __extension__({ if(__builtin_expect(__detox_sync_enableVerboseSyncResourceLogging, 0)) { __detox_sync_DTXSyncResourceVerboseLog(__VA_ARGS__); } })
+#define DTXSyncResourceVerboseLog(...) __extension__({ if(__builtin_expect(__detox_sync_enableVerboseSyncResourceLogging == YES, NO)) { __detox_sync_DTXSyncResourceVerboseLog(__VA_ARGS__); } })
 
 @interface DTXSyncManager ()
 

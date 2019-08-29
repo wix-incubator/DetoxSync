@@ -14,19 +14,23 @@
 
 #define __dispatch_wrapper_func_2param(func, param1, param2) { \
 	DTXDispatchQueueSyncResource* sr = [DTXDispatchQueueSyncResource _existingSyncResourceWithQueue:queue]; \
-	[sr increaseWorkBlocks];\
+	NSString* blockInfo = nil;\
+	if(sr != nil) { blockInfo = [param2 debugDescription]; } \
+	[sr addWorkBlock:blockInfo];\
 	func(param1, ^ {\
 		param2();\
-		[sr decreaseWorkBlocks];\
+		[sr removeWorkBlock:blockInfo];\
 	});\
 }
 
 #define __dispatch_wrapper_func_3param(func, param1, param2, param3) { \
 	DTXDispatchQueueSyncResource* sr = [DTXDispatchQueueSyncResource _existingSyncResourceWithQueue:queue]; \
-	[sr increaseWorkBlocks];\
+	NSString* blockInfo = nil;\
+	if(sr != nil) { blockInfo = [param3 debugDescription]; } \
+	[sr addWorkBlock:blockInfo];\
 	func(param1, param2, ^ {\
 		param3();\
-		[sr decreaseWorkBlocks];\
+		[sr removeWorkBlock:blockInfo];\
 	});\
 }
 
@@ -49,11 +53,30 @@ static void __detox_sync_dispatch_async_and_wait(dispatch_queue_t queue, dispatc
 }
 
 void (*__orig_dispatch_after)(dispatch_time_t when, dispatch_queue_t queue,
-		dispatch_block_t block);
+							  dispatch_block_t block);
 static void __detox_sync_dispatch_after(dispatch_time_t when, dispatch_queue_t queue,
-		dispatch_block_t block)
+										dispatch_block_t block)
 {
-	__dispatch_wrapper_func_3param(__orig_dispatch_after, when, queue, block);
+	DTXDispatchQueueSyncResource* sr = [DTXDispatchQueueSyncResource _existingSyncResourceWithQueue:queue];
+	NSString* blockInfo = nil;
+	
+	dispatch_time_t maxAllowedTracked = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(DTXSyncManager.maximumAllowedDelayedActionTrackingDuration * NSEC_PER_SEC));
+	
+	BOOL shouldTrack = sr != nil && maxAllowedTracked >= when;
+	if(shouldTrack)
+	{
+		blockInfo = [block debugDescription];
+		[sr addWorkBlock:blockInfo];
+	}
+	
+	__orig_dispatch_after(when, queue, ^{
+		block();
+		
+		if(shouldTrack)
+		{
+			[sr removeWorkBlock:blockInfo];
+		}
+	});
 }
 
 static void (*__orig_dispatch_group_async)(dispatch_group_t group, dispatch_queue_t queue, dispatch_block_t block);

@@ -52,7 +52,7 @@ static const void* _DTXScrollViewSRKey = &_DTXScrollViewSRKey;
 - (void)__detox_sync_resetSyncResource
 {
 	DTXSingleUseSyncResource* sr = objc_getAssociatedObject(self, _DTXScrollViewSRKey);
-	[sr endUse];
+	[sr endTracking];
 	objc_setAssociatedObject(self, _DTXScrollViewSRKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 

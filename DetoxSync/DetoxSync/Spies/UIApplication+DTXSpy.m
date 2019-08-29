@@ -31,7 +31,7 @@ static const void* _DTXApplicationIgnoringEventsSRKey = &_DTXApplicationIgnoring
 - (void)__detox_sync_resetSyncResource
 {
 	DTXSingleUseSyncResource* sr = objc_getAssociatedObject(self, _DTXApplicationIgnoringEventsSRKey);
-	[sr endUse];
+	[sr endTracking];
 	objc_setAssociatedObject(self, _DTXApplicationIgnoringEventsSRKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 

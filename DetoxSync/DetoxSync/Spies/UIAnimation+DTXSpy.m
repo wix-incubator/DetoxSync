@@ -45,7 +45,7 @@ static const void* _DTXUIAnimationSRKey = &_DTXUIAnimationSRKey;
 	[self __detox_sync_markStop];
 	
 	DTXSingleUseSyncResource* sr = objc_getAssociatedObject(self, _DTXUIAnimationSRKey);
-	[sr endUse];
+	[sr endTracking];
 }
 
 @end
