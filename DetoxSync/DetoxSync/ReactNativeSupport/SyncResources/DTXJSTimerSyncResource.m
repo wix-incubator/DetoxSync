@@ -136,45 +136,96 @@
 		SEL createTimerSel = NSSelectorFromString(@"createTimer:duration:jsSchedulingTime:repeats:");
 		Method m = class_getInstanceMethod(cls, createTimerSel);
 		
-		void (*orig_createTimer)(id, SEL, NSNumber*, NSTimeInterval, NSDate*, BOOL) = (void*)method_getImplementation(m);
-		method_setImplementation(m, imp_implementationWithBlock(^(id _self, NSNumber* timerID, NSTimeInterval duration, NSDate* jsDate, BOOL repeats) {
-			__strong __typeof(weakSelf) strongSelf = weakSelf;
-			
-			dtx_defer {
+		// Check if the createTimer interface is using doubles or NSObjects.
+		// Earlier versions of react native use NSObjects for the timer and
+		// date params, while later versions use doubles for these.
+		const char* timerArgType = [[cls instanceMethodSignatureForSelector:createTimerSel] getArgumentTypeAtIndex:2];
+		if (strncmp(timerArgType, "d", 1) == 0)
+		{
+			void (*orig_createTimer)(id, SEL, double, NSTimeInterval, double, BOOL) = (void*)method_getImplementation(m);
+			method_setImplementation(m, imp_implementationWithBlock(^(id _self, double timerID, NSTimeInterval duration, double jsDate, BOOL repeats) {
+				__strong __typeof(weakSelf) strongSelf = weakSelf;
+				[strongSelf attachObservation:_self timerID:@(timerID) duration:duration repeats:repeats];
 				orig_createTimer(_self, createTimerSel, timerID, duration, jsDate, repeats);
-			};
-			
-			if(strongSelf == nil)
-			{
-				return;
-			}
-			
-			[strongSelf performUpdateBlock:^ {
-				_DTXJSTimerObservationWrapper* _observationWrapper = [strongSelf->_observations objectForKey:_self];
-				
-				if(_observationWrapper == nil)
-				{
-					_observationWrapper = [[_DTXJSTimerObservationWrapper alloc] initWithTimers:[_self valueForKey:@"_timers"] syncResource:strongSelf];
-					[_self setValue:_observationWrapper forKey:@"_timers"];
-					[strongSelf->_observations setObject:_observationWrapper forKey:_self];
-				}
-				
-				if(duration > 0 && duration <= DTXSyncManager.maximumTimerIntervalTrackingDuration && repeats == NO)
-				{
-					DTXSyncResourceVerboseLog(@"⏲ Observing timer “%@” duration: %@ repeats: %@", timerID, @(duration), @(repeats));
-					
-					[_observationWrapper addObservedTimer:timerID];
-				}
-				else
-				{
-					DTXSyncResourceVerboseLog(@"⏲ Ignoring timer “%@” failure reason: \"%@\"", timerID, [strongSelf failuireReasonForDuration:duration repeats:repeats]);
-				}
-				
-				return [self _busyCount];
-			}];
-		}));
+			}));
+		}
+		else
+		{
+			void (*orig_createTimer)(id, SEL, NSNumber*, NSTimeInterval, NSDate*, BOOL) = (void*)method_getImplementation(m);
+			method_setImplementation(m, imp_implementationWithBlock(^(id _self, NSNumber* timerID, NSTimeInterval duration, NSDate* jsDate, BOOL repeats) {
+				__strong __typeof(weakSelf) strongSelf = weakSelf;
+				[strongSelf attachObservation:_self timerID:timerID duration:duration repeats:repeats];
+				orig_createTimer(_self, createTimerSel, timerID, duration, jsDate, repeats);
+			}));
+		}
+		
+//		void (*orig_createTimer)(id, SEL, NSNumber*, NSTimeInterval, NSDate*, BOOL) = (void*)method_getImplementation(m);
+//		method_setImplementation(m, imp_implementationWithBlock(^(id _self, NSNumber* timerID, NSTimeInterval duration, NSDate* jsDate, BOOL repeats) {
+//			__strong __typeof(weakSelf) strongSelf = weakSelf;
+//
+//			dtx_defer {
+//				orig_createTimer(_self, createTimerSel, timerID, duration, jsDate, repeats);
+//			};
+//
+//			if(strongSelf == nil)
+//			{
+//				return;
+//			}
+//
+//			[strongSelf performUpdateBlock:^ {
+//				_DTXJSTimerObservationWrapper* _observationWrapper = [strongSelf->_observations objectForKey:_self];
+//
+//				if(_observationWrapper == nil)
+//				{
+//					_observationWrapper = [[_DTXJSTimerObservationWrapper alloc] initWithTimers:[_self valueForKey:@"_timers"] syncResource:strongSelf];
+//					[_self setValue:_observationWrapper forKey:@"_timers"];
+//					[strongSelf->_observations setObject:_observationWrapper forKey:_self];
+//				}
+//
+//				if(duration > 0 && duration <= DTXSyncManager.maximumTimerIntervalTrackingDuration && repeats == NO)
+//				{
+//					DTXSyncResourceVerboseLog(@"⏲ Observing timer “%@” duration: %@ repeats: %@", timerID, @(duration), @(repeats));
+//
+//					[_observationWrapper addObservedTimer:timerID];
+//				}
+//				else
+//				{
+//					DTXSyncResourceVerboseLog(@"⏲ Ignoring timer “%@” failure reason: \"%@\"", timerID, [strongSelf failuireReasonForDuration:duration repeats:repeats]);
+//				}
+//
+//				return [self _busyCount];
+//			}];
+//		}));
 	}
 	return self;
+}
+
+- (void)attachObservation:(id)_self timerID:(NSNumber *)timerID duration:(NSTimeInterval)duration repeats:(BOOL)repeats
+{
+	[self performUpdateBlock:^ {
+		_DTXJSTimerObservationWrapper* _observationWrapper = [self->_observations objectForKey:_self];
+
+		if(_observationWrapper == nil)
+		{
+			_observationWrapper = [[_DTXJSTimerObservationWrapper alloc] initWithTimers:[_self valueForKey:@"_timers"] syncResource:self];
+			[_self setValue:_observationWrapper forKey:@"_timers"];
+			[self->_observations setObject:_observationWrapper forKey:_self];
+		}
+
+		if(duration > 0 && duration <= DTXSyncManager.maximumTimerIntervalTrackingDuration && repeats == NO)
+		{
+			DTXSyncResourceVerboseLog(@"⏲ Observing timer “%@” duration: %@ repeats: %@", timerID, @(duration), @(repeats));
+
+			[_observationWrapper addObservedTimer:timerID];
+		}
+		else
+		{
+			DTXSyncResourceVerboseLog(@"⏲ Ignoring timer “%@” failure reason: \"%@\"", timerID, [self failuireReasonForDuration:duration repeats:repeats]);
+		}
+
+		return [self _busyCount];
+	}];
+
 }
 
 @end

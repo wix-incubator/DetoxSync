@@ -15,7 +15,7 @@
 
 - (void)performUpdateBlock:(NSUInteger(^)(void))block
 {
-	[DTXSyncManager perforUpdateAndWaitForResource:self block:block];
+	[DTXSyncManager performUpdateAndWaitForResource:self block:block];
 }
 
 - (NSString*)syncResourceDescription

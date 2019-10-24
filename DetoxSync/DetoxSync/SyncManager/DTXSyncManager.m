@@ -17,8 +17,6 @@
 
 #include <dlfcn.h>
 
-@import OSLog;
-
 DTX_CREATE_LOG("SyncManager")
 static BOOL _enableVerboseSystemLogging = NO;
 BOOL __detox_sync_enableVerboseSyncResourceLogging = NO;
@@ -169,7 +167,7 @@ static NSTimeInterval _maximumTimerIntervalTrackingDuration;
 	});
 }
 
-+ (void)perforUpdateAndWaitForResource:(DTXSyncResource*)resource block:(NSUInteger(^)(void))block
++ (void)performUpdateAndWaitForResource:(DTXSyncResource*)resource block:(NSUInteger(^)(void))block
 {
 	dispatch_block_t outerBlock = ^ {
 		NSCAssert([_registeredResources containsObject:resource], @"Provided resource %@ is not registered", resource);
