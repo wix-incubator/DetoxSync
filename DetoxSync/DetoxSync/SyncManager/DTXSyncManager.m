@@ -469,7 +469,7 @@ static BOOL DTXIsSystemBusyNow(void)
 	return [DTXSingleUseSyncResource singleUseSyncResourceWithObject:object description:description];
 }
 
-+ (NSString*)_idleStatus:(BOOL)includeAll;
++ (NSString*)_syncStatus:(BOOL)includeAll;
 {
 	NSMutableString* rv = [NSMutableString new];
 	
@@ -517,18 +517,18 @@ static BOOL DTXIsSystemBusyNow(void)
 
 + (NSString*)idleStatus
 {
-	return [self _idleStatus:YES];
+	return [self _syncStatus:YES];
 }
 
 + (NSString*)syncStatus
 {
-	return [self _idleStatus:YES];
+	return [self _syncStatus:YES];
 }
 
-+ (void)idleStatusWithCompletionHandler:(void (^)(NSString* information))completionHandler
++ (void)syncStatusWithCompletionHandler:(void (^)(NSString* information))completionHandler
 {
 	__detox_sync_orig_dispatch_async(_queue, ^ {
-		completionHandler([self _idleStatus:NO]);
+		completionHandler([self _syncStatus:NO]);
 	});
 }
 

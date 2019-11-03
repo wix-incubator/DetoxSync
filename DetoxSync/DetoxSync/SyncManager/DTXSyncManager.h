@@ -57,7 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (id<DTXEventTracker>)trackEventWithObject:(nullable id)object description:(NSString*)description NS_SWIFT_NAME(track(eventWithObject:description:));
 
-+ (void)idleStatusWithCompletionHandler:(void (^)(NSString* information))completionHandler;
++ (void)syncStatusWithCompletionHandler:(void (^)(NSString* information))completionHandler;
 
 @end
 
