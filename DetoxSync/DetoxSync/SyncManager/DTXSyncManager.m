@@ -132,7 +132,7 @@ static NSTimeInterval _maximumTimerIntervalTrackingDuration;
 		__detox_sync_orig_dispatch_async = dlsym(RTLD_DEFAULT, "dispatch_async");
 		__detox_sync_orig_dispatch_after = dlsym(RTLD_DEFAULT, "dispatch_after");
 		
-		_queue = dispatch_queue_create("com.wix.syncmanager", NULL);
+		_queue = dispatch_queue_create("com.wix.syncmanager", dispatch_queue_attr_make_with_autorelease_frequency(NULL, DISPATCH_AUTORELEASE_FREQUENCY_WORK_ITEM));
 		dispatch_queue_set_specific(_queue, _queueSpecific, _queueSpecific, NULL);
 		NSString* DTXEnableDelayedIdleFire = [NSUserDefaults.standardUserDefaults stringForKey:@"DTXEnableDelayedIdleFire"];
 		NSNumberFormatter* nf = [NSNumberFormatter new];
