@@ -60,9 +60,14 @@ static void __detox_sync_dispatch_after(dispatch_time_t when, dispatch_queue_t q
 	DTXDispatchQueueSyncResource* sr = [DTXDispatchQueueSyncResource _existingSyncResourceWithQueue:queue];
 	NSString* blockInfo = nil;
 	
-//	dispatch_time_t maxAllowedTracked = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(DTXSyncManager.maximumAllowedDelayedActionTrackingDuration * NSEC_PER_SEC));
+	BOOL shouldTrack = sr != nil;
 	
-	BOOL shouldTrack = sr != nil /* && maxAllowedTracked >= when */;
+	if(shouldTrack && isinf(DTXSyncManager.maximumAllowedDelayedActionTrackingDuration) == NO)
+	{
+		dispatch_time_t maxAllowedTracked = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(DTXSyncManager.maximumAllowedDelayedActionTrackingDuration * NSEC_PER_SEC));
+		shouldTrack = maxAllowedTracked >= when;
+	}
+	
 	if(shouldTrack)
 	{
 		blockInfo = [block debugDescription];

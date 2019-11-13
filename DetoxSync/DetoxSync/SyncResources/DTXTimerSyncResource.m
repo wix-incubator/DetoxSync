@@ -256,7 +256,7 @@ static const void* _DTXTimerTrampolineKey = &_DTXTimerTrampolineKey;
 	[self performUpdateBlock:^{
 		[_timers addObject:trampoline];
 		return _timers.count;
-	} eventDescription:trampoline.description];
+	} eventIdentifier:[NSString stringWithFormat:@"%p", trampoline] eventDescription:trampoline.description];
 }
 
 - (void)untrackTimerTrampoline:(_DTXTimerTrampoline *)trampoline
@@ -264,7 +264,7 @@ static const void* _DTXTimerTrampolineKey = &_DTXTimerTrampolineKey;
 	[self performUpdateBlock:^{
 		[_timers removeObject:trampoline];
 		return _timers.count;
-	} eventDescription:trampoline.description];
+	} eventIdentifier:[NSString stringWithFormat:@"%p", trampoline] eventDescription:trampoline.description];
 }
 
 - (NSString *)description

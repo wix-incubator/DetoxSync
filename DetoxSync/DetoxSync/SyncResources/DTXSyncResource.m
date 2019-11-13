@@ -13,9 +13,9 @@
 
 @implementation DTXSyncResource
 
-- (void)performUpdateBlock:(NSUInteger(^)(void))block eventDescription:(NSString*)eventDescription
+- (void)performUpdateBlock:(NSUInteger(^)(void))block eventIdentifier:eventID eventDescription:(NSString*)eventDescription
 {
-	[DTXSyncManager performUpdateWithEventDescription:eventDescription syncResource:self block:block];
+	[DTXSyncManager performUpdateWithEventIdentifier:eventID eventDescription:eventDescription syncResource:self block:block];
 }
 
 - (NSString*)syncResourceDescription

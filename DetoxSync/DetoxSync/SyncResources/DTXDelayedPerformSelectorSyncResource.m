@@ -33,7 +33,7 @@
 		[DTXSyncManager registerSyncResource:self];
 		[self performUpdateBlock:^NSUInteger{
 			return 1;
-		} eventDescription:self.syncResourceDescription];
+		} eventIdentifier:[NSString stringWithFormat:@"%p", self] eventDescription:self.syncResourceDescription];
 	}
 	
 	return self;
@@ -48,7 +48,7 @@
 	
 	[self performUpdateBlock:^NSUInteger{
 		return 0;
-	} eventDescription:self.syncResourceDescription];
+	} eventIdentifier:[NSString stringWithFormat:@"%p", self] eventDescription:self.syncResourceDescription];
 	
 	[DTXSyncManager unregisterSyncResource:self];
 }

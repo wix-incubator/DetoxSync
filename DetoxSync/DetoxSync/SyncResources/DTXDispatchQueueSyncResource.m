@@ -78,7 +78,7 @@ static const void* DTXQueueDeallocHelperKey = &DTXQueueDeallocHelperKey;
 		_busyCount += 1;
 		[_busyBlocks addObject:block];
 		return _busyCount;
-	} eventDescription:[NSString stringWithFormat:@"Dispatch queue %@ operation: %@", _queue, operation]];
+	} eventIdentifier:[NSString stringWithFormat:@"%lu", [block hash]] eventDescription:[NSString stringWithFormat:@"Dispatch queue %@ operation: %@", _queue, operation]];
 }
 
 - (void)removeWorkBlock:(id)block operation:(NSString*)operation
@@ -87,7 +87,7 @@ static const void* DTXQueueDeallocHelperKey = &DTXQueueDeallocHelperKey;
 		_busyCount -= 1;
 		[_busyBlocks removeObject:block];
 		return _busyCount;
-	} eventDescription:[NSString stringWithFormat:@"Dispatch queue %@ operation: %@", _queue, operation]];
+	} eventIdentifier:[NSString stringWithFormat:@"%lu", [block hash]] eventDescription:[NSString stringWithFormat:@"Dispatch queue %@ operation: %@", _queue, operation]];
 }
 
 - (void)dealloc

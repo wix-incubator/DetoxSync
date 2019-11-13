@@ -20,8 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)syncSystemDidBecomeIdle;
 - (void)syncSystemDidBecomeBusy;
 
-- (void)syncSystemDidStartTrackingEventWithDescription:(NSString*)description;
-- (void)syncSystemDidEndTrackingEventWithDescription:(NSString*)description;
+- (void)syncSystemDidStartTrackingEventWithIdentifier:(NSString*)identifier description:(NSString*)description;
+- (void)syncSystemDidEndTrackingEventWithIdentifier:(NSString*)identifier description:(NSString*)description;
 
 @end
 

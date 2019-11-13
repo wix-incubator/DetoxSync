@@ -63,8 +63,8 @@ static BOOL _delegate_syncSystemDidBecomeBusy = NO;
 static BOOL _delegate_syncSystemDidStartTrackingEventWithDescription = NO;
 static BOOL _delegate_syncSystemDidEndTrackingEventWithDescription = NO;
 
-static NSTimeInterval _maximumAllowedDelayedActionTrackingDuration;
-static NSTimeInterval _maximumTimerIntervalTrackingDuration;
+static NSTimeInterval _maximumAllowedDelayedActionTrackingDuration = __builtin_inf();
+static NSTimeInterval _maximumTimerIntervalTrackingDuration = __builtin_inf();
 
 @implementation DTXSyncManager
 
@@ -100,8 +100,8 @@ static NSTimeInterval _maximumTimerIntervalTrackingDuration;
 	
 	_delegate_syncSystemDidBecomeIdle = [_delegate respondsToSelector:@selector(syncSystemDidBecomeIdle)];
 	_delegate_syncSystemDidBecomeBusy = [_delegate respondsToSelector:@selector(syncSystemDidBecomeBusy)];
-	_delegate_syncSystemDidStartTrackingEventWithDescription = [_delegate respondsToSelector:@selector(syncSystemDidStartTrackingEventWithDescription:)];
-	_delegate_syncSystemDidEndTrackingEventWithDescription = [_delegate respondsToSelector:@selector(syncSystemDidEndTrackingEventWithDescription:)];
+	_delegate_syncSystemDidStartTrackingEventWithDescription = [_delegate respondsToSelector:@selector(syncSystemDidStartTrackingEventWithIdentifier:description:)];
+	_delegate_syncSystemDidEndTrackingEventWithDescription = [_delegate respondsToSelector:@selector(syncSystemDidEndTrackingEventWithIdentifier:description:)];
 	
 	if(_delegate == nil)
 	{
@@ -123,8 +123,6 @@ static NSTimeInterval _maximumTimerIntervalTrackingDuration;
 {
 	@autoreleasepool
 	{
-		_maximumAllowedDelayedActionTrackingDuration = 1.5;
-		
 		__detox_sync_enableVerboseSyncResourceLogging = [NSUserDefaults.standardUserDefaults boolForKey:@"DTXEnableVerboseSyncResources"];
 		_enableVerboseSystemLogging = [NSUserDefaults.standardUserDefaults boolForKey:@"DTXEnableVerboseSyncSystem"];
 		
@@ -167,7 +165,7 @@ static NSTimeInterval _maximumTimerIntervalTrackingDuration;
 	});
 }
 
-+ (void)performUpdateWithEventDescription:(NSString*)eventDescription syncResource:(DTXSyncResource*)resource block:(NSUInteger(^)(void))block
++ (void)performUpdateWithEventIdentifier:(NSString*)eventID eventDescription:(NSString*)eventDescription syncResource:(DTXSyncResource*)resource block:(NSUInteger(^)(void))block
 {
 	dispatch_block_t outerBlock = ^ {
 		NSCAssert([_registeredResources containsObject:resource], @"Provided resource %@ is not registered", resource);
@@ -180,11 +178,11 @@ static NSTimeInterval _maximumTimerIntervalTrackingDuration;
 			
 			if(previousBusyCount < busyCount && __builtin_expect(_delegate_syncSystemDidStartTrackingEventWithDescription, 0))
 			{
-				[_delegate syncSystemDidStartTrackingEventWithDescription:eventDescription];
+				[_delegate syncSystemDidStartTrackingEventWithIdentifier:eventID description:eventDescription];
 			}
 			else if(previousBusyCount > busyCount && __builtin_expect(_delegate_syncSystemDidEndTrackingEventWithDescription, 0))
 			{
-				[_delegate syncSystemDidEndTrackingEventWithDescription:eventDescription];
+				[_delegate syncSystemDidEndTrackingEventWithIdentifier:eventID description:eventDescription];
 			}
 		}
 		

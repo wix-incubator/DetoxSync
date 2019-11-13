@@ -76,7 +76,7 @@
 		}
 		
 		return [_syncResource _busyCount];
-	} eventDescription:[NSString stringWithFormat:@"JS timer %@", aKey]];
+	} eventIdentifier:aKey.stringValue eventDescription:[NSString stringWithFormat:@"JS timer %@", aKey]];
 	
 	[_timers removeObjectForKey:aKey];
 }
@@ -158,44 +158,6 @@
 				orig_createTimer(_self, createTimerSel, timerID, duration, jsDate, repeats);
 			}));
 		}
-		
-//		void (*orig_createTimer)(id, SEL, NSNumber*, NSTimeInterval, NSDate*, BOOL) = (void*)method_getImplementation(m);
-//		method_setImplementation(m, imp_implementationWithBlock(^(id _self, NSNumber* timerID, NSTimeInterval duration, NSDate* jsDate, BOOL repeats) {
-//			__strong __typeof(weakSelf) strongSelf = weakSelf;
-//
-//			dtx_defer {
-//				orig_createTimer(_self, createTimerSel, timerID, duration, jsDate, repeats);
-//			};
-//
-//			if(strongSelf == nil)
-//			{
-//				return;
-//			}
-//
-//			[strongSelf performUpdateBlock:^ {
-//				_DTXJSTimerObservationWrapper* _observationWrapper = [strongSelf->_observations objectForKey:_self];
-//
-//				if(_observationWrapper == nil)
-//				{
-//					_observationWrapper = [[_DTXJSTimerObservationWrapper alloc] initWithTimers:[_self valueForKey:@"_timers"] syncResource:strongSelf];
-//					[_self setValue:_observationWrapper forKey:@"_timers"];
-//					[strongSelf->_observations setObject:_observationWrapper forKey:_self];
-//				}
-//
-//				if(duration > 0 && duration <= DTXSyncManager.maximumTimerIntervalTrackingDuration && repeats == NO)
-//				{
-//					DTXSyncResourceVerboseLog(@"⏲ Observing timer “%@” duration: %@ repeats: %@", timerID, @(duration), @(repeats));
-//
-//					[_observationWrapper addObservedTimer:timerID];
-//				}
-//				else
-//				{
-//					DTXSyncResourceVerboseLog(@"⏲ Ignoring timer “%@” failure reason: \"%@\"", timerID, [strongSelf failuireReasonForDuration:duration repeats:repeats]);
-//				}
-//
-//				return [self _busyCount];
-//			}];
-//		}));
 	}
 	return self;
 }
@@ -224,7 +186,7 @@
 		}
 
 		return [self _busyCount];
-	} eventDescription:[NSString stringWithFormat:@"JS timer %@", timerID]];
+	} eventIdentifier:timerID.stringValue eventDescription:[NSString stringWithFormat:@"JS timer %@", timerID]];
 
 }
 
