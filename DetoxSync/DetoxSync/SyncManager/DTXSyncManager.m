@@ -60,8 +60,8 @@ static BOOL _systemWasBusy = NO;
 static __weak id<DTXSyncManagerDelegate> _delegate;
 static BOOL _delegate_syncSystemDidBecomeIdle = NO;
 static BOOL _delegate_syncSystemDidBecomeBusy = NO;
-static BOOL _delegate_syncSystemDidIncreaseTrackedEvents = NO;
-static BOOL _delegate_syncSystemDidDecreaseTrackedEvents = NO;
+static BOOL _delegate_syncSystemDidStartTrackingEventWithDescription = NO;
+static BOOL _delegate_syncSystemDidEndTrackingEventWithDescription = NO;
 
 static NSTimeInterval _maximumAllowedDelayedActionTrackingDuration;
 static NSTimeInterval _maximumTimerIntervalTrackingDuration;
@@ -100,8 +100,8 @@ static NSTimeInterval _maximumTimerIntervalTrackingDuration;
 	
 	_delegate_syncSystemDidBecomeIdle = [_delegate respondsToSelector:@selector(syncSystemDidBecomeIdle)];
 	_delegate_syncSystemDidBecomeBusy = [_delegate respondsToSelector:@selector(syncSystemDidBecomeBusy)];
-	_delegate_syncSystemDidIncreaseTrackedEvents = [_delegate respondsToSelector:@selector(syncSystemDidIncreaseTrackedEvents)];
-	_delegate_syncSystemDidDecreaseTrackedEvents = [_delegate respondsToSelector:@selector(syncSystemDidDecreaseTrackedEvents)];
+	_delegate_syncSystemDidStartTrackingEventWithDescription = [_delegate respondsToSelector:@selector(syncSystemDidStartTrackingEventWithDescription:)];
+	_delegate_syncSystemDidEndTrackingEventWithDescription = [_delegate respondsToSelector:@selector(syncSystemDidEndTrackingEventWithDescription:)];
 	
 	if(_delegate == nil)
 	{
@@ -167,7 +167,7 @@ static NSTimeInterval _maximumTimerIntervalTrackingDuration;
 	});
 }
 
-+ (void)performUpdateAndWaitForResource:(DTXSyncResource*)resource block:(NSUInteger(^)(void))block
++ (void)performUpdateWithEventDescription:(NSString*)eventDescription syncResource:(DTXSyncResource*)resource block:(NSUInteger(^)(void))block
 {
 	dispatch_block_t outerBlock = ^ {
 		NSCAssert([_registeredResources containsObject:resource], @"Provided resource %@ is not registered", resource);
@@ -177,6 +177,15 @@ static NSTimeInterval _maximumTimerIntervalTrackingDuration;
 		if(previousBusyCount != busyCount)
 		{
 			DTXSyncResourceVerboseLog(@"%@ %@ (count: %lu)", busyCount > 0 ? @"👎" : @"👍", resource, (unsigned long)busyCount);
+			
+			if(previousBusyCount < busyCount && __builtin_expect(_delegate_syncSystemDidStartTrackingEventWithDescription, 0))
+			{
+				[_delegate syncSystemDidStartTrackingEventWithDescription:eventDescription];
+			}
+			else if(previousBusyCount > busyCount && __builtin_expect(_delegate_syncSystemDidEndTrackingEventWithDescription, 0))
+			{
+				[_delegate syncSystemDidEndTrackingEventWithDescription:eventDescription];
+			}
 		}
 		
 		[_resourceMapping setObject:@(busyCount) forKey:resource];

@@ -76,7 +76,7 @@
 		}
 		
 		return [_syncResource _busyCount];
-	}];
+	} eventDescription:[NSString stringWithFormat:@"JS timer %@", aKey]];
 	
 	[_timers removeObjectForKey:aKey];
 }
@@ -224,7 +224,7 @@
 		}
 
 		return [self _busyCount];
-	}];
+	} eventDescription:[NSString stringWithFormat:@"JS timer %@", timerID]];
 
 }
 

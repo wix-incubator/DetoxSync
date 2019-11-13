@@ -12,44 +12,44 @@
 #import "DTXOrigDispatch.h"
 #import "DTXSyncManager-Private.h"
 
-#define __dispatch_wrapper_func_2param(func, param1, param2) { \
+#define __dispatch_wrapper_func_2param(func, name, param1, param2) { \
 	DTXDispatchQueueSyncResource* sr = [DTXDispatchQueueSyncResource _existingSyncResourceWithQueue:queue]; \
 	NSString* blockInfo = nil;\
 	if(sr != nil) { blockInfo = [param2 debugDescription]; } \
-	[sr addWorkBlock:blockInfo];\
+	[sr addWorkBlock:blockInfo operation:name];\
 	func(param1, ^ {\
 		param2();\
-		[sr removeWorkBlock:blockInfo];\
+		[sr removeWorkBlock:blockInfo operation:name];\
 	});\
 }
 
-#define __dispatch_wrapper_func_3param(func, param1, param2, param3) { \
+#define __dispatch_wrapper_func_3param(func, name, param1, param2, param3) { \
 	DTXDispatchQueueSyncResource* sr = [DTXDispatchQueueSyncResource _existingSyncResourceWithQueue:queue]; \
 	NSString* blockInfo = nil;\
 	if(sr != nil) { blockInfo = [param3 debugDescription]; } \
-	[sr addWorkBlock:blockInfo];\
+	[sr addWorkBlock:blockInfo operation:name];\
 	func(param1, param2, ^ {\
 		param3();\
-		[sr removeWorkBlock:blockInfo];\
+		[sr removeWorkBlock:blockInfo operation:name];\
 	});\
 }
 
 static void (*__orig_dispatch_sync)(dispatch_queue_t queue, dispatch_block_t block);
 static void __detox_sync_dispatch_sync(dispatch_queue_t queue, dispatch_block_t block)
 {
-	__dispatch_wrapper_func_2param(__orig_dispatch_sync, queue, block);
+	__dispatch_wrapper_func_2param(__orig_dispatch_sync, @"dispatch_sync", queue, block);
 }
 
 static void (*__orig_dispatch_async)(dispatch_queue_t queue, dispatch_block_t block);
 static void __detox_sync_dispatch_async(dispatch_queue_t queue, dispatch_block_t block)
 {
-	__dispatch_wrapper_func_2param(__orig_dispatch_async, queue, block);
+	__dispatch_wrapper_func_2param(__orig_dispatch_async, @"dispatch_async", queue, block);
 }
 
 static void (*__orig_dispatch_async_and_wait)(dispatch_queue_t queue, dispatch_block_t block);
 static void __detox_sync_dispatch_async_and_wait(dispatch_queue_t queue, dispatch_block_t block)
 {
-	__dispatch_wrapper_func_2param(__orig_dispatch_async_and_wait, queue, block);
+	__dispatch_wrapper_func_2param(__orig_dispatch_async_and_wait, @"dispatch_async_and_wait", queue, block);
 }
 
 void (*__orig_dispatch_after)(dispatch_time_t when, dispatch_queue_t queue,
@@ -60,13 +60,13 @@ static void __detox_sync_dispatch_after(dispatch_time_t when, dispatch_queue_t q
 	DTXDispatchQueueSyncResource* sr = [DTXDispatchQueueSyncResource _existingSyncResourceWithQueue:queue];
 	NSString* blockInfo = nil;
 	
-	dispatch_time_t maxAllowedTracked = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(DTXSyncManager.maximumAllowedDelayedActionTrackingDuration * NSEC_PER_SEC));
+//	dispatch_time_t maxAllowedTracked = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(DTXSyncManager.maximumAllowedDelayedActionTrackingDuration * NSEC_PER_SEC));
 	
-	BOOL shouldTrack = sr != nil && maxAllowedTracked >= when;
+	BOOL shouldTrack = sr != nil /* && maxAllowedTracked >= when */;
 	if(shouldTrack)
 	{
 		blockInfo = [block debugDescription];
-		[sr addWorkBlock:blockInfo];
+		[sr addWorkBlock:blockInfo operation:@"dispatch_after"];
 	}
 	
 	__orig_dispatch_after(when, queue, ^{
@@ -74,7 +74,7 @@ static void __detox_sync_dispatch_after(dispatch_time_t when, dispatch_queue_t q
 		
 		if(shouldTrack)
 		{
-			[sr removeWorkBlock:blockInfo];
+			[sr removeWorkBlock:blockInfo operation:@"dispatch_after"];
 		}
 	});
 }
@@ -82,13 +82,13 @@ static void __detox_sync_dispatch_after(dispatch_time_t when, dispatch_queue_t q
 static void (*__orig_dispatch_group_async)(dispatch_group_t group, dispatch_queue_t queue, dispatch_block_t block);
 static void __detox_sync_dispatch_group_async(dispatch_group_t group, dispatch_queue_t queue, dispatch_block_t block)
 {
-	__dispatch_wrapper_func_3param(__orig_dispatch_group_async, group, queue, block);
+	__dispatch_wrapper_func_3param(__orig_dispatch_group_async, @"dispatch_group_async", group, queue, block);
 }
 
-static void (*__orig_dispatch_dispatch_group_notify)(dispatch_group_t group, dispatch_queue_t queue, dispatch_block_t block);
+static void (*__orig_dispatch_group_notify)(dispatch_group_t group, dispatch_queue_t queue, dispatch_block_t block);
 static void __detox_sync_dispatch_group_notify(dispatch_group_t group, dispatch_queue_t queue, dispatch_block_t block)
 {
-	__dispatch_wrapper_func_3param(__orig_dispatch_dispatch_group_notify, group, queue, block);
+	__dispatch_wrapper_func_3param(__orig_dispatch_group_notify, @"dispatch_group_notify", group, queue, block);
 }
 
 static dispatch_queue_t (*__orig_dispatch_queue_create)(const char *_Nullable label, dispatch_queue_attr_t _Nullable attr);
@@ -115,7 +115,7 @@ static void _install_dispatchqueue_spy(void)
 		"dispatch_async_and_wait", __detox_sync_dispatch_async_and_wait, (void**)&__orig_dispatch_async_and_wait,
 		"dispatch_after", __detox_sync_dispatch_after, (void**)&__orig_dispatch_after,
 		"dispatch_group_async", __detox_sync_dispatch_group_async, (void**)&__orig_dispatch_group_async,
-		"dispatch_group_notify", __detox_sync_dispatch_group_notify, (void**)&__orig_dispatch_dispatch_group_notify,
+		"dispatch_group_notify", __detox_sync_dispatch_group_notify, (void**)&__orig_dispatch_group_notify,
 		"dispatch_queue_create", __detox_sync_dispatch_queue_create, (void**)&__orig_dispatch_queue_create,
 	};
 	rebind_symbols(r, sizeof(r) / sizeof(struct rebinding));

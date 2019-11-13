@@ -13,7 +13,7 @@
 	if([NSUserDefaults.standardUserDefaults boolForKey:@"ExamplePrintSyncResources"] == NO) { break; } \
 	dispatch_group_t __await_response = dispatch_group_create();\
 	if(sync) { dispatch_group_enter(__await_response); }\
-	[DTXSyncManager idleStatusWithCompletionHandler:^(NSString* response) {\
+	[DTXSyncManager syncStatusWithCompletionHandler:^(NSString* response) {\
 		printf("⚠️⚠️⚠️ %s\n", response.UTF8String);\
 		if(sync) { dispatch_group_leave(__await_response); }\
 	}];\
@@ -44,6 +44,16 @@
 + (void)syncSystemDidBecomeBusy
 {
 	NSLog(@"🤡");
+}
+
++ (void)syncSystemDidStartTrackingEventWithDescription:(NSString*)description
+{
+	NSLog(@"🥰 %@", description);
+}
+
++ (void)syncSystemDidEndTrackingEventWithDescription:(NSString*)description
+{
+	NSLog(@"🥶 %@", description);
 }
 
 + (void)load

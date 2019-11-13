@@ -14,8 +14,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (nullable instancetype)_existingSyncResourceWithQueue:(dispatch_queue_t)queue;
 
-- (void)addWorkBlock:(id)block;
-- (void)removeWorkBlock:(id)block;
+- (void)addWorkBlock:(id)block operation:(NSString*)operation;
+- (void)removeWorkBlock:(id)block operation:(NSString*)operation;
 
 @end
 

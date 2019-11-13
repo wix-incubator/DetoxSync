@@ -72,22 +72,22 @@ static const void* DTXQueueDeallocHelperKey = &DTXQueueDeallocHelperKey;
 	return [NSString stringWithFormat:@"%lu work blocks on dispatch queue “%@”", (unsigned long)_busyCount, _queue];
 }
 
-- (void)addWorkBlock:(id)block
+- (void)addWorkBlock:(id)block operation:(NSString*)operation
 {
 	[self performUpdateBlock:^NSUInteger{
 		_busyCount += 1;
 		[_busyBlocks addObject:block];
 		return _busyCount;
-	}];
+	} eventDescription:[NSString stringWithFormat:@"Dispatch queue %@ operation: %@", _queue, operation]];
 }
 
-- (void)removeWorkBlock:(id)block
+- (void)removeWorkBlock:(id)block operation:(NSString*)operation
 {
 	[self performUpdateBlock:^NSUInteger{
 		_busyCount -= 1;
 		[_busyBlocks removeObject:block];
 		return _busyCount;
-	}];
+	} eventDescription:[NSString stringWithFormat:@"Dispatch queue %@ operation: %@", _queue, operation]];
 }
 
 - (void)dealloc

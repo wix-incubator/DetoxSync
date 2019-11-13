@@ -12,7 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface DTXSyncResource : NSObject
 
-- (void)performUpdateBlock:(NSUInteger(^)(void))block;
+- (void)performUpdateBlock:(NSUInteger(^)(void))block eventDescription:(NSString*)eventDescription;
 - (NSString*)syncResourceDescription;
 
 @end

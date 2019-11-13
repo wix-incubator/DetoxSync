@@ -85,7 +85,7 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 	[self performUpdateBlock:^ NSUInteger {
 		self._wasPreviouslyBusy = isBusyNow;
 		return isBusyNow;
-	}];
+	} eventDescription:self.syncResourceDescription];
 }
 
 - (void)_startTracking
@@ -130,7 +130,7 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 		self._wasPreviouslyBusy = YES;
 		[self performUpdateBlock:^ NSUInteger {
 			return 1;
-		}];
+		} eventDescription:self.syncResourceDescription];
 	}
 }
 
@@ -149,7 +149,7 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 	
 	[self performUpdateBlock:^ NSUInteger {
 		return 0;
-	}];
+	} eventDescription:self.syncResourceDescription];
 	
 	_isTracking = NO;
 }
@@ -173,7 +173,7 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 
 - (NSString *)syncResourceDescription
 {
-	return [NSString stringWithFormat:@"Busy runloop (<CFRunLoop: %p>)", _runLoop];
+	return [NSString stringWithFormat:@"Runloop (<CFRunLoop: %p>)", _runLoop];
 }
 
 @end
