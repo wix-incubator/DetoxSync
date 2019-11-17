@@ -148,7 +148,7 @@ static const void* _DTXTimerTrampolineKey = &_DTXTimerTrampolineKey;
 	_tracking = NO;
 }
 
-- (NSString *)description
++ (NSDateFormatter*)_descriptionDateFormatter
 {
 	static NSDateFormatter* _dateFormatter;
 	static dispatch_once_t onceToken;
@@ -157,13 +157,24 @@ static const void* _DTXTimerTrampolineKey = &_DTXTimerTrampolineKey;
 		_dateFormatter.locale = NSLocale.autoupdatingCurrentLocale;
 		_dateFormatter.dateFormat = @"YYYY-MM-dd HH:mm:ss Z";
 	});
+	return _dateFormatter;
+}
+
+- (NSString *)description
+{
+	
 	
 	if(_displayLink != nil)
 	{
 		return _displayLink.description;
 	}
 	
-	return [NSString stringWithFormat:@"<%@: %p fireDate: %@ interval: %@ repeats: %@>", _timer.class, _timer, [_dateFormatter stringFromDate:_fireDate], @(_ti), _repeats ? @"YES" : @"NO"];
+	return [NSString stringWithFormat:@"<%@: %p fireDate: %@ interval: %@ repeats: %@>", _timer.class, _timer, [_DTXTimerTrampoline._descriptionDateFormatter stringFromDate:_fireDate], @(_ti), _repeats ? @"YES" : @"NO"];
+}
+
+- (NSString*)syncResourceDescription
+{
+	return [NSString stringWithFormat:@"Timer with fireDate: “%@” interval: “%@” repeats: “%@”", [_DTXTimerTrampoline._descriptionDateFormatter stringFromDate:_fireDate], @(_ti), _repeats ? @"YES" : @"NO"];
 }
 
 @end
@@ -256,7 +267,7 @@ static const void* _DTXTimerTrampolineKey = &_DTXTimerTrampolineKey;
 	[self performUpdateBlock:^{
 		[_timers addObject:trampoline];
 		return _timers.count;
-	} eventIdentifier:[NSString stringWithFormat:@"%p", trampoline] eventDescription:trampoline.description];
+	} eventIdentifier:[NSString stringWithFormat:@"%p", trampoline] eventDescription:trampoline.syncResourceDescription];
 }
 
 - (void)untrackTimerTrampoline:(_DTXTimerTrampoline *)trampoline
@@ -264,7 +275,7 @@ static const void* _DTXTimerTrampolineKey = &_DTXTimerTrampolineKey;
 	[self performUpdateBlock:^{
 		[_timers removeObject:trampoline];
 		return _timers.count;
-	} eventIdentifier:[NSString stringWithFormat:@"%p", trampoline] eventDescription:trampoline.description];
+	} eventIdentifier:[NSString stringWithFormat:@"%p", trampoline] eventDescription:trampoline.syncResourceDescription];
 }
 
 - (NSString *)description
@@ -274,7 +285,7 @@ static const void* _DTXTimerTrampolineKey = &_DTXTimerTrampolineKey;
 	@try {
 		x = [NSString stringWithFormat:@"<%@: %p timers: %@", self.class, self, [_timers.allObjects valueForKey:@"description"]];
 	} @catch (NSException *exception) {
-		NSLog(@"🤡 %@", exception);
+		return [super description];
 	}
 	
 	return x;
@@ -282,7 +293,7 @@ static const void* _DTXTimerTrampolineKey = &_DTXTimerTrampolineKey;
 
 - (NSString*)syncResourceDescription
 {
-	return [NSString stringWithFormat:@"Timers: %@", [_timers.allObjects valueForKey:@"description"]];
+	return [NSString stringWithFormat:@"Timers: %@", [_timers.allObjects valueForKey:@"syncResourceDescription"]];
 }
 
 @end

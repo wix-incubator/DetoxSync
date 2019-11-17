@@ -60,7 +60,7 @@
 
 - (NSString*)syncResourceDescription
 {
-	return [NSString stringWithFormat:@"Delayed perform selector “%@” on object “%@”", NSStringFromSelector(_selector), _target];
+	return [NSString stringWithFormat:@"Delayed perform selector: “%@” on object: “%@”", NSStringFromSelector(_selector), _target];
 }
 
 + (id<DTXDelayedPerformSelectorProxy>)delayedPerformSelectorProxyWithTarget:(id)target selector:(SEL)selector object:(id)obj;
