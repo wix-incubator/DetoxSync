@@ -31,6 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+__attribute__((weak_import))
 @interface DTXSyncManager : NSObject
 
 @property (class, nonatomic) NSTimeInterval maximumAllowedDelayedActionTrackingDuration;
