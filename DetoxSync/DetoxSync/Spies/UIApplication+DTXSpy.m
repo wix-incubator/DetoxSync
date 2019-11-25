@@ -43,7 +43,7 @@ static const void* _DTXApplicationIgnoringEventsSRKey = &_DTXApplicationIgnoring
 	
 	if(wasIgnoring == NO)
 	{
-		DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObject:self description:@"Application ignoring interaction events"];
+		DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"Application Ignoring Interaction Events"];
 		objc_setAssociatedObject(self, _DTXApplicationIgnoringEventsSRKey, sr, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	}
 }

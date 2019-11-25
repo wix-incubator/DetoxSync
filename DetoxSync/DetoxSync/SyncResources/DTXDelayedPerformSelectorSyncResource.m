@@ -33,7 +33,7 @@
 		[DTXSyncManager registerSyncResource:self];
 		[self performUpdateBlock:^NSUInteger{
 			return 1;
-		} eventIdentifier:[NSString stringWithFormat:@"%p", self] eventDescription:self.syncResourceDescription];
+		} eventIdentifier:[NSString stringWithFormat:@"%p", self] eventDescription:self.syncResourceGenericDescription objectDescription:self._selectorTargetDescription additionalDescription:nil];
 	}
 	
 	return self;
@@ -48,19 +48,29 @@
 	
 	[self performUpdateBlock:^NSUInteger{
 		return 0;
-	} eventIdentifier:[NSString stringWithFormat:@"%p", self] eventDescription:self.syncResourceDescription];
+	} eventIdentifier:[NSString stringWithFormat:@"%p", self] eventDescription:self.syncResourceGenericDescription objectDescription:self._selectorTargetDescription additionalDescription:nil];
 	
 	[DTXSyncManager unregisterSyncResource:self];
 }
 
 - (NSString *)description
 {
-	return [NSString stringWithFormat:@"<DTXDelayedPerformSelectorSyncResource: %p target: %@ selector: %@>", self, _target, NSStringFromSelector(_selector)];
+	return [NSString stringWithFormat:@"<DTXDelayedPerformSelectorSyncResource: %p %@>", self, self._selectorTargetDescription];
 }
 
 - (NSString*)syncResourceDescription
 {
-	return [NSString stringWithFormat:@"Delayed perform selector: “%@” on object: “%@”", NSStringFromSelector(_selector), _target];
+	return [NSString stringWithFormat:@"Delayed perform selector: %@", self._selectorTargetDescription];
+}
+
+- (NSString *)syncResourceGenericDescription
+{
+	return @"Delayed Perform Selector";
+}
+
+- (NSString*)_selectorTargetDescription
+{
+	return [NSString stringWithFormat:@"“%@” on “<%@: %p>”", NSStringFromSelector(_selector), [_target class], _target];
 }
 
 + (id<DTXDelayedPerformSelectorProxy>)delayedPerformSelectorProxyWithTarget:(id)target selector:(SEL)selector object:(id)obj;

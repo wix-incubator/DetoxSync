@@ -20,8 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)syncSystemDidBecomeIdle;
 - (void)syncSystemDidBecomeBusy;
 
-- (void)syncSystemDidStartTrackingEventWithIdentifier:(NSString*)identifier description:(NSString*)description;
-- (void)syncSystemDidEndTrackingEventWithIdentifier:(NSString*)identifier description:(NSString*)description;
+- (void)syncSystemDidStartTrackingEventWithIdentifier:(NSString*)identifier description:(NSString*)description objectDescription:(NSString*)objectDescription additionalDescription:(nullable NSString*)additionalDescription;
+- (void)syncSystemDidEndTrackingEventWithIdentifier:(NSString*)identifier;
 
 @end
 
@@ -56,7 +56,7 @@ __attribute__((weak_import))
 + (void)trackDisplayLink:(CADisplayLink*)displayLink NS_SWIFT_NAME(track(displayLink:));
 + (void)untrackDisplayLink:(CADisplayLink*)displayLink NS_SWIFT_NAME(untrack(displayLink:));
 
-+ (id<DTXEventTracker>)trackEventWithObject:(nullable id)object description:(NSString*)description NS_SWIFT_NAME(track(eventWithObject:description:));
++ (id<DTXEventTracker>)trackEventWithDescription:(NSString*)description objectDescription:(NSString*)objectDescription NS_SWIFT_NAME(track(description:objectDescription:));
 
 + (void)syncStatusWithCompletionHandler:(void (^)(NSString* information))completionHandler;
 

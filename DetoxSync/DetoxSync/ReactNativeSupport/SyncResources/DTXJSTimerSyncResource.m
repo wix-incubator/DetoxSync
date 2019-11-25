@@ -76,9 +76,14 @@
 		}
 		
 		return [_syncResource _busyCount];
-	} eventIdentifier:aKey.stringValue eventDescription:[NSString stringWithFormat:@"JS timer %@", aKey]];
+	} eventIdentifier:aKey.stringValue eventDescription:_syncResource.syncResourceGenericDescription objectDescription:[aKey description] additionalDescription:nil];
 	
 	[_timers removeObjectForKey:aKey];
+}
+
+- (NSString*)syncResourceDescription
+{
+	return [_observedTimers description];
 }
 
 @end
@@ -186,8 +191,17 @@
 		}
 
 		return [self _busyCount];
-	} eventIdentifier:timerID.stringValue eventDescription:[NSString stringWithFormat:@"JS timer %@", timerID]];
+	} eventIdentifier:timerID.stringValue eventDescription:self.syncResourceGenericDescription objectDescription:[timerID description] additionalDescription:nil];
+}
 
+- (NSString*)syncResourceDescription
+{
+	return [NSString stringWithFormat:@"Timers: %@", [_observations valueForKey:@"syncResourceDescription"]];
+}
+
+- (NSString *)syncResourceGenericDescription
+{
+	return @"JS Timer";
 }
 
 @end

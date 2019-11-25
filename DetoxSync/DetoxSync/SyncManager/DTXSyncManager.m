@@ -100,8 +100,8 @@ static NSTimeInterval _maximumTimerIntervalTrackingDuration = __builtin_inf();
 	
 	_delegate_syncSystemDidBecomeIdle = [_delegate respondsToSelector:@selector(syncSystemDidBecomeIdle)];
 	_delegate_syncSystemDidBecomeBusy = [_delegate respondsToSelector:@selector(syncSystemDidBecomeBusy)];
-	_delegate_syncSystemDidStartTrackingEventWithDescription = [_delegate respondsToSelector:@selector(syncSystemDidStartTrackingEventWithIdentifier:description:)];
-	_delegate_syncSystemDidEndTrackingEventWithDescription = [_delegate respondsToSelector:@selector(syncSystemDidEndTrackingEventWithIdentifier:description:)];
+	_delegate_syncSystemDidStartTrackingEventWithDescription = [_delegate respondsToSelector:@selector(syncSystemDidStartTrackingEventWithIdentifier:description:objectDescription:additionalDescription:)];
+	_delegate_syncSystemDidEndTrackingEventWithDescription = [_delegate respondsToSelector:@selector(syncSystemDidEndTrackingEventWithIdentifier:)];
 	
 	if(_delegate == nil)
 	{
@@ -165,7 +165,7 @@ static NSTimeInterval _maximumTimerIntervalTrackingDuration = __builtin_inf();
 	});
 }
 
-+ (void)performUpdateWithEventIdentifier:(NSString*)eventID eventDescription:(NSString*)eventDescription syncResource:(DTXSyncResource*)resource block:(NSUInteger(^)(void))block
++ (void)performUpdateWithEventIdentifier:(NSString*)eventID eventDescription:(NSString*)eventDescription objectDescription:(NSString*)objectDescription additionalDescription:(NSString*)additionalDescription syncResource:(DTXSyncResource*)resource block:(NSUInteger(^)(void))block
 {
 	dispatch_block_t outerBlock = ^ {
 		NSCAssert([_registeredResources containsObject:resource], @"Provided resource %@ is not registered", resource);
@@ -178,11 +178,11 @@ static NSTimeInterval _maximumTimerIntervalTrackingDuration = __builtin_inf();
 			
 			if(previousBusyCount < busyCount && __builtin_expect(_delegate_syncSystemDidStartTrackingEventWithDescription, 0))
 			{
-				[_delegate syncSystemDidStartTrackingEventWithIdentifier:eventID description:eventDescription];
+				[_delegate syncSystemDidStartTrackingEventWithIdentifier:eventID description:eventDescription objectDescription:objectDescription additionalDescription:additionalDescription];
 			}
 			else if(previousBusyCount > busyCount && __builtin_expect(_delegate_syncSystemDidEndTrackingEventWithDescription, 0))
 			{
-				[_delegate syncSystemDidEndTrackingEventWithIdentifier:eventID description:eventDescription];
+				[_delegate syncSystemDidEndTrackingEventWithIdentifier:eventID];
 			}
 		}
 		
@@ -471,9 +471,9 @@ static BOOL DTXIsSystemBusyNow(void)
 	[DTXTimerSyncResource stopTrackingDisplayLink:displayLink];
 }
 
-+ (id<DTXEventTracker>)trackEventWithObject:(id)object description:(NSString *)description
++ (id<DTXEventTracker>)trackEventWithDescription:(NSString*)description objectDescription:(NSString*)objectDescription
 {
-	return [DTXSingleUseSyncResource singleUseSyncResourceWithObject:object description:description];
+	return [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:objectDescription eventDescription:description];
 }
 
 + (NSString*)_syncStatus:(BOOL)includeAll;

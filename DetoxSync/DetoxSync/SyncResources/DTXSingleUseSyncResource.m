@@ -46,10 +46,10 @@
 @implementation DTXSingleUseSyncResource
 {
 	NSString* _description;
-	__weak id _object;
+	NSString* _object;
 }
 
-+ (id<DTXSingleUse>)singleUseSyncResourceWithObject:(id)object description:(NSString*)description
++ (id<DTXSingleUse>)singleUseSyncResourceWithObjectDescription:(NSString*)object eventDescription:(NSString*)description
 {
 	DTXSingleUseSyncResource* rv = [[DTXSingleUseSyncResource alloc] init];
 	rv->_description = description;
@@ -57,7 +57,7 @@
 	[DTXSyncManager registerSyncResource:rv];
 	[rv performUpdateBlock:^ NSUInteger {
 		return 1;
-	} eventIdentifier:[NSString stringWithFormat:@"%p", rv] eventDescription:rv.syncResourceDescription];
+	} eventIdentifier:[NSString stringWithFormat:@"%p", rv] eventDescription:description objectDescription:[NSString stringWithFormat:@"%@", object] additionalDescription:nil];
 	
 	_DTXSingleUseDeallocationHelper* helper = [[_DTXSingleUseDeallocationHelper alloc] initWithSyncResource:rv];
 	
@@ -68,7 +68,7 @@
 {
 	[self performUpdateBlock:^ NSUInteger {
 		return 0;
-	} eventIdentifier:[NSString stringWithFormat:@"%p", self] eventDescription:self.syncResourceDescription];
+	} eventIdentifier:[NSString stringWithFormat:@"%p", self] eventDescription:_description objectDescription:[NSString stringWithFormat:@"%@", _object] additionalDescription:nil];
 	
 	[DTXSyncManager unregisterSyncResource:self];
 }
@@ -86,6 +86,11 @@
 - (NSString*)syncResourceDescription
 {
 	return [NSString stringWithFormat:@"%@%@", _description, _object != nil ? [NSString stringWithFormat:@" (“%@”)", _object] : @""];
+}
+
+- (NSString*)syncResourceGenericDescription
+{
+	return @"Single Event";
 }
 
 @end

@@ -19,7 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface DTXSingleUseSyncResource : DTXSyncResource <DTXSingleUse>
 
-+ (id<DTXSingleUse>)singleUseSyncResourceWithObject:(nullable id)object description:(NSString*)description;
++ (id<DTXSingleUse>)singleUseSyncResourceWithObjectDescription:(NSString*)object eventDescription:(NSString*)description;
 
 - (void)endTracking;
 

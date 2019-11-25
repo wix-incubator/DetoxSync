@@ -33,7 +33,7 @@
 	
 	if(self.transitionCoordinator)
 	{
-		DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObject:self description:@"Controller view will appear"];
+		DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"Controller View Will Appear"];
 		
 		[self.transitionCoordinator animateAlongsideTransition:nil completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
 			[sr endTracking];
@@ -52,7 +52,7 @@
 	
 	if(self.transitionCoordinator)
 	{
-		DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObject:self description:@"Controller view will disappear"];
+		DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"Controller View Will Disappear"];
 		
 		[self.transitionCoordinator animateAlongsideTransition:nil completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
 			[sr endTracking];

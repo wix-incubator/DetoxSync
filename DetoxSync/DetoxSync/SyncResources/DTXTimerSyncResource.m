@@ -177,6 +177,11 @@ static const void* _DTXTimerTrampolineKey = &_DTXTimerTrampolineKey;
 	return [NSString stringWithFormat:@"Timer with fireDate: “%@” interval: “%@” repeats: “%@”", [_DTXTimerTrampoline._descriptionDateFormatter stringFromDate:_fireDate], @(_ti), _repeats ? @"YES" : @"NO"];
 }
 
+- (NSString*)syncResourceGenericDescription
+{
+	return @"Timer";
+}
+
 @end
 
 @implementation DTXTimerSyncResource
@@ -267,7 +272,7 @@ static const void* _DTXTimerTrampolineKey = &_DTXTimerTrampolineKey;
 	[self performUpdateBlock:^{
 		[_timers addObject:trampoline];
 		return _timers.count;
-	} eventIdentifier:[NSString stringWithFormat:@"%p", trampoline] eventDescription:trampoline.syncResourceDescription];
+	} eventIdentifier:[NSString stringWithFormat:@"%p", trampoline] eventDescription:self.syncResourceGenericDescription objectDescription:trampoline.syncResourceDescription additionalDescription:nil];
 }
 
 - (void)untrackTimerTrampoline:(_DTXTimerTrampoline *)trampoline
@@ -275,7 +280,7 @@ static const void* _DTXTimerTrampolineKey = &_DTXTimerTrampolineKey;
 	[self performUpdateBlock:^{
 		[_timers removeObject:trampoline];
 		return _timers.count;
-	} eventIdentifier:[NSString stringWithFormat:@"%p", trampoline] eventDescription:trampoline.syncResourceDescription];
+	} eventIdentifier:[NSString stringWithFormat:@"%p", trampoline] eventDescription:self.syncResourceGenericDescription objectDescription:trampoline.syncResourceDescription additionalDescription:nil];
 }
 
 - (NSString *)description
@@ -294,6 +299,11 @@ static const void* _DTXTimerTrampolineKey = &_DTXTimerTrampolineKey;
 - (NSString*)syncResourceDescription
 {
 	return [NSString stringWithFormat:@"Timers: %@", [_timers.allObjects valueForKey:@"syncResourceDescription"]];
+}
+
+- (NSString*)syncResourceGenericDescription
+{
+	return @"Timer";
 }
 
 @end

@@ -47,7 +47,7 @@
 
 - (void)__detox_sync_setNeedsLayout
 {
-	DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObject:self description:@"Layer layout"];
+	DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"Layer Layout"];
 	
 	[self __detox_sync_setNeedsLayout];
 	
@@ -58,7 +58,7 @@
 
 - (void)__detox_sync_setNeedsDisplay
 {
-	DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObject:self description:@"Layer display"];
+	DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"Layer Display"];
 	
 	[self __detox_sync_setNeedsDisplay];
 	
@@ -69,7 +69,7 @@
 
 - (void)__detox_sync_setNeedsDisplayInRect:(CGRect)rect
 {
-	DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObject:self description:@"Layer display in rect"];
+	DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"Layer Display in Rect"];
 	
 	[self __detox_sync_setNeedsDisplayInRect:rect];
 	
@@ -80,7 +80,7 @@
 
 - (void)__detox_sync_addAnimation:(CAAnimation *)anim forKey:(NSString *)key
 {
-	DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObject:self description:@"Layer pending CA animation"];
+	DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"Layer Pending CA Animation"];
 	
 	[self __detox_sync_addAnimation:anim forKey:key];
 	

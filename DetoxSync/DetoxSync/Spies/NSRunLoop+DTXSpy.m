@@ -23,7 +23,7 @@ static void __detox_sync_CFRunLoopPerformBlock(CFRunLoopRef rl, CFTypeRef mode, 
 		return;
 	}
 	
-	id<DTXSingleUse> sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObject:nil description:@"Runloop perform block"];
+	id<DTXSingleUse> sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:[NSString stringWithFormat:@"<CFRunLoop: %p>", rl] eventDescription:@"Runloop Perform Block"];
 	
 	__orig_CFRunLoopPerformBlock(rl, mode, ^ {
 		block();

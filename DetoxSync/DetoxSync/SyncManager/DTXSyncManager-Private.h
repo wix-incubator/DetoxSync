@@ -22,7 +22,7 @@ void __detox_sync_DTXSyncResourceVerboseLog(NSString* format, ...)  NS_FORMAT_FU
 + (void)registerSyncResource:(DTXSyncResource*)syncResource;
 + (void)unregisterSyncResource:(DTXSyncResource*)syncResource;
 
-+ (void)performUpdateWithEventIdentifier:(NSString*)eventID eventDescription:(NSString*)eventDescription syncResource:(DTXSyncResource*)resource block:(NSUInteger(^)(void))block;
++ (void)performUpdateWithEventIdentifier:(NSString*)eventID eventDescription:(NSString*)eventDescription objectDescription:(NSString*)objectDescription additionalDescription:(NSString*)additionalDescription syncResource:(DTXSyncResource*)resource block:(NSUInteger(^)(void))block;
 
 + (BOOL)isTrackedThread:(NSThread*)thread;
 + (BOOL)isTrackedRunLoop:(CFRunLoopRef)runLoop;

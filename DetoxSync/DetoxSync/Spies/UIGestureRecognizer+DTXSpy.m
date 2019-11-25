@@ -43,7 +43,7 @@ static const void* _DTXGestureRecognizerSRKey = &_DTXGestureRecognizerSRKey;
 
 - (void)__detox_sync__setDirty
 {
-	DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObject:self description:@"Gesture recognizer"];
+	DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"Gesture Recognizer"];
 	objc_setAssociatedObject(self, _DTXGestureRecognizerSRKey, sr, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	
 	[self __detox_sync__setDirty];

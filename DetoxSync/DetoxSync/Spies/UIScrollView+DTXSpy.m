@@ -43,7 +43,7 @@ static const void* _DTXScrollViewSRKey = &_DTXScrollViewSRKey;
 
 - (void)__detox_sync__scrollViewWillBeginDragging
 {
-	DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObject:self description:@"Scroll view scroll"];
+	DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"Scroll View Scroll"];
 	objc_setAssociatedObject(self, _DTXScrollViewSRKey, sr, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	
 	[self __detox_sync__scrollViewWillBeginDragging];

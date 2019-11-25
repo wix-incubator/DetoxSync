@@ -72,13 +72,18 @@ static const void* DTXQueueDeallocHelperKey = &DTXQueueDeallocHelperKey;
 	return [NSString stringWithFormat:@"%lu work blocks on dispatch queue “%@”", (unsigned long)_busyCount, _queue];
 }
 
+- (NSString*)syncResourceGenericDescription
+{
+	return @"Dispatch Queue";
+}
+
 - (void)addWorkBlock:(id)block operation:(NSString*)operation
 {
 	[self performUpdateBlock:^NSUInteger{
 		_busyCount += 1;
 		[_busyBlocks addObject:block];
 		return _busyCount;
-	} eventIdentifier:[NSString stringWithFormat:@"%lu", (unsigned long)[block hash]] eventDescription:[NSString stringWithFormat:@"Dispatch queue “%@” operation: “%@”", _queue, operation]];
+	} eventIdentifier:[NSString stringWithFormat:@"%p", block] eventDescription:self.syncResourceGenericDescription objectDescription:[self _descriptionForOperation:operation block:block] additionalDescription:nil];
 }
 
 - (void)removeWorkBlock:(id)block operation:(NSString*)operation
@@ -87,7 +92,12 @@ static const void* DTXQueueDeallocHelperKey = &DTXQueueDeallocHelperKey;
 		_busyCount -= 1;
 		[_busyBlocks removeObject:block];
 		return _busyCount;
-	} eventIdentifier:[NSString stringWithFormat:@"%lu", (unsigned long)[block hash]] eventDescription:[NSString stringWithFormat:@"Dispatch queue “%@” operation: “%@”", _queue, operation]];
+	} eventIdentifier:[NSString stringWithFormat:@"%p", block] eventDescription:self.syncResourceGenericDescription objectDescription:[self _descriptionForOperation:operation block:block] additionalDescription:nil];
+}
+
+- (NSString*)_descriptionForOperation:(NSString*)op block:(id)block
+{
+	return [NSString stringWithFormat:@"%@ on “%@”", op, _queue];
 }
 
 - (void)dealloc

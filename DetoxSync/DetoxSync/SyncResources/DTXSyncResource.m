@@ -13,12 +13,18 @@
 
 @implementation DTXSyncResource
 
-- (void)performUpdateBlock:(NSUInteger(^)(void))block eventIdentifier:eventID eventDescription:(NSString*)eventDescription
+- (void)performUpdateBlock:(NSUInteger(^)(void))block eventIdentifier:eventID eventDescription:(NSString*)eventDescription objectDescription:(NSString*)objectDescription additionalDescription:(nullable NSString*)additionalDescription
 {
-	[DTXSyncManager performUpdateWithEventIdentifier:eventID eventDescription:eventDescription syncResource:self block:block];
+	[DTXSyncManager performUpdateWithEventIdentifier:eventID eventDescription:eventDescription objectDescription:objectDescription additionalDescription:additionalDescription syncResource:self block:block];
 }
 
 - (NSString*)syncResourceDescription
+{
+	[self doesNotRecognizeSelector:_cmd];
+	return nil;
+}
+
+- (NSString*)syncResourceGenericDescription
 {
 	[self doesNotRecognizeSelector:_cmd];
 	return nil;

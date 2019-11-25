@@ -22,7 +22,7 @@
 
 + (void)__detox_sync__setupAnimationWithDuration:(double)arg1 delay:(double)arg2 view:(id)arg3 options:(unsigned long long)arg4 factory:(id)arg5 animations:(id)arg6 start:(id)arg7 animationStateGenerator:(id)arg8 completion:(void (^)(BOOL finished))completion
 {
-	DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObject:nil description:@"UIView animation"];
+	DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:[NSString stringWithFormat:@"Animation with duration: “%@” delay: “%@” view: “%@”", @(arg1), @(arg2), arg3] eventDescription:@"UIView Animation"];
 	
 	[self __detox_sync__setupAnimationWithDuration:arg1 delay:arg2 view:arg3 options:arg4 factory:arg5 animations:arg6 start:arg7 animationStateGenerator:arg8 completion:^(BOOL finished) {
 		if(completion)
@@ -63,7 +63,7 @@
 
 - (void)__detox_sync_setNeedsLayout
 {
-	DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObject:self description:@"View layout"];
+	DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"View Layout"];
 	
 	[self __detox_sync_setNeedsLayout];
 	
@@ -74,7 +74,7 @@
 
 - (void)__detox_sync_setNeedsDisplay
 {
-	DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObject:self description:@"View display"];
+	DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"View Display"];
 	
 	[self __detox_sync_setNeedsDisplay];
 	
@@ -85,7 +85,7 @@
 
 - (void)__detox_sync_setNeedsDisplayInRect:(CGRect)rect
 {
-	DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObject:self description:@"View display in rect"];
+	DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"View Display in Rect"];
 	
 	[self __detox_sync_setNeedsDisplayInRect:rect];
 	
