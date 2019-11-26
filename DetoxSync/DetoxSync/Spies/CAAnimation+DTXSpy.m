@@ -41,7 +41,7 @@ static const void* _DTXCAAnimationDelegateProxySRKey = &_DTXCAAnimationDelegateP
 
 - (void)__detox_sync_trackAnimation
 {
-	id<DTXSingleUse> newSr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"CA Animation"];
+	id<DTXSingleUse> newSr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:[NSString stringWithFormat:@"%@ with duration: “%@” delay: “%@”", self.class, @(self.duration), @(self.beginTime)] eventDescription:@"Animation"];
 	
 	[self __detox_sync_untrackAnimation];
 	
