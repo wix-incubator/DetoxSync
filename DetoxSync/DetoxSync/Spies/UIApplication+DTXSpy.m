@@ -35,6 +35,7 @@ static const void* _DTXApplicationIgnoringEventsSRKey = &_DTXApplicationIgnoring
 	objc_setAssociatedObject(self, _DTXApplicationIgnoringEventsSRKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
+CLANG_IGNORE(-Wdeprecated-declarations)
 - (void)__detox_sync_beginIgnoringInteractionEvents
 {
 	BOOL wasIgnoring = self.isIgnoringInteractionEvents;
@@ -57,5 +58,6 @@ static const void* _DTXApplicationIgnoringEventsSRKey = &_DTXApplicationIgnoring
 		[self __detox_sync_resetSyncResource];
 	}
 }
+CLANG_POP
 
 @end
