@@ -76,6 +76,8 @@ static const void* _DTXCAAnimationDelegateProxySRKey = &_DTXCAAnimationDelegateP
 		return;
 	}
 	
+	NSError* error;
+	
 	Method m2_helper = class_getInstanceMethod(_DTXCAAnimationDelegateHelper.class, @selector(__detox_sync_animationDidStart:));
 	if(class_getInstanceMethod(delegate.class, @selector(animationDidStart:)) == NULL)
 	{
@@ -83,7 +85,7 @@ static const void* _DTXCAAnimationDelegateProxySRKey = &_DTXCAAnimationDelegateP
 	}
 	class_addMethod(delegate.class, @selector(__detox_sync_animationDidStart:), method_getImplementation(m2_helper), method_getTypeEncoding(m2_helper));
 	
-	[CAAnimation jr_swizzleMethod:@selector(animationDidStart:) withMethod:@selector(__detox_sync_animationDidStart:) error:NULL];
+	[delegate.class jr_swizzleMethod:@selector(animationDidStart:) withMethod:@selector(__detox_sync_animationDidStart:) error:&error];
 	
 	m2_helper = class_getInstanceMethod(_DTXCAAnimationDelegateHelper.class, @selector(__detox_sync_animationDidStop:finished:));
 	if(class_getInstanceMethod(delegate.class, @selector(animationDidStop:finished:)) == NULL)
@@ -92,7 +94,7 @@ static const void* _DTXCAAnimationDelegateProxySRKey = &_DTXCAAnimationDelegateP
 	}
 	class_addMethod(delegate.class, @selector(__detox_sync_animationDidStop:finished:), method_getImplementation(m2_helper), method_getTypeEncoding(m2_helper));
 	
-	[CAAnimation jr_swizzleMethod:@selector(animationDidStop:finished:) withMethod:@selector(__detox_sync_animationDidStop:finished:) error:NULL];
+	[delegate.class jr_swizzleMethod:@selector(animationDidStop:finished:) withMethod:@selector(__detox_sync_animationDidStop:finished:) error:&error];
 	
 	class_addMethod(delegate.class, NSSelectorFromString(@"__detox_sync_canary"), imp_implementationWithBlock(^ (id _self) { }), "v8@0:4");
 }
