@@ -25,25 +25,13 @@ static const void* _DTXDisplayLinkRunLoopKey = &_DTXDisplayLinkRunLoopKey;
 {
 	@autoreleasepool
 	{
-		Method m1 = class_getClassMethod(self.class, @selector(displayLinkWithDisplay:target:selector:));
-		Method m2 = class_getClassMethod(self.class, @selector(__detox_sync_displayLinkWithDisplay:target:selector:));
-		method_exchangeImplementations(m1, m2);
+		NSError* error;
+		[self jr_swizzleClassMethod:@selector(displayLinkWithDisplay:target:selector:) withClassMethod:@selector(__detox_sync_displayLinkWithDisplay:target:selector:) error:&error];
 		
-		m1 = class_getInstanceMethod(self.class, @selector(addToRunLoop:forMode:));
-		m2 = class_getInstanceMethod(self.class, @selector(__detox_sync_addToRunLoop:forMode:));
-		method_exchangeImplementations(m1, m2);
-		
-		m1 = class_getInstanceMethod(self.class, @selector(removeFromRunLoop:forMode:));
-		m2 = class_getInstanceMethod(self.class, @selector(__detox_sync_removeFromRunLoop:forMode:));
-		method_exchangeImplementations(m1, m2);
-		
-		m1 = class_getInstanceMethod(self.class, @selector(invalidate));
-		m2 = class_getInstanceMethod(self.class, @selector(__detox_sync_invalidate));
-		method_exchangeImplementations(m1, m2);
-		
-		m1 = class_getInstanceMethod(self.class, @selector(setPaused:));
-		m2 = class_getInstanceMethod(self.class, @selector(__detox_sync_setPaused:));
-		method_exchangeImplementations(m1, m2);
+		[self jr_swizzleMethod:@selector(addToRunLoop:forMode:) withMethod:@selector(__detox_sync_addToRunLoop:forMode:) error:&error];
+		[self jr_swizzleMethod:@selector(removeFromRunLoop:forMode:) withMethod:@selector(__detox_sync_removeFromRunLoop:forMode:) error:&error];
+		[self jr_swizzleMethod:@selector(invalidate) withMethod:@selector(__detox_sync_invalidate) error:&error];
+		[self jr_swizzleMethod:@selector(setPaused:) withMethod:@selector(__detox_sync_setPaused:) error:&error];
 	}
 }
 

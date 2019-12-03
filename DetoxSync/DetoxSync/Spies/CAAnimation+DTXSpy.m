@@ -64,9 +64,7 @@ static const void* _DTXCAAnimationDelegateProxySRKey = &_DTXCAAnimationDelegateP
 {
 	@autoreleasepool
 	{
-		Method m1 = class_getInstanceMethod(CAAnimation.class, @selector(setDelegate:));
-		Method m2 = class_getInstanceMethod(CAAnimation.class, @selector(__detox_sync_setDelegate:));
-		method_exchangeImplementations(m1, m2);
+		[CAAnimation jr_swizzleMethod:@selector(setDelegate:) withMethod:@selector(__detox_sync_setDelegate:) error:NULL];
 	}
 }
 
@@ -78,27 +76,23 @@ static const void* _DTXCAAnimationDelegateProxySRKey = &_DTXCAAnimationDelegateP
 		return;
 	}
 	
-	Method m1 = class_getInstanceMethod(delegate.class, @selector(animationDidStart:));
 	Method m2_helper = class_getInstanceMethod(_DTXCAAnimationDelegateHelper.class, @selector(__detox_sync_animationDidStart:));
-	if(m1 == NULL)
+	if(class_getInstanceMethod(delegate.class, @selector(animationDidStart:)) == NULL)
 	{
 		class_addMethod(delegate.class, @selector(animationDidStart:), imp_implementationWithBlock(^(id _self, id anim) { }), method_getTypeEncoding(m2_helper));
-		m1 = class_getInstanceMethod(delegate.class, @selector(animationDidStart:));
 	}
 	class_addMethod(delegate.class, @selector(__detox_sync_animationDidStart:), method_getImplementation(m2_helper), method_getTypeEncoding(m2_helper));
-	Method m2 = class_getInstanceMethod(delegate.class, @selector(__detox_sync_animationDidStart:));
-	method_exchangeImplementations(m1, m2);
 	
-	m1 = class_getInstanceMethod(delegate.class, @selector(animationDidStop:finished:));
+	[CAAnimation jr_swizzleMethod:@selector(animationDidStart:) withMethod:@selector(__detox_sync_animationDidStart:) error:NULL];
+	
 	m2_helper = class_getInstanceMethod(_DTXCAAnimationDelegateHelper.class, @selector(__detox_sync_animationDidStop:finished:));
-	if(m1 == NULL)
+	if(class_getInstanceMethod(delegate.class, @selector(animationDidStop:finished:)) == NULL)
 	{
 		class_addMethod(delegate.class, @selector(animationDidStop:finished:), imp_implementationWithBlock(^(id _self, id anim) { }), method_getTypeEncoding(m2_helper));
-		m1 = class_getInstanceMethod(delegate.class, @selector(animationDidStop:finished:));
 	}
 	class_addMethod(delegate.class, @selector(__detox_sync_animationDidStop:finished:), method_getImplementation(m2_helper), method_getTypeEncoding(m2_helper));
-	m2 = class_getInstanceMethod(delegate.class, @selector(__detox_sync_animationDidStop:finished:));
-	method_exchangeImplementations(m1, m2);
+	
+	[CAAnimation jr_swizzleMethod:@selector(animationDidStop:finished:) withMethod:@selector(__detox_sync_animationDidStop:finished:) error:NULL];
 	
 	class_addMethod(delegate.class, NSSelectorFromString(@"__detox_sync_canary"), imp_implementationWithBlock(^ (id _self) { }), "v8@0:4");
 }

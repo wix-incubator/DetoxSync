@@ -28,13 +28,11 @@ static const void* _DTXNetworkTaskSRKey = &_DTXNetworkTaskSRKey;
 	{
 		Class cls = NSClassFromString(@"__NSCFLocalDataTask");
 		
-		Method m1 = class_getInstanceMethod(NSClassFromString(@"__NSCFLocalDataTask"), NSSelectorFromString(@"greyswizzled_resume"));
-		if(m1 == NULL)
+		NSError* error;
+		if(NO == [cls jr_swizzleMethod:NSSelectorFromString(@"greyswizzled_resume") withMethod:@selector(__detox_sync_resume) error:&error])
 		{
-			m1 = class_getInstanceMethod(cls, @selector(resume));
+			[cls jr_swizzleMethod:@selector(resume) withMethod:@selector(__detox_sync_resume) error:&error];
 		}
-		Method m2 = class_getInstanceMethod(self.class, @selector(__detox_sync_resume));
-		method_exchangeImplementations(m1, m2);
 		
 //		m1 = class_getInstanceMethod(cls, @selector(connection:didFinishLoadingWithError:));
 //		m2 = class_getInstanceMethod(self.class, @selector(__detox_sync_connection:didFinishLoadingWithError:));

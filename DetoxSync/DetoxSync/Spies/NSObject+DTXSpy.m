@@ -18,13 +18,9 @@
 {
 	@autoreleasepool
 	{
-		Method m1 = class_getInstanceMethod(NSObject.class, @selector(performSelector:withObject:afterDelay:inModes:));
-		Method m2 = class_getInstanceMethod(NSObject.class, @selector(__detox_sync_performSelector:withObject:afterDelay:inModes:));
-		method_exchangeImplementations(m1, m2);
-		
-		m1 = class_getInstanceMethod(NSObject.class, @selector(performSelector:onThread:withObject:waitUntilDone:modes:));
-		m2 = class_getInstanceMethod(NSObject.class, @selector(__detox_sync_performSelector:onThread:withObject:waitUntilDone:modes:));
-		method_exchangeImplementations(m1, m2);
+		NSError* error;
+		[self jr_swizzleMethod:@selector(performSelector:withObject:afterDelay:inModes:) withMethod:@selector(__detox_sync_performSelector:withObject:afterDelay:inModes:) error:&error];
+		[self jr_swizzleMethod:@selector(performSelector:onThread:withObject:waitUntilDone:modes:) withMethod:@selector(__detox_sync_performSelector:onThread:withObject:waitUntilDone:modes:) error:&error];
 	}
 }
 

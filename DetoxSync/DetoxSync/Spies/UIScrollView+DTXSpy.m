@@ -27,17 +27,10 @@ static const void* _DTXScrollViewSRKey = &_DTXScrollViewSRKey;
 {
 	@autoreleasepool
 	{
-		Method m1 = class_getInstanceMethod(UIScrollView.class, @selector(_scrollViewWillBeginDragging));
-		Method m2 = class_getInstanceMethod(UIScrollView.class, @selector(__detox_sync__scrollViewWillBeginDragging));
-		method_exchangeImplementations(m1, m2);
-		
-		m1 = class_getInstanceMethod(UIScrollView.class, @selector(_scrollViewDidEndDraggingWithDeceleration:));
-		m2 = class_getInstanceMethod(UIScrollView.class, @selector(__detox_sync__scrollViewDidEndDraggingWithDeceleration:));
-		method_exchangeImplementations(m1, m2);
-		
-		m1 = class_getInstanceMethod(UIScrollView.class, @selector(_scrollViewDidEndDecelerating));
-		m2 = class_getInstanceMethod(UIScrollView.class, @selector(__detox_sync__scrollViewDidEndDecelerating));
-		method_exchangeImplementations(m1, m2);
+		NSError* error;
+		[self jr_swizzleMethod:@selector(_scrollViewWillBeginDragging) withMethod:@selector(__detox_sync__scrollViewWillBeginDragging) error:&error];
+		[self jr_swizzleMethod:@selector(_scrollViewDidEndDraggingWithDeceleration:) withMethod:@selector(__detox_sync__scrollViewDidEndDraggingWithDeceleration:) error:&error];
+		[self jr_swizzleMethod:@selector(_scrollViewDidEndDecelerating) withMethod:@selector(__detox_sync__scrollViewDidEndDecelerating) error:&error];
 	}
 }
 

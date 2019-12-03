@@ -18,13 +18,9 @@ static const void* _DTXApplicationIgnoringEventsSRKey = &_DTXApplicationIgnoring
 + (void)load
 {
 	@autoreleasepool {
-		Method m1 = class_getInstanceMethod(UIScrollView.class, @selector(beginIgnoringInteractionEvents));
-		Method m2 = class_getInstanceMethod(UIScrollView.class, @selector(__detox_sync_beginIgnoringInteractionEvents));
-		method_exchangeImplementations(m1, m2);
-		
-		m1 = class_getInstanceMethod(UIScrollView.class, @selector(endIgnoringInteractionEvents));
-		m2 = class_getInstanceMethod(UIScrollView.class, @selector(__detox_sync_endIgnoringInteractionEvents));
-		method_exchangeImplementations(m1, m2);
+		NSError* error;
+		[self jr_swizzleMethod:@selector(beginIgnoringInteractionEvents) withMethod:@selector(__detox_sync_beginIgnoringInteractionEvents) error:&error];
+		[self jr_swizzleMethod:@selector(endIgnoringInteractionEvents) withMethod:@selector(__detox_sync_endIgnoringInteractionEvents) error:&error];
 	}
 }
 

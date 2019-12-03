@@ -31,19 +31,9 @@
 			return;
 		}
 		
-		Method m11 = class_getInstanceMethod(cls, @selector(startAnimationLoopIfNeeded));
-		Method m21 = class_getInstanceMethod(cls, @selector(__detox_sync_startAnimationLoopIfNeeded));
-		
-		Method m12 = class_getInstanceMethod(cls, @selector(stopAnimationLoop));
-		Method m22 = class_getInstanceMethod(cls, @selector(__detox_sync_stopAnimationLoop));
-		
-		if(m11 == NULL || m12 == NULL)
-		{
-			return;
-		}
-		
-		method_exchangeImplementations(m11, m21);
-		method_exchangeImplementations(m12, m22);
+		NSError* error;
+		[cls jr_swizzleMethod:@selector(startAnimationLoopIfNeeded) withMethod:@selector(__detox_sync_startAnimationLoopIfNeeded) error:&error];
+		[cls jr_swizzleMethod:@selector(stopAnimationLoop) withMethod:@selector(__detox_sync_stopAnimationLoop) error:&error];
 	}
 }
 

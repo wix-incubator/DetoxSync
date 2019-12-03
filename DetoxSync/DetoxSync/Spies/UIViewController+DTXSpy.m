@@ -17,13 +17,9 @@
 {
 	@autoreleasepool
 	{
-		Method m1 = class_getInstanceMethod(UIViewController.class, @selector(viewWillAppear:));
-		Method m2 = class_getInstanceMethod(UIViewController.class, @selector(__detox_sync__viewWillAppear:));
-		method_exchangeImplementations(m1, m2);
-		
-		m1 = class_getInstanceMethod(UIViewController.class, @selector(viewWillDisappear:));
-		m2 = class_getInstanceMethod(UIViewController.class, @selector(__detox_sync__viewWillDisappear:));
-		method_exchangeImplementations(m1, m2);
+		NSError* error;
+		[self jr_swizzleMethod:@selector(viewWillAppear:) withMethod:@selector(__detox_sync__viewWillAppear:) error:&error];
+		[self jr_swizzleMethod:@selector(viewWillDisappear:) withMethod:@selector(__detox_sync__viewWillDisappear:) error:&error];
 	}
 }
 

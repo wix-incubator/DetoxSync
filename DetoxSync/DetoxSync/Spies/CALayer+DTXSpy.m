@@ -19,29 +19,13 @@
 {
 	@autoreleasepool
 	{
-		Method m1 = class_getInstanceMethod(self.class, @selector(setNeedsLayout));
-		Method m2 = class_getInstanceMethod(self.class, @selector(__detox_sync_setNeedsLayout));
-		method_exchangeImplementations(m1, m2);
-		
-		m1 = class_getInstanceMethod(self.class, @selector(setNeedsDisplay));
-		m2 = class_getInstanceMethod(self.class, @selector(__detox_sync_setNeedsDisplay));
-		method_exchangeImplementations(m1, m2);
-		
-		m1 = class_getInstanceMethod(self.class, @selector(setNeedsDisplayInRect:));
-		m2 = class_getInstanceMethod(self.class, @selector(__detox_sync_setNeedsDisplayInRect:));
-		method_exchangeImplementations(m1, m2);
-		
-		m1 = class_getInstanceMethod(self.class, @selector(addAnimation:forKey:));
-		m2 = class_getInstanceMethod(self.class, @selector(__detox_sync_addAnimation:forKey:));
-		method_exchangeImplementations(m1, m2);
-		
-		m1 = class_getInstanceMethod(self.class, @selector(removeAnimationForKey:));
-		m2 = class_getInstanceMethod(self.class, @selector(__detox_sync_removeAnimationForKey:));
-		method_exchangeImplementations(m1, m2);
-		
-		m1 = class_getInstanceMethod(self.class, @selector(removeAllAnimations));
-		m2 = class_getInstanceMethod(self.class, @selector(__detox_sync_removeAllAnimations));
-		method_exchangeImplementations(m1, m2);
+		NSError* error;
+		[self jr_swizzleMethod:@selector(setNeedsLayout) withMethod:@selector(__detox_sync_setNeedsLayout) error:&error];
+		[self jr_swizzleMethod:@selector(setNeedsDisplay) withMethod:@selector(__detox_sync_setNeedsDisplay) error:&error];
+		[self jr_swizzleMethod:@selector(setNeedsDisplayInRect:) withMethod:@selector(__detox_sync_setNeedsDisplayInRect:) error:&error];
+		[self jr_swizzleMethod:@selector(addAnimation:forKey:) withMethod:@selector(__detox_sync_addAnimation:forKey:) error:&error];
+		[self jr_swizzleMethod:@selector(removeAnimationForKey:) withMethod:@selector(__detox_sync_removeAnimationForKey:) error:&error];
+		[self jr_swizzleMethod:@selector(removeAllAnimations) withMethod:@selector(__detox_sync_removeAllAnimations) error:&error];
 	}
 }
 

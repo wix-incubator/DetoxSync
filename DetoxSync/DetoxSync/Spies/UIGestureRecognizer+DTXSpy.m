@@ -27,17 +27,10 @@ static const void* _DTXGestureRecognizerSRKey = &_DTXGestureRecognizerSRKey;
 {
 	@autoreleasepool
 	{
-		Method m1 = class_getInstanceMethod(UIGestureRecognizer.class, @selector(_setDirty));
-		Method m2 = class_getInstanceMethod(UIGestureRecognizer.class, @selector(__detox_sync__setDirty));
-		method_exchangeImplementations(m1, m2);
-		
-		m1 = class_getInstanceMethod(UIGestureRecognizer.class, @selector(_resetGestureRecognizer));
-		m2 = class_getInstanceMethod(UIGestureRecognizer.class, @selector(__detox_sync__resetGestureRecognizer));
-		method_exchangeImplementations(m1, m2);
-		
-		m1 = class_getInstanceMethod(UIGestureRecognizer.class, @selector(setState:));
-		m2 = class_getInstanceMethod(UIGestureRecognizer.class, @selector(__detox_sync_setState:));
-		method_exchangeImplementations(m1, m2);
+		NSError* error;
+		[self jr_swizzleMethod:@selector(_setDirty) withMethod:@selector(__detox_sync__setDirty) error:&error];
+		[self jr_swizzleMethod:@selector(_resetGestureRecognizer) withMethod:@selector(__detox_sync__resetGestureRecognizer) error:&error];
+		[self jr_swizzleMethod:@selector(setState:) withMethod:@selector(__detox_sync_setState:) error:&error];
 	}
 }
 

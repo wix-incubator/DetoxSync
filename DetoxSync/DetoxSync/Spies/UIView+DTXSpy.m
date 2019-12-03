@@ -43,21 +43,11 @@
 {
 	@autoreleasepool
 	{
-		Method m1 = class_getClassMethod(UIView.class, @selector(_setupAnimationWithDuration:delay:view:options:factory:animations:start:animationStateGenerator:completion:));
-		Method m2 = class_getClassMethod(UIView.class, @selector(__detox_sync__setupAnimationWithDuration:delay:view:options:factory:animations:start:animationStateGenerator:completion:));
-		method_exchangeImplementations(m1, m2);
-		
-		m1 = class_getInstanceMethod(UIView.class, @selector(setNeedsLayout));
-		m2 = class_getInstanceMethod(UIView.class, @selector(__detox_sync_setNeedsLayout));
-		method_exchangeImplementations(m1, m2);
-		
-		m1 = class_getInstanceMethod(UIView.class, @selector(setNeedsDisplay));
-		m2 = class_getInstanceMethod(UIView.class, @selector(__detox_sync_setNeedsDisplay));
-		method_exchangeImplementations(m1, m2);
-		
-		m1 = class_getInstanceMethod(UIView.class, @selector(setNeedsDisplayInRect:));
-		m2 = class_getInstanceMethod(UIView.class, @selector(__detox_sync_setNeedsDisplayInRect:));
-		method_exchangeImplementations(m1, m2);
+		NSError* error;
+		[self jr_swizzleMethod:@selector(_setupAnimationWithDuration:delay:view:options:factory:animations:start:animationStateGenerator:completion:) withMethod:@selector(__detox_sync__setupAnimationWithDuration:delay:view:options:factory:animations:start:animationStateGenerator:completion:) error:&error];
+		[self jr_swizzleMethod:@selector(setNeedsLayout) withMethod:@selector(__detox_sync_setNeedsLayout) error:&error];
+		[self jr_swizzleMethod:@selector(setNeedsDisplay) withMethod:@selector(__detox_sync_setNeedsDisplay) error:&error];
+		[self jr_swizzleMethod:@selector(setNeedsDisplayInRect:) withMethod:@selector(__detox_sync_setNeedsDisplayInRect:) error:&error];
 	}
 }
 

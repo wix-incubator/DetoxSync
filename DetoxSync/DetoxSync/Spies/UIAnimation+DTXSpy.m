@@ -20,13 +20,9 @@ static const void* _DTXUIAnimationSRKey = &_DTXUIAnimationSRKey;
 {
 	@autoreleasepool
 	{
-		Method m1 = class_getInstanceMethod(UIAnimation.class, @selector(markStart:));
-		Method m2 = class_getInstanceMethod(UIAnimation.class, @selector(__detox_sync_markStart:));
-		method_exchangeImplementations(m1, m2);
-		
-		m1 = class_getInstanceMethod(UIAnimation.class, @selector(markStop));
-		m2 = class_getInstanceMethod(UIAnimation.class, @selector(__detox_sync_markStop));
-		method_exchangeImplementations(m1, m2);
+		NSError* error;
+		[self jr_swizzleMethod:@selector(markStart:) withMethod:@selector(__detox_sync_markStart:) error:&error];
+		[self jr_swizzleMethod:@selector(markStop) withMethod:@selector(__detox_sync_markStop) error:&error];
 	}
 }
 
