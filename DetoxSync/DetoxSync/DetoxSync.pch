@@ -33,8 +33,6 @@ static void defer_cleanup_block(__strong void(^*block)(void)) {
     _Pragma("clang diagnostic push");\
     _Pragma(CLANG_IGNORE_HELPER2(x))
 
-#if __OBJC__
-#import "JRSwizzle.h"
-#endif
+#import "DTXSwizzlingHelper.h"
 
 #endif /* DetoxSync_pch */

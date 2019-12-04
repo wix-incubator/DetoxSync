@@ -19,8 +19,9 @@ static const void* _DTXApplicationIgnoringEventsSRKey = &_DTXApplicationIgnoring
 {
 	@autoreleasepool {
 		NSError* error;
-		[self jr_swizzleMethod:@selector(beginIgnoringInteractionEvents) withMethod:@selector(__detox_sync_beginIgnoringInteractionEvents) error:&error];
-		[self jr_swizzleMethod:@selector(endIgnoringInteractionEvents) withMethod:@selector(__detox_sync_endIgnoringInteractionEvents) error:&error];
+		
+		DTXSwizzleMethod(self, @selector(beginIgnoringInteractionEvents), @selector(__detox_sync_beginIgnoringInteractionEvents), &error);
+		DTXSwizzleMethod(self, @selector(endIgnoringInteractionEvents), @selector(__detox_sync_endIgnoringInteractionEvents), &error);
 	}
 }
 

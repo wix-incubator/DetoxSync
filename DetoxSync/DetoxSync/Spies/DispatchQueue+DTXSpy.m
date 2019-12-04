@@ -52,10 +52,9 @@ static void __detox_sync_dispatch_async_and_wait(dispatch_queue_t queue, dispatc
 	__dispatch_wrapper_func_2param(__orig_dispatch_async_and_wait, @"dispatch_async_and_wait", queue, block);
 }
 
-void (*__orig_dispatch_after)(dispatch_time_t when, dispatch_queue_t queue,
-							  dispatch_block_t block);
-static void __detox_sync_dispatch_after(dispatch_time_t when, dispatch_queue_t queue,
-										dispatch_block_t block)
+
+static void (*__orig_dispatch_after)(dispatch_time_t when, dispatch_queue_t queue, dispatch_block_t block);
+static void __detox_sync_dispatch_after(dispatch_time_t when, dispatch_queue_t queue, dispatch_block_t block)
 {
 	DTXDispatchQueueSyncResource* sr = [DTXDispatchQueueSyncResource _existingSyncResourceWithQueue:queue];
 	NSString* blockInfo = nil;
@@ -82,6 +81,10 @@ static void __detox_sync_dispatch_after(dispatch_time_t when, dispatch_queue_t q
 			[sr removeWorkBlock:blockInfo operation:@"dispatch_after"];
 		}
 	});
+}
+void untracked_dispatch_after(dispatch_time_t when, dispatch_queue_t queue, dispatch_block_t block)
+{
+	__orig_dispatch_after(when, queue, block);
 }
 
 static void (*__orig_dispatch_group_async)(dispatch_group_t group, dispatch_queue_t queue, dispatch_block_t block);

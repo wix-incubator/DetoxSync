@@ -1,6 +1,6 @@
 [submodule "DetoxSync/DTXLoggingInfra"]
 	path = DetoxSync/DTXLoggingInfra
 	url = https://LeoNatan@github.com/wix/DTXLoggingInfra.git
-[submodule "DetoxSync/jrswizzle"]
-	path = DetoxSync/jrswizzle
-	url = https://github.com/rentzsch/jrswizzle.git
+[submodule "DetoxSync/DTXSwizzlingHelper"]
+	path = DetoxSync/DTXSwizzlingHelper
+	url = https://github.com/wix/DTXSwizzlingHelper.git

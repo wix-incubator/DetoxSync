@@ -20,12 +20,13 @@
 	@autoreleasepool
 	{
 		NSError* error;
-		[self jr_swizzleMethod:@selector(setNeedsLayout) withMethod:@selector(__detox_sync_setNeedsLayout) error:&error];
-		[self jr_swizzleMethod:@selector(setNeedsDisplay) withMethod:@selector(__detox_sync_setNeedsDisplay) error:&error];
-		[self jr_swizzleMethod:@selector(setNeedsDisplayInRect:) withMethod:@selector(__detox_sync_setNeedsDisplayInRect:) error:&error];
-		[self jr_swizzleMethod:@selector(addAnimation:forKey:) withMethod:@selector(__detox_sync_addAnimation:forKey:) error:&error];
-		[self jr_swizzleMethod:@selector(removeAnimationForKey:) withMethod:@selector(__detox_sync_removeAnimationForKey:) error:&error];
-		[self jr_swizzleMethod:@selector(removeAllAnimations) withMethod:@selector(__detox_sync_removeAllAnimations) error:&error];
+		
+		DTXSwizzleMethod(self, @selector(setNeedsLayout), @selector(__detox_sync_setNeedsLayout), &error);
+		DTXSwizzleMethod(self, @selector(setNeedsDisplay), @selector(__detox_sync_setNeedsDisplay), &error);
+		DTXSwizzleMethod(self, @selector(setNeedsDisplayInRect:), @selector(__detox_sync_setNeedsDisplayInRect:), &error);
+		DTXSwizzleMethod(self, @selector(addAnimation:forKey:), @selector(__detox_sync_addAnimation:forKey:), &error);
+		DTXSwizzleMethod(self, @selector(removeAnimationForKey:), @selector(__detox_sync_removeAnimationForKey:), &error);
+		DTXSwizzleMethod(self, @selector(removeAllAnimations), @selector(__detox_sync_removeAllAnimations), &error);
 	}
 }
 

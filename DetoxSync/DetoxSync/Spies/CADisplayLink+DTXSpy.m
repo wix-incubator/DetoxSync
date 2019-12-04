@@ -26,12 +26,13 @@ static const void* _DTXDisplayLinkRunLoopKey = &_DTXDisplayLinkRunLoopKey;
 	@autoreleasepool
 	{
 		NSError* error;
-		[self jr_swizzleClassMethod:@selector(displayLinkWithDisplay:target:selector:) withClassMethod:@selector(__detox_sync_displayLinkWithDisplay:target:selector:) error:&error];
 		
-		[self jr_swizzleMethod:@selector(addToRunLoop:forMode:) withMethod:@selector(__detox_sync_addToRunLoop:forMode:) error:&error];
-		[self jr_swizzleMethod:@selector(removeFromRunLoop:forMode:) withMethod:@selector(__detox_sync_removeFromRunLoop:forMode:) error:&error];
-		[self jr_swizzleMethod:@selector(invalidate) withMethod:@selector(__detox_sync_invalidate) error:&error];
-		[self jr_swizzleMethod:@selector(setPaused:) withMethod:@selector(__detox_sync_setPaused:) error:&error];
+		DTXSwizzleClassMethod(self, @selector(displayLinkWithDisplay:target:selector:), @selector(__detox_sync_displayLinkWithDisplay:target:selector:), &error);
+		
+		DTXSwizzleMethod(self, @selector(addToRunLoop:forMode:), @selector(__detox_sync_addToRunLoop:forMode:), &error);
+		DTXSwizzleMethod(self, @selector(removeFromRunLoop:forMode:), @selector(__detox_sync_removeFromRunLoop:forMode:), &error);
+		DTXSwizzleMethod(self, @selector(invalidate), @selector(__detox_sync_invalidate), &error);
+		DTXSwizzleMethod(self, @selector(setPaused:), @selector(__detox_sync_setPaused:), &error);
 	}
 }
 

@@ -18,8 +18,9 @@
 	@autoreleasepool
 	{
 		NSError* error;
-		[self jr_swizzleMethod:@selector(viewWillAppear:) withMethod:@selector(__detox_sync__viewWillAppear:) error:&error];
-		[self jr_swizzleMethod:@selector(viewWillDisappear:) withMethod:@selector(__detox_sync__viewWillDisappear:) error:&error];
+		
+		DTXSwizzleMethod(self, @selector(viewWillAppear:), @selector(__detox_sync__viewWillAppear:), &error);
+		DTXSwizzleMethod(self, @selector(viewWillDisappear:), @selector(__detox_sync__viewWillDisappear:), &error);
 	}
 }
 

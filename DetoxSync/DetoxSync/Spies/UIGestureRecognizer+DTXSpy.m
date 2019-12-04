@@ -28,9 +28,10 @@ static const void* _DTXGestureRecognizerSRKey = &_DTXGestureRecognizerSRKey;
 	@autoreleasepool
 	{
 		NSError* error;
-		[self jr_swizzleMethod:@selector(_setDirty) withMethod:@selector(__detox_sync__setDirty) error:&error];
-		[self jr_swizzleMethod:@selector(_resetGestureRecognizer) withMethod:@selector(__detox_sync__resetGestureRecognizer) error:&error];
-		[self jr_swizzleMethod:@selector(setState:) withMethod:@selector(__detox_sync_setState:) error:&error];
+		
+		DTXSwizzleMethod(self, @selector(_setDirty), @selector(__detox_sync__setDirty), &error);
+		DTXSwizzleMethod(self, @selector(_resetGestureRecognizer), @selector(__detox_sync__resetGestureRecognizer), &error);
+		DTXSwizzleMethod(self, @selector(setState:), @selector(__detox_sync_setState:), &error);
 	}
 }
 

@@ -30,11 +30,11 @@
 			Method m2 = class_getInstanceMethod(NSURLSession.class, @selector(__detox_sync__dataTaskWithTaskForClass:));
 			class_addMethod(cls, @selector(__detox_sync__dataTaskWithTaskForClass:), method_getImplementation(m2), method_getTypeEncoding(m2));
 			
-			[cls jr_swizzleMethod:@selector(_dataTaskWithTaskForClass:) withMethod:@selector(__detox_sync__dataTaskWithTaskForClass:) error:&error];
+			DTXSwizzleMethod(cls, @selector(_dataTaskWithTaskForClass:), @selector(__detox_sync__dataTaskWithTaskForClass:), &error);
 		}
 		else
 		{
-			[NSURLSession.class jr_swizzleMethod:@selector(dataTaskWithRequest:completionHandler:) withMethod:@selector(__detox_sync_dataTaskWithRequest:completionHandler:) error:&error];
+			DTXSwizzleMethod(NSURLSession.class, @selector(dataTaskWithRequest:completionHandler:), @selector(__detox_sync_dataTaskWithRequest:completionHandler:), &error);
 		}
 	}
 }

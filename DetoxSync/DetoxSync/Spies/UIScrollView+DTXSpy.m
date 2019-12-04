@@ -28,9 +28,10 @@ static const void* _DTXScrollViewSRKey = &_DTXScrollViewSRKey;
 	@autoreleasepool
 	{
 		NSError* error;
-		[self jr_swizzleMethod:@selector(_scrollViewWillBeginDragging) withMethod:@selector(__detox_sync__scrollViewWillBeginDragging) error:&error];
-		[self jr_swizzleMethod:@selector(_scrollViewDidEndDraggingWithDeceleration:) withMethod:@selector(__detox_sync__scrollViewDidEndDraggingWithDeceleration:) error:&error];
-		[self jr_swizzleMethod:@selector(_scrollViewDidEndDecelerating) withMethod:@selector(__detox_sync__scrollViewDidEndDecelerating) error:&error];
+		
+		DTXSwizzleMethod(self, @selector(_scrollViewWillBeginDragging), @selector(__detox_sync__scrollViewWillBeginDragging), &error);
+		DTXSwizzleMethod(self, @selector(_scrollViewDidEndDraggingWithDeceleration:), @selector(__detox_sync__scrollViewDidEndDraggingWithDeceleration:), &error);
+		DTXSwizzleMethod(self, @selector(_scrollViewDidEndDecelerating), @selector(__detox_sync__scrollViewDidEndDecelerating), &error);
 	}
 }
 

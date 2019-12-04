@@ -32,8 +32,9 @@
 		}
 		
 		NSError* error;
-		[cls jr_swizzleMethod:@selector(startAnimationLoopIfNeeded) withMethod:@selector(__detox_sync_startAnimationLoopIfNeeded) error:&error];
-		[cls jr_swizzleMethod:@selector(stopAnimationLoop) withMethod:@selector(__detox_sync_stopAnimationLoop) error:&error];
+		
+		DTXSwizzleMethod(cls, @selector(startAnimationLoopIfNeeded), @selector(__detox_sync_startAnimationLoopIfNeeded), &error);
+		DTXSwizzleMethod(cls, @selector(stopAnimationLoop), @selector(__detox_sync_stopAnimationLoop), &error);
 	}
 }
 

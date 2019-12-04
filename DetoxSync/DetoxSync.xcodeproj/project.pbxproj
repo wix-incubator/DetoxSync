@@ -23,6 +23,7 @@
 		399678CF22F9C90400BAF0A8 /* _DTXObjectDeallocHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 399678CD22F9C90400BAF0A8 /* _DTXObjectDeallocHelper.m */; };
 		39A6C13122F9AF8300187B56 /* DTXRunLoopSyncResource.h in Headers */ = {isa = PBXBuildFile; fileRef = 39A6C12F22F9AF8300187B56 /* DTXRunLoopSyncResource.h */; };
 		39A6C13222F9AF8300187B56 /* DTXRunLoopSyncResource.m in Sources */ = {isa = PBXBuildFile; fileRef = 39A6C13022F9AF8300187B56 /* DTXRunLoopSyncResource.m */; };
+		39BC7B482397B7E500DAF671 /* DTXSwizzlingHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 39BC7B472397B7E500DAF671 /* DTXSwizzlingHelper.h */; };
 		39DE8F5722F707DD00780546 /* DetoxSync.h in Headers */ = {isa = PBXBuildFile; fileRef = 39DE8F5522F707DD00780546 /* DetoxSync.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		39DE8F9222F707F400780546 /* DTXDispatchQueueSyncResource-Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 39DE8F6422F707F400780546 /* DTXDispatchQueueSyncResource-Private.h */; };
 		39DE8F9322F707F400780546 /* DTXDispatchQueueSyncResource.h in Headers */ = {isa = PBXBuildFile; fileRef = 39DE8F6522F707F400780546 /* DTXDispatchQueueSyncResource.h */; };
@@ -69,8 +70,6 @@
 		39DE8FBC22F707F400780546 /* DTXOrigDispatch.h in Headers */ = {isa = PBXBuildFile; fileRef = 39DE8F9122F707F400780546 /* DTXOrigDispatch.h */; };
 		39DE8FC522F7088D00780546 /* fishhook.c in Sources */ = {isa = PBXBuildFile; fileRef = 39DE8FC322F7088D00780546 /* fishhook.c */; };
 		39DE8FC622F7088D00780546 /* fishhook.h in Headers */ = {isa = PBXBuildFile; fileRef = 39DE8FC422F7088D00780546 /* fishhook.h */; };
-		39EF7BE12396648A0052B97A /* JRSwizzle.m in Sources */ = {isa = PBXBuildFile; fileRef = 39EF7BDF2396648A0052B97A /* JRSwizzle.m */; };
-		39EF7BE22396648A0052B97A /* JRSwizzle.h in Headers */ = {isa = PBXBuildFile; fileRef = 39EF7BE02396648A0052B97A /* JRSwizzle.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -95,6 +94,7 @@
 		39A6C12F22F9AF8300187B56 /* DTXRunLoopSyncResource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DTXRunLoopSyncResource.h; sourceTree = "<group>"; };
 		39A6C13022F9AF8300187B56 /* DTXRunLoopSyncResource.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DTXRunLoopSyncResource.m; sourceTree = "<group>"; };
 		39A6C13322F9AFE700187B56 /* DTXRunLoopSyncResource-Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DTXRunLoopSyncResource-Private.h"; sourceTree = "<group>"; };
+		39BC7B472397B7E500DAF671 /* DTXSwizzlingHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTXSwizzlingHelper.h; path = DTXSwizzlingHelper/DTXSwizzlingHelper.h; sourceTree = SOURCE_ROOT; };
 		39DE8F5222F707DD00780546 /* DetoxSync.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DetoxSync.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		39DE8F5522F707DD00780546 /* DetoxSync.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DetoxSync.h; sourceTree = "<group>"; };
 		39DE8F5622F707DD00780546 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -143,8 +143,6 @@
 		39DE8F9122F707F400780546 /* DTXOrigDispatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DTXOrigDispatch.h; sourceTree = "<group>"; };
 		39DE8FC322F7088D00780546 /* fishhook.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fishhook.c; sourceTree = "<group>"; };
 		39DE8FC422F7088D00780546 /* fishhook.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fishhook.h; sourceTree = "<group>"; };
-		39EF7BDF2396648A0052B97A /* JRSwizzle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JRSwizzle.m; path = jrswizzle/JRSwizzle.m; sourceTree = SOURCE_ROOT; };
-		39EF7BE02396648A0052B97A /* JRSwizzle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JRSwizzle.h; path = jrswizzle/JRSwizzle.h; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -177,6 +175,14 @@
 				396C8B86230442A300979E86 /* DTXReactNativeSupport.m */,
 			);
 			path = ReactNativeSupport;
+			sourceTree = "<group>";
+		};
+		39BC7B462397B6EB00DAF671 /* DTXSwizzlingHelper */ = {
+			isa = PBXGroup;
+			children = (
+				39BC7B472397B7E500DAF671 /* DTXSwizzlingHelper.h */,
+			);
+			name = DTXSwizzlingHelper;
 			sourceTree = "<group>";
 		};
 		39DC2F8623044C3E009E652A /* SyncResources */ = {
@@ -292,7 +298,7 @@
 		39DE8F8F22F707F400780546 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
-				39EF7BDE239664790052B97A /* jrswizzle */,
+				39BC7B462397B6EB00DAF671 /* DTXSwizzlingHelper */,
 				39DE8FC422F7088D00780546 /* fishhook.h */,
 				39DE8FC322F7088D00780546 /* fishhook.c */,
 				39DE8F9122F707F400780546 /* DTXOrigDispatch.h */,
@@ -306,15 +312,6 @@
 			path = Utils;
 			sourceTree = "<group>";
 		};
-		39EF7BDE239664790052B97A /* jrswizzle */ = {
-			isa = PBXGroup;
-			children = (
-				39EF7BE02396648A0052B97A /* JRSwizzle.h */,
-				39EF7BDF2396648A0052B97A /* JRSwizzle.m */,
-			);
-			name = jrswizzle;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -325,6 +322,7 @@
 				39DE8FA022F707F400780546 /* DTXSyncManager.h in Headers */,
 				3923B11E23045B1F009D8780 /* DTXJSTimerSyncResource.h in Headers */,
 				39DE8F9F22F707F400780546 /* DTXSyncManager-Private.h in Headers */,
+				39BC7B482397B7E500DAF671 /* DTXSwizzlingHelper.h in Headers */,
 				39DE8F9322F707F400780546 /* DTXDispatchQueueSyncResource.h in Headers */,
 				39DE8F9622F707F400780546 /* DTXSyncResource.h in Headers */,
 				39DE8FBA22F707F400780546 /* NSObject+DTXSpy.h in Headers */,
@@ -335,7 +333,6 @@
 				396C8B1623038CED00979E86 /* CADisplayLink+DTXSpy.h in Headers */,
 				396C8B842304424E00979E86 /* ReactNativeHeaders.h in Headers */,
 				39DE8FBC22F707F400780546 /* DTXOrigDispatch.h in Headers */,
-				39EF7BE22396648A0052B97A /* JRSwizzle.h in Headers */,
 				39A6C13122F9AF8300187B56 /* DTXRunLoopSyncResource.h in Headers */,
 				39DE8FAD22F707F400780546 /* DispatchQueue+DTXSpy.h in Headers */,
 				396C8B87230442A300979E86 /* DTXReactNativeSupport.h in Headers */,
@@ -431,7 +428,6 @@
 				39DE8FC522F7088D00780546 /* fishhook.c in Sources */,
 				399678CF22F9C90400BAF0A8 /* _DTXObjectDeallocHelper.m in Sources */,
 				39DE8FB722F707F400780546 /* DispatchQueue+DTXSpy.m in Sources */,
-				39EF7BE12396648A0052B97A /* JRSwizzle.m in Sources */,
 				396C8B1723038CED00979E86 /* CADisplayLink+DTXSpy.m in Sources */,
 				39DE8FB022F707F400780546 /* NSURLSession+DTXSpy.m in Sources */,
 				392250E423047179008E811D /* RCTNativeAnimatedNodesManager+DTXSpy.m in Sources */,

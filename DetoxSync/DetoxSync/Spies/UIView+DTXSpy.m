@@ -20,6 +20,20 @@
 
 @implementation UIView (DTXSpy)
 
++ (void)load
+{
+	@autoreleasepool
+	{
+		NSError* error;
+		
+		DTXSwizzleClassMethod(self, @selector(_setupAnimationWithDuration:delay:view:options:factory:animations:start:animationStateGenerator:completion:), @selector(__detox_sync__setupAnimationWithDuration:delay:view:options:factory:animations:start:animationStateGenerator:completion:), &error);
+		
+		DTXSwizzleMethod(self, @selector(setNeedsLayout), @selector(__detox_sync_setNeedsLayout), &error);
+		DTXSwizzleMethod(self, @selector(setNeedsDisplay), @selector(__detox_sync_setNeedsDisplay), &error);
+		DTXSwizzleMethod(self, @selector(setNeedsDisplayInRect:), @selector(__detox_sync_setNeedsDisplayInRect:), &error);
+	}
+}
+
 + (void)__detox_sync__setupAnimationWithDuration:(double)arg1 delay:(double)arg2 view:(id)arg3 options:(unsigned long long)arg4 factory:(id)arg5 animations:(id)arg6 start:(id)arg7 animationStateGenerator:(id)arg8 completion:(void (^)(BOOL finished))completion
 {
 	DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:[NSString stringWithFormat:@"UIView animation with duration: “%@” delay: “%@”", @(arg1), @(arg2)] eventDescription:@"Animation"];
@@ -37,18 +51,6 @@
 	__detox_sync_orig_dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arg1 + arg2) * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 		[sr endTracking];
 	});
-}
-
-+ (void)load
-{
-	@autoreleasepool
-	{
-		NSError* error;
-		[self jr_swizzleMethod:@selector(_setupAnimationWithDuration:delay:view:options:factory:animations:start:animationStateGenerator:completion:) withMethod:@selector(__detox_sync__setupAnimationWithDuration:delay:view:options:factory:animations:start:animationStateGenerator:completion:) error:&error];
-		[self jr_swizzleMethod:@selector(setNeedsLayout) withMethod:@selector(__detox_sync_setNeedsLayout) error:&error];
-		[self jr_swizzleMethod:@selector(setNeedsDisplay) withMethod:@selector(__detox_sync_setNeedsDisplay) error:&error];
-		[self jr_swizzleMethod:@selector(setNeedsDisplayInRect:) withMethod:@selector(__detox_sync_setNeedsDisplayInRect:) error:&error];
-	}
 }
 
 - (void)__detox_sync_setNeedsLayout

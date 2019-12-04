@@ -19,8 +19,9 @@
 	@autoreleasepool
 	{
 		NSError* error;
-		[self jr_swizzleMethod:@selector(performSelector:withObject:afterDelay:inModes:) withMethod:@selector(__detox_sync_performSelector:withObject:afterDelay:inModes:) error:&error];
-		[self jr_swizzleMethod:@selector(performSelector:onThread:withObject:waitUntilDone:modes:) withMethod:@selector(__detox_sync_performSelector:onThread:withObject:waitUntilDone:modes:) error:&error];
+		
+		DTXSwizzleMethod(self, @selector(performSelector:withObject:afterDelay:inModes:), @selector(__detox_sync_performSelector:withObject:afterDelay:inModes:), &error);
+		DTXSwizzleMethod(self, @selector(performSelector:onThread:withObject:waitUntilDone:modes:), @selector(__detox_sync_performSelector:onThread:withObject:waitUntilDone:modes:), &error);
 	}
 }
 

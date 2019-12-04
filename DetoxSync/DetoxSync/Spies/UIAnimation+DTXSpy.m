@@ -21,8 +21,9 @@ static const void* _DTXUIAnimationSRKey = &_DTXUIAnimationSRKey;
 	@autoreleasepool
 	{
 		NSError* error;
-		[self jr_swizzleMethod:@selector(markStart:) withMethod:@selector(__detox_sync_markStart:) error:&error];
-		[self jr_swizzleMethod:@selector(markStop) withMethod:@selector(__detox_sync_markStop) error:&error];
+		
+		DTXSwizzleMethod(self, @selector(markStart:), @selector(__detox_sync_markStart:), &error);
+		DTXSwizzleMethod(self, @selector(markStop), @selector(__detox_sync_markStop), &error);
 	}
 }
 
