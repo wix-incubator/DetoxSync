@@ -24,6 +24,8 @@
 		39A6C13122F9AF8300187B56 /* DTXRunLoopSyncResource.h in Headers */ = {isa = PBXBuildFile; fileRef = 39A6C12F22F9AF8300187B56 /* DTXRunLoopSyncResource.h */; };
 		39A6C13222F9AF8300187B56 /* DTXRunLoopSyncResource.m in Sources */ = {isa = PBXBuildFile; fileRef = 39A6C13022F9AF8300187B56 /* DTXRunLoopSyncResource.m */; };
 		39BC7B482397B7E500DAF671 /* DTXSwizzlingHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 39BC7B472397B7E500DAF671 /* DTXSwizzlingHelper.h */; };
+		39BC7B4F2397F6E200DAF671 /* NSURLConnection+DTXSpy.h in Headers */ = {isa = PBXBuildFile; fileRef = 39BC7B4D2397F6E200DAF671 /* NSURLConnection+DTXSpy.h */; };
+		39BC7B502397F6E200DAF671 /* NSURLConnection+DTXSpy.m in Sources */ = {isa = PBXBuildFile; fileRef = 39BC7B4E2397F6E200DAF671 /* NSURLConnection+DTXSpy.m */; };
 		39DE8F5722F707DD00780546 /* DetoxSync.h in Headers */ = {isa = PBXBuildFile; fileRef = 39DE8F5522F707DD00780546 /* DetoxSync.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		39DE8F9222F707F400780546 /* DTXDispatchQueueSyncResource-Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 39DE8F6422F707F400780546 /* DTXDispatchQueueSyncResource-Private.h */; };
 		39DE8F9322F707F400780546 /* DTXDispatchQueueSyncResource.h in Headers */ = {isa = PBXBuildFile; fileRef = 39DE8F6522F707F400780546 /* DTXDispatchQueueSyncResource.h */; };
@@ -95,6 +97,8 @@
 		39A6C13022F9AF8300187B56 /* DTXRunLoopSyncResource.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DTXRunLoopSyncResource.m; sourceTree = "<group>"; };
 		39A6C13322F9AFE700187B56 /* DTXRunLoopSyncResource-Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DTXRunLoopSyncResource-Private.h"; sourceTree = "<group>"; };
 		39BC7B472397B7E500DAF671 /* DTXSwizzlingHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTXSwizzlingHelper.h; path = DTXSwizzlingHelper/DTXSwizzlingHelper.h; sourceTree = SOURCE_ROOT; };
+		39BC7B4D2397F6E200DAF671 /* NSURLConnection+DTXSpy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSURLConnection+DTXSpy.h"; sourceTree = "<group>"; };
+		39BC7B4E2397F6E200DAF671 /* NSURLConnection+DTXSpy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSURLConnection+DTXSpy.m"; sourceTree = "<group>"; };
 		39DE8F5222F707DD00780546 /* DetoxSync.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DetoxSync.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		39DE8F5522F707DD00780546 /* DetoxSync.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DetoxSync.h; sourceTree = "<group>"; };
 		39DE8F5622F707DD00780546 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -275,6 +279,8 @@
 				39725B402304870900B991ED /* NSRunLoop+DTXSpy.m */,
 				39DE8F8522F707F400780546 /* NSTimer+DTXSpy.h */,
 				39DE8F7D22F707F400780546 /* NSTimer+DTXSpy.m */,
+				39BC7B4D2397F6E200DAF671 /* NSURLConnection+DTXSpy.h */,
+				39BC7B4E2397F6E200DAF671 /* NSURLConnection+DTXSpy.m */,
 				39DE8F7622F707F400780546 /* NSURLSession+DTXSpy.h */,
 				39DE8F8422F707F400780546 /* NSURLSession+DTXSpy.m */,
 				39DE8F7722F707F400780546 /* NSURLSessionTask+DTXSpy.h */,
@@ -338,6 +344,7 @@
 				396C8B87230442A300979E86 /* DTXReactNativeSupport.h in Headers */,
 				39725B412304870900B991ED /* NSRunLoop+DTXSpy.h in Headers */,
 				399678CE22F9C90400BAF0A8 /* _DTXObjectDeallocHelper.h in Headers */,
+				39BC7B4F2397F6E200DAF671 /* NSURLConnection+DTXSpy.h in Headers */,
 				39DE8FA322F707F400780546 /* NSURLSessionTask+DTXSpy.h in Headers */,
 				39DE8F5722F707DD00780546 /* DetoxSync.h in Headers */,
 				39DE8F9422F707F400780546 /* DTXTimerSyncResource-Private.h in Headers */,
@@ -428,6 +435,7 @@
 				39DE8FC522F7088D00780546 /* fishhook.c in Sources */,
 				399678CF22F9C90400BAF0A8 /* _DTXObjectDeallocHelper.m in Sources */,
 				39DE8FB722F707F400780546 /* DispatchQueue+DTXSpy.m in Sources */,
+				39BC7B502397F6E200DAF671 /* NSURLConnection+DTXSpy.m in Sources */,
 				396C8B1723038CED00979E86 /* CADisplayLink+DTXSpy.m in Sources */,
 				39DE8FB022F707F400780546 /* NSURLSession+DTXSpy.m in Sources */,
 				392250E423047179008E811D /* RCTNativeAnimatedNodesManager+DTXSpy.m in Sources */,
