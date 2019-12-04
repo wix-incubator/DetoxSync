@@ -77,7 +77,7 @@
 
 - (void)__detox_sync_setNeedsDisplayInRect:(CGRect)rect
 {
-	DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"View Display in Rect"];
+	DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"View Display"];
 	
 	[self __detox_sync_setNeedsDisplayInRect:rect];
 	
