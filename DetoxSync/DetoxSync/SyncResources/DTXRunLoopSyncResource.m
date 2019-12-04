@@ -11,6 +11,9 @@
 
 @import ObjectiveC;
 
+static CFRunLoopRef _mainRunLoop;
+extern atomic_cfrunloop __RNRunLoop;
+
 static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 
 @implementation DTXRunLoopSyncResource
@@ -19,6 +22,14 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 	id _observer;
 	
 	BOOL _isTracking;
+}
+
++ (void)load
+{
+	@autoreleasepool
+	{
+		_mainRunLoop = CFRunLoopGetMain();
+	}
 }
 
 + (instancetype)runLoopSyncResourceWithRunLoop:(CFRunLoopRef)runLoop
@@ -173,7 +184,7 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 
 - (NSString *)syncResourceDescription
 {
-	return [NSString stringWithFormat:@"Runloop (%@)", self._runLoopDescription];
+	return [NSString stringWithFormat:@"Run Loop (%@)", self._runLoopDescription];
 }
 
 - (NSString*)syncResourceGenericDescription
@@ -183,7 +194,8 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 
 - (NSString*)_runLoopDescription
 {
-	return [NSString stringWithFormat:@"<CFRunLoop: %p>", _runLoop];
+	CFRunLoopRef rnLoop = atomic_load(&__RNRunLoop);
+	return _runLoop == _mainRunLoop ? @"<Main Run Loop>" : (rnLoop != NULL && _runLoop == rnLoop) ? @"<JS Run Loop>" : [NSString stringWithFormat:@"<CFRunLoop: %p>", _runLoop];
 }
 
 @end

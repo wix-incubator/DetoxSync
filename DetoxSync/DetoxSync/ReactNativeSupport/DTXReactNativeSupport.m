@@ -21,8 +21,8 @@
 
 DTX_CREATE_LOG(DTXReactNativeSupport);
 
-_Atomic(CFRunLoopRef) __RNRunLoop;
-_Atomic(const void*) __RNThread;
+atomic_cfrunloop __RNRunLoop;
+static atomic_constvoidptr __RNThread;
 static void (*orig_runRunLoopThread)(id, SEL) = NULL;
 static void swz_runRunLoopThread(id self, SEL _cmd)
 {
