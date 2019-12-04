@@ -33,10 +33,7 @@ static const void* _DTXNetworkTaskSRKey = &_DTXNetworkTaskSRKey;
 		{
 			[cls jr_swizzleMethod:@selector(resume) withMethod:@selector(__detox_sync_resume) error:&error];
 		}
-		
-//		m1 = class_getInstanceMethod(cls, @selector(connection:didFinishLoadingWithError:));
-//		m2 = class_getInstanceMethod(self.class, @selector(__detox_sync_connection:didFinishLoadingWithError:));
-//		method_exchangeImplementations(m1, m2);
+		[cls jr_swizzleMethod:NSSelectorFromString(@"connection:didFinishLoadingWithError:") withMethod:@selector(__detox_sync_connection:didFinishLoadingWithError:) error:&error];
 	}
 }
 
@@ -54,10 +51,12 @@ static const void* _DTXNetworkTaskSRKey = &_DTXNetworkTaskSRKey;
 	[sr endTracking];
 	objc_setAssociatedObject(self, _DTXNetworkTaskSRKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
-//
-//- (void)__detox_sync_connection:(id)arg1 didFinishLoadingWithError:(id)arg2;
-//{
-//	[self __detox_sync_connection:arg1 didFinishLoadingWithError:arg2];
-//}
+
+- (void)__detox_sync_connection:(id)arg1 didFinishLoadingWithError:(id)arg2;
+{
+	[self __detox_sync_connection:arg1 didFinishLoadingWithError:arg2];
+	
+	[self __detox_sync_untrackTask];
+}
 
 @end
