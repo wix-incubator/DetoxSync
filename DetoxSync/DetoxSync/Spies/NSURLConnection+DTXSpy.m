@@ -35,9 +35,10 @@ rv = super_class(&super, _cmd, application, launchOptions);
 	}
 	
 	NSURLRequest* rv = request;
-	if([class_getSuperclass(object_getClass(self)) instancesRespondToSelector:_cmd])
+	Class superclass = DTXDynamicSubclassSuper(self, __detox_sync_DelegateProxy.class);
+	if([superclass instancesRespondToSelector:_cmd])
 	{
-		struct objc_super super = {.receiver = self, .super_class = class_getSuperclass(object_getClass(self))};
+		struct objc_super super = {.receiver = self, .super_class = superclass};
 		NSURLRequest* (*super_class)(struct objc_super*, SEL, id, id, id) = (void*)objc_msgSendSuper;
 		rv = super_class(&super, _cmd, connection, request, response);
 	}
@@ -52,9 +53,10 @@ rv = super_class(&super, _cmd, application, launchOptions);
 		objc_setAssociatedObject(self, __DTXConnectionUnique, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	}
 	
-	if([class_getSuperclass(object_getClass(self)) instancesRespondToSelector:_cmd])
+	Class superclass = DTXDynamicSubclassSuper(self, __detox_sync_DelegateProxy.class);
+	if([superclass instancesRespondToSelector:_cmd])
 	{
-		struct objc_super super = {.receiver = self, .super_class = class_getSuperclass(object_getClass(self))};
+		struct objc_super super = {.receiver = self, .super_class = superclass};
 		void (*super_class)(struct objc_super*, SEL, id, id) = (void*)objc_msgSendSuper;
 		super_class(&super, _cmd, connection, error);
 	}
@@ -65,9 +67,10 @@ rv = super_class(&super, _cmd, application, launchOptions);
 	[objc_getAssociatedObject(self, __DTXConnectionUnique) endTracking];
 	objc_setAssociatedObject(self, __DTXConnectionUnique, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	
-	if([class_getSuperclass(object_getClass(self)) instancesRespondToSelector:_cmd])
+	Class superclass = DTXDynamicSubclassSuper(self, __detox_sync_DelegateProxy.class);
+	if([superclass instancesRespondToSelector:_cmd])
 	{
-		struct objc_super super = {.receiver = self, .super_class = class_getSuperclass(object_getClass(self))};
+		struct objc_super super = {.receiver = self, .super_class = superclass};
 		void (*super_class)(struct objc_super*, SEL, id) = (void*)objc_msgSendSuper;
 		super_class(&super, _cmd, connection);
 	}
@@ -92,11 +95,11 @@ rv = super_class(&super, _cmd, application, launchOptions);
 	static dispatch_once_t onceToken;
 	dispatch_once(&onceToken, ^{
 		NSError* error;
-		DTXSwizzleMethod(self, @selector(_initWithRequest:delegate:usesCache:maxContentLength:startImmediately:connectionProperties:), @selector(_initWithRequest___dtx:delegate:usesCache:maxContentLength:startImmediately:connectionProperties:), &error);
+		DTXSwizzleMethod(self, @selector(_initWithRequest:delegate:usesCache:maxContentLength:startImmediately:connectionProperties:), @selector(_initWithRequest___detox_sync:delegate:usesCache:maxContentLength:startImmediately:connectionProperties:), &error);
 	});
 }
 
-- (id)_initWithRequest___dtx:(NSURLRequest*)arg1 delegate:(id<NSURLConnectionDelegate>)origDelegate usesCache:(BOOL)arg3 maxContentLength:(long long)arg4 startImmediately:(BOOL)arg5 connectionProperties:(id)arg6
+- (id)_initWithRequest___detox_sync:(NSURLRequest*)arg1 delegate:(id<NSURLConnectionDelegate>)origDelegate usesCache:(BOOL)arg3 maxContentLength:(long long)arg4 startImmediately:(BOOL)arg5 connectionProperties:(id)arg6
 {
 	if(origDelegate != nil)
 	{
@@ -108,7 +111,7 @@ rv = super_class(&super, _cmd, application, launchOptions);
 		origDelegate = [__detox_sync_DelegateProxy new];
 	}
 	
-	return [self _initWithRequest___dtx:arg1 delegate:origDelegate usesCache:arg3 maxContentLength:arg4 startImmediately:arg5 connectionProperties:arg6];
+	return [self _initWithRequest___detox_sync:arg1 delegate:origDelegate usesCache:arg3 maxContentLength:arg4 startImmediately:arg5 connectionProperties:arg6];
 }
 
 @end
