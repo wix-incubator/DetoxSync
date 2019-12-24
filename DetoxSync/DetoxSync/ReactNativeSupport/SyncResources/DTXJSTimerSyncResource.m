@@ -17,6 +17,11 @@
 
 @end
 
+static NSString* _prettyTimerDescription(NSNumber* timerID)
+{
+	return [NSString stringWithFormat:@"JavaScript Timer %@ (Native Implementation)", timerID];
+}
+
 @interface _DTXJSTimerObservationWrapper : NSObject @end
 @implementation _DTXJSTimerObservationWrapper
 {
@@ -76,7 +81,7 @@
 		}
 		
 		return [_syncResource _busyCount];
-	} eventIdentifier:aKey.stringValue eventDescription:_syncResource.syncResourceGenericDescription objectDescription:[aKey description] additionalDescription:nil];
+	} eventIdentifier:aKey.stringValue eventDescription:_syncResource.syncResourceGenericDescription objectDescription:_prettyTimerDescription(aKey) additionalDescription:nil];
 	
 	[_timers removeObjectForKey:aKey];
 }
@@ -191,7 +196,7 @@
 		}
 
 		return [self _busyCount];
-	} eventIdentifier:timerID.stringValue eventDescription:self.syncResourceGenericDescription objectDescription:[timerID description] additionalDescription:nil];
+	} eventIdentifier:timerID.stringValue eventDescription:self.syncResourceGenericDescription objectDescription:_prettyTimerDescription(timerID) additionalDescription:nil];
 }
 
 - (NSString*)syncResourceDescription
