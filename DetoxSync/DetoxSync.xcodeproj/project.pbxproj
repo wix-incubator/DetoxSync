@@ -21,6 +21,8 @@
 		397CA5FE22F9F9A1005024D0 /* DTXLogging.h in Headers */ = {isa = PBXBuildFile; fileRef = 397CA5FC22F9F9A1005024D0 /* DTXLogging.h */; };
 		399678CE22F9C90400BAF0A8 /* _DTXObjectDeallocHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 399678CC22F9C90400BAF0A8 /* _DTXObjectDeallocHelper.h */; };
 		399678CF22F9C90400BAF0A8 /* _DTXObjectDeallocHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 399678CD22F9C90400BAF0A8 /* _DTXObjectDeallocHelper.m */; };
+		399AE33823B27B2000BF1318 /* CFRunLoopDescription.h in Headers */ = {isa = PBXBuildFile; fileRef = 399AE33623B27B2000BF1318 /* CFRunLoopDescription.h */; };
+		399AE33923B27B2000BF1318 /* CFRunLoopDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = 399AE33723B27B2000BF1318 /* CFRunLoopDescription.m */; };
 		39A6C13122F9AF8300187B56 /* DTXRunLoopSyncResource.h in Headers */ = {isa = PBXBuildFile; fileRef = 39A6C12F22F9AF8300187B56 /* DTXRunLoopSyncResource.h */; };
 		39A6C13222F9AF8300187B56 /* DTXRunLoopSyncResource.m in Sources */ = {isa = PBXBuildFile; fileRef = 39A6C13022F9AF8300187B56 /* DTXRunLoopSyncResource.m */; };
 		39BC7B482397B7E500DAF671 /* DTXSwizzlingHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 39BC7B472397B7E500DAF671 /* DTXSwizzlingHelper.h */; };
@@ -93,6 +95,8 @@
 		397CA5FF22F9F9B2005024D0 /* DTXLoggingSubsystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DTXLoggingSubsystem.h; sourceTree = "<group>"; };
 		399678CC22F9C90400BAF0A8 /* _DTXObjectDeallocHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = _DTXObjectDeallocHelper.h; sourceTree = "<group>"; };
 		399678CD22F9C90400BAF0A8 /* _DTXObjectDeallocHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = _DTXObjectDeallocHelper.m; sourceTree = "<group>"; };
+		399AE33623B27B2000BF1318 /* CFRunLoopDescription.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CFRunLoopDescription.h; sourceTree = "<group>"; };
+		399AE33723B27B2000BF1318 /* CFRunLoopDescription.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CFRunLoopDescription.m; sourceTree = "<group>"; };
 		39A6C12F22F9AF8300187B56 /* DTXRunLoopSyncResource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DTXRunLoopSyncResource.h; sourceTree = "<group>"; };
 		39A6C13022F9AF8300187B56 /* DTXRunLoopSyncResource.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DTXRunLoopSyncResource.m; sourceTree = "<group>"; };
 		39A6C13322F9AFE700187B56 /* DTXRunLoopSyncResource-Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DTXRunLoopSyncResource-Private.h"; sourceTree = "<group>"; };
@@ -314,6 +318,8 @@
 				397CA5FC22F9F9A1005024D0 /* DTXLogging.h */,
 				397CA5FB22F9F9A1005024D0 /* DTXLogging.m */,
 				397CA5FF22F9F9B2005024D0 /* DTXLoggingSubsystem.h */,
+				399AE33623B27B2000BF1318 /* CFRunLoopDescription.h */,
+				399AE33723B27B2000BF1318 /* CFRunLoopDescription.m */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -341,6 +347,7 @@
 				39DE8FBC22F707F400780546 /* DTXOrigDispatch.h in Headers */,
 				39A6C13122F9AF8300187B56 /* DTXRunLoopSyncResource.h in Headers */,
 				39DE8FAD22F707F400780546 /* DispatchQueue+DTXSpy.h in Headers */,
+				399AE33823B27B2000BF1318 /* CFRunLoopDescription.h in Headers */,
 				396C8B87230442A300979E86 /* DTXReactNativeSupport.h in Headers */,
 				39725B412304870900B991ED /* NSRunLoop+DTXSpy.h in Headers */,
 				399678CE22F9C90400BAF0A8 /* _DTXObjectDeallocHelper.h in Headers */,
@@ -444,6 +451,7 @@
 				39DE8F9922F707F400780546 /* DTXSyncResource.m in Sources */,
 				396C8B88230442A300979E86 /* DTXReactNativeSupport.m in Sources */,
 				39DE8FAF22F707F400780546 /* NSURLSessionTask+DTXSpy.m in Sources */,
+				399AE33923B27B2000BF1318 /* CFRunLoopDescription.m in Sources */,
 				39DE8F9E22F707F400780546 /* DTXSyncManager.m in Sources */,
 				39DE8FA522F707F400780546 /* UIView+DTXSpy.m in Sources */,
 				39A6C13222F9AF8300187B56 /* DTXRunLoopSyncResource.m in Sources */,

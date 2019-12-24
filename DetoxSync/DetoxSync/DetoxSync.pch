@@ -47,6 +47,7 @@ typedef _Atomic(double) atomic_double;
 #if __has_include(<Foundation/Foundation.h>)
 #import <Foundation/Foundation.h>
 typedef _Atomic(CFRunLoopRef) atomic_cfrunloop;
+#import "CFRunLoopDescription.h"
 #endif
 #endif
 

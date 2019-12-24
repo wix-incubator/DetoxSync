@@ -11,9 +11,6 @@
 
 @import ObjectiveC;
 
-static CFRunLoopRef _mainRunLoop;
-extern atomic_cfrunloop __RNRunLoop;
-
 static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 
 @implementation DTXRunLoopSyncResource
@@ -22,14 +19,6 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 	id _observer;
 	
 	BOOL _isTracking;
-}
-
-+ (void)load
-{
-	@autoreleasepool
-	{
-		_mainRunLoop = CFRunLoopGetMain();
-	}
 }
 
 + (instancetype)runLoopSyncResourceWithRunLoop:(CFRunLoopRef)runLoop
@@ -96,7 +85,7 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 	[self performUpdateBlock:^ NSUInteger {
 		self._wasPreviouslyBusy = isBusyNow;
 		return isBusyNow;
-	} eventIdentifier:[NSString stringWithFormat:@"%p", self] eventDescription:self.syncResourceGenericDescription objectDescription:self._runLoopDescription additionalDescription:nil];
+	} eventIdentifier:[NSString stringWithFormat:@"%p", self] eventDescription:self.syncResourceGenericDescription objectDescription:_DTXCFRunLoopDescription(_runLoop) additionalDescription:nil];
 }
 
 - (void)_startTracking
@@ -141,7 +130,7 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 		self._wasPreviouslyBusy = YES;
 		[self performUpdateBlock:^ NSUInteger {
 			return 1;
-		} eventIdentifier:[NSString stringWithFormat:@"%p", self] eventDescription:self.syncResourceGenericDescription objectDescription:self._runLoopDescription additionalDescription:nil];
+		} eventIdentifier:[NSString stringWithFormat:@"%p", self] eventDescription:self.syncResourceGenericDescription objectDescription:_DTXCFRunLoopDescription(_runLoop) additionalDescription:nil];
 	}
 }
 
@@ -160,7 +149,7 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 	
 	[self performUpdateBlock:^ NSUInteger {
 		return 0;
-	} eventIdentifier:[NSString stringWithFormat:@"%p", self] eventDescription:self.syncResourceGenericDescription objectDescription:self._runLoopDescription additionalDescription:nil];
+	} eventIdentifier:[NSString stringWithFormat:@"%p", self] eventDescription:self.syncResourceGenericDescription objectDescription:_DTXCFRunLoopDescription(_runLoop) additionalDescription:nil];
 	
 	_isTracking = NO;
 }
@@ -179,23 +168,17 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 
 - (NSString *)description
 {
-	return [NSString stringWithFormat:@"<%@: %p runLoop: %@>", self.class, self, _runLoop == CFRunLoopGetMain() ? @"mainRunloop" : self._runLoopDescription];
+	return [NSString stringWithFormat:@"<%@: %p runLoop: %@>", self.class, self, _runLoop == CFRunLoopGetMain() ? @"mainRunloop" : _DTXCFRunLoopDescription(_runLoop)];
 }
 
 - (NSString *)syncResourceDescription
 {
-	return [NSString stringWithFormat:@"Run Loop (%@)", self._runLoopDescription];
+	return [NSString stringWithFormat:@"Run Loop (%@)", _DTXCFRunLoopDescription(_runLoop)];
 }
 
 - (NSString*)syncResourceGenericDescription
 {
 	return @"Run Loop";
-}
-
-- (NSString*)_runLoopDescription
-{
-	CFRunLoopRef rnLoop = atomic_load(&__RNRunLoop);
-	return _runLoop == _mainRunLoop ? @"<Main Run Loop>" : (rnLoop != NULL && _runLoop == rnLoop) ? @"<JS Run Loop>" : [NSString stringWithFormat:@"<CFRunLoop: %p>", _runLoop];
 }
 
 @end
