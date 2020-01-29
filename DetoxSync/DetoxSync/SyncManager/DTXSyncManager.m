@@ -461,16 +461,6 @@ static BOOL DTXIsSystemBusyNow(void)
 	return rv;
 }
 
-+ (void)trackDisplayLink:(CADisplayLink*)displayLink
-{
-	[DTXTimerSyncResource startTrackingDisplayLink:displayLink];
-}
-
-+ (void)untrackDisplayLink:(CADisplayLink*)displayLink
-{
-	[DTXTimerSyncResource stopTrackingDisplayLink:displayLink];
-}
-
 + (id<DTXEventTracker>)trackEventWithDescription:(NSString*)description objectDescription:(NSString*)objectDescription
 {
 	return [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:objectDescription eventDescription:description];

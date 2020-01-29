@@ -8,10 +8,15 @@
 
 #import "CADisplayLink+DTXSpy.h"
 #import "DTXTimerSyncResource.h"
+#import "DTXSyncManager-Private.h"
+#import <execinfo.h>
+#include <dlfcn.h>
 
+@import Darwin;
 @import ObjectiveC;
 
 static const void* _DTXDisplayLinkRunLoopKey = &_DTXDisplayLinkRunLoopKey;
+pthread_mutex_t runLoopMappingMutex;
 
 @interface CADisplayLink ()
 
@@ -25,6 +30,8 @@ static const void* _DTXDisplayLinkRunLoopKey = &_DTXDisplayLinkRunLoopKey;
 {
 	@autoreleasepool
 	{
+		pthread_mutex_init(&runLoopMappingMutex, NULL);
+		
 		NSError* error;
 		
 		DTXSwizzleClassMethod(self, @selector(displayLinkWithDisplay:target:selector:), @selector(__detox_sync_displayLinkWithDisplay:target:selector:), &error);
@@ -36,14 +43,16 @@ static const void* _DTXDisplayLinkRunLoopKey = &_DTXDisplayLinkRunLoopKey;
 	}
 }
 
-- (NSInteger)__detox_sync_numberOfRunloops
+- (NSMutableSet<NSString*>*)__detox_sync_runLoopMapping
 {
-	return [objc_getAssociatedObject(self, _DTXDisplayLinkRunLoopKey) integerValue];
-}
-
-- (void)__detox_sync_setNumberOfRunloops:(NSInteger)__detox_sync_numberOfRunloops
-{
-	objc_setAssociatedObject(self, _DTXDisplayLinkRunLoopKey, @(__detox_sync_numberOfRunloops), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	NSMutableSet<NSString*>* rv = objc_getAssociatedObject(self, _DTXDisplayLinkRunLoopKey);
+	if(rv == nil)
+	{
+		rv = [NSMutableSet new];
+		objc_setAssociatedObject(self, _DTXDisplayLinkRunLoopKey, rv, OBJC_ASSOCIATION_RETAIN);
+	}
+	
+	return rv;
 }
 
 + (id)__detox_sync_displayLinkWithDisplay:(id)arg1 target:(id)arg2 selector:(SEL)arg3;
@@ -53,12 +62,28 @@ static const void* _DTXDisplayLinkRunLoopKey = &_DTXDisplayLinkRunLoopKey;
 
 - (void)__detox_sync_addToRunLoop:(NSRunLoop *)runloop forMode:(NSRunLoopMode)mode
 {
-	self.__detox_sync_numberOfRunloops += 1;
-	
-	if(self.isPaused == NO)
+	if([DTXSyncManager isTrackedRunLoop:runloop.getCFRunLoop])
 	{
-		id<DTXTimerProxy> proxy = [DTXTimerSyncResource existingTimeProxyWithDisplayLink:self];
-		[proxy track];
+//		void* frames[2];
+//		backtrace(frames, 2);
+//		Dl_info info;
+//		memset(&info, 0, sizeof(Dl_info));
+//		dladdr(frames[1], &info);
+//		NSString* binary = info.dli_fname ? [NSString stringWithCString:info.dli_fname encoding:NSUTF8StringEncoding] : nil;
+//
+//		if(info.dli_fname == NULL || [binary hasSuffix:@"WebKit"] == NO || [binary hasSuffix:@"WebCode"])
+//		{
+		NSString* str = [NSString stringWithFormat:@"%p_%@", runloop.getCFRunLoop, mode];
+		pthread_mutex_lock(&runLoopMappingMutex);
+		[self.__detox_sync_runLoopMapping addObject:str];
+		pthread_mutex_unlock(&runLoopMappingMutex);
+		
+		if(self.isPaused == NO)
+		{
+			id<DTXTimerProxy> proxy = [DTXTimerSyncResource existingTimeProxyWithDisplayLink:self];
+			[proxy track];
+		}
+//		}
 	}
 	
 	[self __detox_sync_addToRunLoop:runloop forMode:mode];
@@ -66,16 +91,23 @@ static const void* _DTXDisplayLinkRunLoopKey = &_DTXDisplayLinkRunLoopKey;
 
 - (void)__detox_sync_setPaused:(BOOL)paused
 {
-	id<DTXTimerProxy> proxy = [DTXTimerSyncResource existingTimeProxyWithDisplayLink:self];
-	if(paused == YES)
+	if(self.isPaused != paused)
 	{
-		[proxy untrack];
-	}
-	else
-	{
-		if(self.__detox_sync_numberOfRunloops > 0)
+		id<DTXTimerProxy> proxy = [DTXTimerSyncResource existingTimeProxyWithDisplayLink:self];
+		if(paused == YES)
 		{
-			[proxy track];
+			[proxy untrack];
+		}
+		else
+		{
+			pthread_mutex_lock(&runLoopMappingMutex);
+			NSUInteger count = self.__detox_sync_runLoopMapping.count;
+			pthread_mutex_unlock(&runLoopMappingMutex);
+			
+			if(count > 0)
+			{
+				[proxy track];
+			}
 		}
 	}
 	
@@ -86,12 +118,23 @@ static const void* _DTXDisplayLinkRunLoopKey = &_DTXDisplayLinkRunLoopKey;
 {
 	[self __detox_sync_removeFromRunLoop:runloop forMode:mode];
 	
-	self.__detox_sync_numberOfRunloops -= 1;
-	
-	if(self.__detox_sync_numberOfRunloops == 0)
+	id<DTXTimerProxy> proxy = [DTXTimerSyncResource existingTimeProxyWithDisplayLink:self];
+	if(proxy)
 	{
-		id<DTXTimerProxy> proxy = [DTXTimerSyncResource existingTimeProxyWithDisplayLink:self];
-		[proxy untrack];
+		NSString* str = [NSString stringWithFormat:@"%p_%@", runloop.getCFRunLoop, mode];
+		pthread_mutex_lock(&runLoopMappingMutex);
+		BOOL isContained = [self.__detox_sync_runLoopMapping containsObject:str];
+		if(isContained == YES)
+		{
+			[self.__detox_sync_runLoopMapping removeObject:str];
+		}
+		NSUInteger count = self.__detox_sync_runLoopMapping.count;
+		pthread_mutex_unlock(&runLoopMappingMutex);
+		
+		if(isContained == YES && count == 0)
+		{
+			[proxy untrack];
+		}
 	}
 }
 

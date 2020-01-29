@@ -210,24 +210,6 @@ static const void* _DTXTimerTrampolineKey = &_DTXTimerTrampolineKey;
 	objc_setAssociatedObject(timer, _DTXTimerTrampolineKey, nil, OBJC_ASSOCIATION_ASSIGN);
 }
 
-+ (void)startTrackingDisplayLink:(CADisplayLink *)displayLink
-{
-	id<DTXTimerProxy> proxy = [self _timerProxyWithDisplayLink:displayLink];
-	[proxy setDisplayLink:displayLink];
-	
-	if(displayLink.isPaused == NO && displayLink.__detox_sync_numberOfRunloops > 0)
-	{
-		[proxy track];
-	}
-}
-
-+ (void)stopTrackingDisplayLink:(CADisplayLink *)displayLink
-{
-	id<DTXTimerProxy> proxy = [self existingTimeProxyWithDisplayLink:displayLink];
-	[proxy untrack];
-	[self clearExistingTimeProxyWithDisplayLink:displayLink];
-}
-
 + (id<DTXTimerProxy>)_timerProxyWithDisplayLink:(CADisplayLink *)displayLink
 {
 	return [[_DTXTimerTrampoline alloc] initWithTarget:nil selector:nil fireDate:nil interval:0 repeats:YES];

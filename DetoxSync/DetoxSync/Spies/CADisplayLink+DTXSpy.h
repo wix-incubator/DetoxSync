@@ -12,8 +12,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface CADisplayLink (DTXSpy)
 
-@property (nonatomic, assign, getter=__detox_sync_numberOfRunloops, setter=__detox_sync_setNumberOfRunloops:) NSInteger __detox_sync_numberOfRunloops;
-
 @end
 
 NS_ASSUME_NONNULL_END
