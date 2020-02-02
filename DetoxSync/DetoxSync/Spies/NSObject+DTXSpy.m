@@ -35,8 +35,9 @@
 	}
 	
 	id trampoline = [DTXDelayedPerformSelectorSyncResource delayedPerformSelectorProxyWithTarget:self selector:aSelector object:anArgument];
-	
 	[trampoline __detox_sync_performSelector:@selector(fire) withObject:nil afterDelay:delay inModes:modes];
+	//Necessary to prevent leak
+	[trampoline release];
 }
 
 - (void)__detox_sync_performSelector:(SEL)aSelector onThread:(NSThread *)thr withObject:(id)arg waitUntilDone:(BOOL)wait modes:(NSArray<NSString *> *)array
@@ -48,8 +49,9 @@
 	}
 	
 	id trampoline = [DTXDelayedPerformSelectorSyncResource delayedPerformSelectorProxyWithTarget:self selector:aSelector object:arg];
-	
 	[trampoline __detox_sync_performSelector:@selector(fire) onThread:thr withObject:nil waitUntilDone:wait modes:array];
+	//Necessary to prevent leak
+	[trampoline release];
 }
 
 @end

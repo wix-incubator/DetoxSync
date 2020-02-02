@@ -80,7 +80,7 @@ pthread_mutex_t runLoopMappingMutex;
 		
 		if(self.isPaused == NO)
 		{
-			id<DTXTimerProxy> proxy = [DTXTimerSyncResource existingTimeProxyWithDisplayLink:self];
+			id<DTXTimerProxy> proxy = [DTXTimerSyncResource existingTimeProxyWithDisplayLink:self create:YES];
 			[proxy track];
 		}
 //		}
@@ -93,7 +93,7 @@ pthread_mutex_t runLoopMappingMutex;
 {
 	if(self.isPaused != paused)
 	{
-		id<DTXTimerProxy> proxy = [DTXTimerSyncResource existingTimeProxyWithDisplayLink:self];
+		id<DTXTimerProxy> proxy = [DTXTimerSyncResource existingTimeProxyWithDisplayLink:self create:NO];
 		if(paused == YES)
 		{
 			[proxy untrack];
@@ -118,7 +118,7 @@ pthread_mutex_t runLoopMappingMutex;
 {
 	[self __detox_sync_removeFromRunLoop:runloop forMode:mode];
 	
-	id<DTXTimerProxy> proxy = [DTXTimerSyncResource existingTimeProxyWithDisplayLink:self];
+	id<DTXTimerProxy> proxy = [DTXTimerSyncResource existingTimeProxyWithDisplayLink:self create:NO];
 	if(proxy)
 	{
 		NSString* str = [NSString stringWithFormat:@"%p_%@", runloop.getCFRunLoop, mode];
@@ -140,11 +140,11 @@ pthread_mutex_t runLoopMappingMutex;
 
 - (void)__detox_sync_invalidate
 {
-	[self __detox_sync_invalidate];
-	
-	id<DTXTimerProxy> proxy = [DTXTimerSyncResource existingTimeProxyWithDisplayLink:self];
+	id<DTXTimerProxy> proxy = [DTXTimerSyncResource existingTimeProxyWithDisplayLink:self create:NO];
 	[proxy untrack];
 	[DTXTimerSyncResource clearExistingTimeProxyWithDisplayLink:self];
+	
+	[self __detox_sync_invalidate];
 }
 
 @end

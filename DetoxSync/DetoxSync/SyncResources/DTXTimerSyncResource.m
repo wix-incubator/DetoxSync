@@ -162,8 +162,6 @@ static const void* _DTXTimerTrampolineKey = &_DTXTimerTrampolineKey;
 
 - (NSString *)description
 {
-	
-	
 	if(_displayLink != nil)
 	{
 		return _displayLink.description;
@@ -212,12 +210,20 @@ static const void* _DTXTimerTrampolineKey = &_DTXTimerTrampolineKey;
 
 + (id<DTXTimerProxy>)_timerProxyWithDisplayLink:(CADisplayLink *)displayLink
 {
-	return [[_DTXTimerTrampoline alloc] initWithTarget:nil selector:nil fireDate:nil interval:0 repeats:YES];
+	_DTXTimerTrampoline* rv = [[_DTXTimerTrampoline alloc] initWithTarget:nil selector:nil fireDate:nil interval:0 repeats:YES];
+	[rv setDisplayLink:displayLink];
+	return rv;
 }
 
-+ (id<DTXTimerProxy>)existingTimeProxyWithDisplayLink:(CADisplayLink *)displayLink
++ (id<DTXTimerProxy>)existingTimeProxyWithDisplayLink:(CADisplayLink *)displayLink create:(BOOL)create
 {
-	return objc_getAssociatedObject(displayLink, _DTXTimerTrampolineKey);
+	id rv = objc_getAssociatedObject(displayLink, _DTXTimerTrampolineKey);
+	if(rv == nil && create == YES)
+	{
+		rv = [self _timerProxyWithDisplayLink:displayLink];
+		objc_setAssociatedObject(displayLink, _DTXTimerTrampolineKey, rv, OBJC_ASSOCIATION_RETAIN);
+	}
+	return rv;
 }
 
 + (void)clearExistingTimeProxyWithDisplayLink:(CADisplayLink *)displayLink

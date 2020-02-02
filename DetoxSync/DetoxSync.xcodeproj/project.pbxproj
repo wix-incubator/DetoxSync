@@ -53,7 +53,7 @@
 		39DE8FA722F707F400780546 /* UIApplication+DTXSpy.h in Headers */ = {isa = PBXBuildFile; fileRef = 39DE8F7B22F707F400780546 /* UIApplication+DTXSpy.h */; };
 		39DE8FA822F707F400780546 /* UIScrollView+DTXSpy.h in Headers */ = {isa = PBXBuildFile; fileRef = 39DE8F7C22F707F400780546 /* UIScrollView+DTXSpy.h */; };
 		39DE8FA922F707F400780546 /* NSTimer+DTXSpy.m in Sources */ = {isa = PBXBuildFile; fileRef = 39DE8F7D22F707F400780546 /* NSTimer+DTXSpy.m */; };
-		39DE8FAA22F707F400780546 /* NSObject+DTXSpy.m in Sources */ = {isa = PBXBuildFile; fileRef = 39DE8F7E22F707F400780546 /* NSObject+DTXSpy.m */; };
+		39DE8FAA22F707F400780546 /* NSObject+DTXSpy.m in Sources */ = {isa = PBXBuildFile; fileRef = 39DE8F7E22F707F400780546 /* NSObject+DTXSpy.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		39DE8FAB22F707F400780546 /* UIViewController+DTXSpy.m in Sources */ = {isa = PBXBuildFile; fileRef = 39DE8F7F22F707F400780546 /* UIViewController+DTXSpy.m */; };
 		39DE8FAC22F707F400780546 /* CAAnimation+DTXSpy.h in Headers */ = {isa = PBXBuildFile; fileRef = 39DE8F8022F707F400780546 /* CAAnimation+DTXSpy.h */; };
 		39DE8FAD22F707F400780546 /* DispatchQueue+DTXSpy.h in Headers */ = {isa = PBXBuildFile; fileRef = 39DE8F8122F707F400780546 /* DispatchQueue+DTXSpy.h */; };

@@ -41,8 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (id<DTXTimerProxy>)existingTimeProxyWithTimer:(NSTimer*)timer;
 + (void)clearExistingTimeProxyWithTimer:(NSTimer*)timer;
 
-//+ (id<DTXTimerProxy>)timerProxyWithDisplayLink:(CADisplayLink*)displayLink;
-+ (id<DTXTimerProxy>)existingTimeProxyWithDisplayLink:(CADisplayLink*)displayLink;
++ (id<DTXTimerProxy>)existingTimeProxyWithDisplayLink:(CADisplayLink *)displayLink create:(BOOL)create;
 + (void)clearExistingTimeProxyWithDisplayLink:(CADisplayLink*)displayLink;
 
 @end
