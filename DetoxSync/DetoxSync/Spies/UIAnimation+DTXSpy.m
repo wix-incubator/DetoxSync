@@ -31,7 +31,7 @@ static const void* _DTXUIAnimationSRKey = &_DTXUIAnimationSRKey;
 {
 	DTXSingleUseSyncResource* sr = objc_getAssociatedObject(self, _DTXUIAnimationSRKey);
 	NSParameterAssert(sr == nil);
-	sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"UI Animation"];
+	sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"Animation"];
 	objc_setAssociatedObject(self, _DTXUIAnimationSRKey, sr, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	
 	[self __detox_sync_markStart:arg1];
