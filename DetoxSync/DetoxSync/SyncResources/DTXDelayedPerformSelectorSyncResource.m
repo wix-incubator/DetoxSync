@@ -51,6 +51,10 @@
 	} eventIdentifier:[NSString stringWithFormat:@"%p", self] eventDescription:self.syncResourceGenericDescription objectDescription:self._selectorTargetDescription additionalDescription:nil];
 	
 	[DTXSyncManager unregisterSyncResource:self];
+	
+	_target = nil;
+	_obj = nil;
+	_selector = nil;
 }
 
 - (NSString *)description
