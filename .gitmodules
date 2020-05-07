@@ -3,4 +3,4 @@
 	url = https://LeoNatan@github.com/wix/DTXLoggingInfra.git
 [submodule "DetoxSync/DTXSwizzlingHelper"]
 	path = DetoxSync/DTXSwizzlingHelper
-	url = https://github.com/wix/DTXSwizzlingHelper.git
+	url = https://github.com/wix/DTXObjectiveCHelpers.git

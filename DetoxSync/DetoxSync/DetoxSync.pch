@@ -10,44 +10,14 @@
 #define DetoxSync_pch
 
 #import "DTXLogging.h"
-
-#define dtx_defer_block_name_with_prefix(prefix, suffix) prefix ## suffix
-#define dtx_defer_block_name(suffix) dtx_defer_block_name_with_prefix(defer_, suffix)
-#define dtx_defer __strong void(^dtx_defer_block_name(__LINE__))(void) __attribute__((cleanup(defer_cleanup_block), unused)) = ^
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-function"
-static void defer_cleanup_block(__strong void(^*block)(void)) {
-	(*block)();
-}
-#pragma clang diagnostic pop
-
-#define superload load { @autoreleasepool { [self class]; } }\
-+ (void)initialize { static dispatch_once_t onceToken; dispatch_once(&onceToken, ^{ [self __dtxs_initializeOnce]; }); } \
-+ (void)__dtxs_initializeOnce
-
-#define CLANG_IGNORE_HELPER0(x) #x
-#define CLANG_IGNORE_HELPER1(x) CLANG_IGNORE_HELPER0(clang diagnostic ignored x)
-#define CLANG_IGNORE_HELPER2(y) CLANG_IGNORE_HELPER1(#y)
-#define CLANG_POP _Pragma("clang diagnostic pop")
-#define CLANG_IGNORE(x)\
-    _Pragma("clang diagnostic push");\
-    _Pragma(CLANG_IGNORE_HELPER2(x))
-
-#import "DTXSwizzlingHelper.h"
-
-#if ! defined(__cplusplus)
-#import <stdatomic.h>
-#endif
-
-typedef _Atomic(void*) atomic_voidptr;
-typedef _Atomic(const void*) atomic_constvoidptr;
-typedef _Atomic(double) atomic_double;
+#import "Swiftier.h"
 
 #ifdef __OBJC__
 #if __has_include(<Foundation/Foundation.h>)
 #import <Foundation/Foundation.h>
 typedef _Atomic(CFRunLoopRef) atomic_cfrunloop;
 #import "CFRunLoopDescription.h"
+#import "DTXSwizzlingHelper.h"
 #endif
 #endif
 

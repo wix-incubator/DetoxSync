@@ -25,6 +25,7 @@
 		399AE33923B27B2000BF1318 /* CFRunLoopDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = 399AE33723B27B2000BF1318 /* CFRunLoopDescription.m */; };
 		39A6C13122F9AF8300187B56 /* DTXRunLoopSyncResource.h in Headers */ = {isa = PBXBuildFile; fileRef = 39A6C12F22F9AF8300187B56 /* DTXRunLoopSyncResource.h */; };
 		39A6C13222F9AF8300187B56 /* DTXRunLoopSyncResource.m in Sources */ = {isa = PBXBuildFile; fileRef = 39A6C13022F9AF8300187B56 /* DTXRunLoopSyncResource.m */; };
+		39B71FBE24641B8B00CC9A88 /* Swiftier.h in Headers */ = {isa = PBXBuildFile; fileRef = 39B71FBD24641B8B00CC9A88 /* Swiftier.h */; };
 		39BC7B482397B7E500DAF671 /* DTXSwizzlingHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 39BC7B472397B7E500DAF671 /* DTXSwizzlingHelper.h */; };
 		39BC7B4F2397F6E200DAF671 /* NSURLConnection+DTXSpy.h in Headers */ = {isa = PBXBuildFile; fileRef = 39BC7B4D2397F6E200DAF671 /* NSURLConnection+DTXSpy.h */; };
 		39BC7B502397F6E200DAF671 /* NSURLConnection+DTXSpy.m in Sources */ = {isa = PBXBuildFile; fileRef = 39BC7B4E2397F6E200DAF671 /* NSURLConnection+DTXSpy.m */; };
@@ -100,6 +101,7 @@
 		39A6C12F22F9AF8300187B56 /* DTXRunLoopSyncResource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DTXRunLoopSyncResource.h; sourceTree = "<group>"; };
 		39A6C13022F9AF8300187B56 /* DTXRunLoopSyncResource.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DTXRunLoopSyncResource.m; sourceTree = "<group>"; };
 		39A6C13322F9AFE700187B56 /* DTXRunLoopSyncResource-Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DTXRunLoopSyncResource-Private.h"; sourceTree = "<group>"; };
+		39B71FBD24641B8B00CC9A88 /* Swiftier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Swiftier.h; path = DTXSwizzlingHelper/Swiftier.h; sourceTree = SOURCE_ROOT; };
 		39BC7B472397B7E500DAF671 /* DTXSwizzlingHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTXSwizzlingHelper.h; path = DTXSwizzlingHelper/DTXSwizzlingHelper.h; sourceTree = SOURCE_ROOT; };
 		39BC7B4D2397F6E200DAF671 /* NSURLConnection+DTXSpy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSURLConnection+DTXSpy.h"; sourceTree = "<group>"; };
 		39BC7B4E2397F6E200DAF671 /* NSURLConnection+DTXSpy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSURLConnection+DTXSpy.m"; sourceTree = "<group>"; };
@@ -308,6 +310,7 @@
 		39DE8F8F22F707F400780546 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				39B71FBD24641B8B00CC9A88 /* Swiftier.h */,
 				39BC7B462397B6EB00DAF671 /* DTXSwizzlingHelper */,
 				39DE8FC422F7088D00780546 /* fishhook.h */,
 				39DE8FC322F7088D00780546 /* fishhook.c */,
@@ -366,6 +369,7 @@
 				39DE8FC622F7088D00780546 /* fishhook.h in Headers */,
 				39DE8FB822F707F400780546 /* UIViewController+DTXSpy.h in Headers */,
 				39DE8F9C22F707F400780546 /* DTXDelayedPerformSelectorSyncResource.h in Headers */,
+				39B71FBE24641B8B00CC9A88 /* Swiftier.h in Headers */,
 				39DE8FAE22F707F400780546 /* UIGestureRecognizer+DTXSpy.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
