@@ -78,9 +78,9 @@ pthread_mutex_t runLoopMappingMutex;
 		[self.__detox_sync_runLoopMapping addObject:str];
 		pthread_mutex_unlock(&runLoopMappingMutex);
 		
+		id<DTXTimerProxy> proxy = [DTXTimerSyncResource existingTimeProxyWithDisplayLink:self create:YES];
 		if(self.isPaused == NO)
 		{
-			id<DTXTimerProxy> proxy = [DTXTimerSyncResource existingTimeProxyWithDisplayLink:self create:YES];
 			[proxy track];
 		}
 //		}

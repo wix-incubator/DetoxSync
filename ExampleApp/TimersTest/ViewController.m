@@ -24,6 +24,11 @@
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *topLayoutConstraintGreen;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *topLayoutConstraintBlue;
 @property (weak, nonatomic) IBOutlet UIView *greenView;
+@property (weak, nonatomic) IBOutlet UIView *orangeView;
+@property (weak, nonatomic) IBOutlet UIView *purpleView;
+@property (weak, nonatomic) IBOutlet UIView *tealView;
+@property (weak, nonatomic) IBOutlet UIView *indigoView;
+@property (weak, nonatomic) IBOutlet UIView *keyFrameView;
 
 @end
 
@@ -38,23 +43,23 @@
 
 + (void)syncSystemDidBecomeIdle
 {
-	NSLog(@"😂");
+	NSLog(@"✅ Idle in delegate!");
 }
 
 + (void)syncSystemDidBecomeBusy
 {
-	NSLog(@"🤡");
+	NSLog(@"❌ Busy in delegate!");
 }
 
-+ (void)syncSystemDidStartTrackingEventWithDescription:(NSString*)description
-{
-	NSLog(@"🥰 %@", description);
-}
-
-+ (void)syncSystemDidEndTrackingEventWithDescription:(NSString*)description
-{
-	NSLog(@"🥶 %@", description);
-}
+//+ (void)syncSystemDidStartTrackingEventWithIdentifier:(NSString*)identifier description:(NSString*)description objectDescription:(NSString*)objectDescription additionalDescription:(nullable NSString*)additionalDescription;
+//{
+//	NSLog(@"➕ Tracking from delegate; identifier: %@ description: %@(%@)", identifier, description, objectDescription);
+//}
+//
+//+ (void)syncSystemDidEndTrackingEventWithIdentifier:(NSString*)identifier
+//{
+//	NSLog(@"➖ End tracking from delegate; identifier: %@", identifier);
+//}
 
 + (void)load
 {
@@ -147,11 +152,43 @@
 		} completion:^(BOOL finished) {
 			NSLog(@"📱 Animation 3");
 			
-			NSMutableURLRequest* req = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"http://www.ynet.co.il"]];
-			req.cachePolicy = NSURLRequestReloadIgnoringLocalCacheData;
-			
-			id task = [_urlSession dataTaskWithRequest:req];
-			[task resume];
+			[UIView performSystemAnimation:UISystemAnimationDelete onViews:@[self.orangeView] options:0 animations:nil completion:^(BOOL finished) {
+				NSLog(@"📱 Animation 4");
+				
+				[UIView transitionWithView:self.indigoView duration:2.0 options:UIViewAnimationOptionTransitionCurlUp animations:^{
+					NSLog(@"📱 Animation 5");
+					
+					self.indigoView.backgroundColor = UIColor.systemBackgroundColor;
+				} completion:^(BOOL finished) {
+					[UIView transitionFromView:self.purpleView toView:self.tealView duration:2.0 options:UIViewAnimationOptionTransitionFlipFromLeft | UIViewAnimationOptionShowHideTransitionViews completion:^(BOOL finished) {
+						NSLog(@"📱 Animation 6");
+						
+						self.keyFrameView.hidden = NO;
+						[UIView animateKeyframesWithDuration:20.0 delay:0.0 options:0 animations:^{
+							[UIView addKeyframeWithRelativeStartTime:0.0 relativeDuration:0.25 animations:^{
+								self.keyFrameView.backgroundColor = UIColor.systemGray6Color;
+							}];
+							[UIView addKeyframeWithRelativeStartTime:0.25 relativeDuration:0.25 animations:^{
+								self.keyFrameView.backgroundColor = UIColor.systemGray4Color;
+							}];
+							[UIView addKeyframeWithRelativeStartTime:0.5 relativeDuration:0.25 animations:^{
+								self.keyFrameView.backgroundColor = UIColor.systemGray2Color;
+							}];
+							[UIView addKeyframeWithRelativeStartTime:0.75 relativeDuration:0.25 animations:^{
+								self.keyFrameView.backgroundColor = UIColor.systemGrayColor;
+							}];
+						} completion:^(BOOL finished) {
+							NSLog(@"📱 Animation 7");
+							
+							NSMutableURLRequest* req = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"http://www.ynet.co.il"]];
+							req.cachePolicy = NSURLRequestReloadIgnoringLocalCacheData;
+							
+							id task = [_urlSession dataTaskWithRequest:req];
+							[task resume];
+						}];
+					}];
+				}];
+			}];
 			print_sync_resources(YES);
 		}];
 	});
@@ -232,8 +269,6 @@
 	
 	_displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(displayLinkDidTick)];
 	_displayLink.paused = YES;
-	
-	[DTXSyncManager trackDisplayLink:_displayLink];
 	
 	[_displayLink addToRunLoop:NSRunLoop.mainRunLoop forMode:NSDefaultRunLoopMode];
 	

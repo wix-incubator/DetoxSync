@@ -17,16 +17,14 @@
 
 #include <dlfcn.h>
 
-DTX_CREATE_LOG("SyncManager")
+DTX_CREATE_LOG("SyncManager");
 static BOOL _enableVerboseSystemLogging = NO;
 BOOL __detox_sync_enableVerboseSyncResourceLogging = NO;
 #define dtx_log_verbose_sync_system(format, ...) __extension__({ \
-if(__builtin_expect(_enableVerboseSystemLogging, 0)) { __dtx_log(__prepare_and_return_file_log(), OS_LOG_TYPE_DEBUG, __current_log_prefix, format, ##__VA_ARGS__); } \
+if(dtx_unlikely(_enableVerboseSystemLogging)) { __dtx_log(__prepare_and_return_file_log(), OS_LOG_TYPE_DEBUG, __current_log_prefix, format, ##__VA_ARGS__); } \
 })
 
 #define TRY_IDLE_BLOCKS() [self _tryIdleBlocksNow:_useDelayedFire == 0];
-
-#define if_unlikely(x) if(__builtin_expect(x, 0))
 
 typedef void (^DTXIdleBlock)(void);
 
@@ -119,7 +117,7 @@ static NSTimeInterval _maximumTimerIntervalTrackingDuration = __builtin_inf();
 	}
 }
 
-+ (void)superload
++ (void)__superload
 {
 	@autoreleasepool
 	{
@@ -145,6 +143,7 @@ static NSTimeInterval _maximumTimerIntervalTrackingDuration = __builtin_inf();
 		[_trackedThreads addObject:[NSThread mainThread]];
 		
 		[self _trackCFRunLoop:CFRunLoopGetMain()];
+		_systemWasBusy = DTXIsSystemBusyNow();
 	}
 }
 
@@ -176,11 +175,11 @@ static NSTimeInterval _maximumTimerIntervalTrackingDuration = __builtin_inf();
 		{
 			DTXSyncResourceVerboseLog(@"%@ %@ (count: %lu)", busyCount > 0 ? @"👎" : @"👍", resource, (unsigned long)busyCount);
 			
-			if(previousBusyCount < busyCount && __builtin_expect(_delegate_syncSystemDidStartTrackingEventWithDescription, 0))
+			if(previousBusyCount < busyCount && dtx_unlikely(_delegate_syncSystemDidStartTrackingEventWithDescription))
 			{
 				[_delegate syncSystemDidStartTrackingEventWithIdentifier:eventID description:eventDescription objectDescription:objectDescription additionalDescription:additionalDescription];
 			}
-			else if(previousBusyCount > busyCount && __builtin_expect(_delegate_syncSystemDidEndTrackingEventWithDescription, 0))
+			else if(previousBusyCount > busyCount && dtx_unlikely(_delegate_syncSystemDidEndTrackingEventWithDescription))
 			{
 				[_delegate syncSystemDidEndTrackingEventWithIdentifier:eventID];
 			}
@@ -218,7 +217,7 @@ static NSTimeInterval _maximumTimerIntervalTrackingDuration = __builtin_inf();
 	dispatch_resume(_delayedFire);
 }
 
-__attribute__((__always_inline__))
+DTX_ALWAYS_INLINE
 static BOOL DTXIsSystemBusyNow(void)
 {
 	BOOL systemBusy = NO;
@@ -238,7 +237,7 @@ static BOOL DTXIsSystemBusyNow(void)
 
 + (void)_tryIdleBlocksNow:(BOOL)now
 {
-	if(_pendingIdleBlocks.count == 0 && _enableVerboseSystemLogging == NO)
+	if(_pendingIdleBlocks.count == 0 && dtx_likely(_enableVerboseSystemLogging == NO) && dtx_likely(_delegate_syncSystemDidBecomeBusy == NO) && dtx_likely(_delegate_syncSystemDidBecomeIdle == NO))
 	{
 		return;
 	}
@@ -255,7 +254,7 @@ static BOOL DTXIsSystemBusyNow(void)
 		if(systemBusy != _systemWasBusy)
 		{
 			dtx_log_verbose_sync_system(@"❌ Sync system is busy");
-			if_unlikely(_delegate_syncSystemDidBecomeBusy)
+			if(dtx_unlikely(_delegate_syncSystemDidBecomeBusy))
 			{
 				[_delegate syncSystemDidBecomeBusy];
 			}
@@ -268,7 +267,7 @@ static BOOL DTXIsSystemBusyNow(void)
 		{
 			BOOL isDelayed = now == NO && _pendingIdleBlocks.count > 0;
 			dtx_log_verbose_sync_system(@"%@ Sync system idle%@", isDelayed ? @"↩️" : @"✅" , isDelayed ? @" (delayed)" : @"");
-			if_unlikely(_delegate_syncSystemDidBecomeIdle)
+			if(dtx_unlikely(_delegate_syncSystemDidBecomeIdle))
 			{
 				[_delegate syncSystemDidBecomeIdle];
 			}

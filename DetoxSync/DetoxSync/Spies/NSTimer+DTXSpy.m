@@ -102,7 +102,7 @@ CFRunLoopTimerRef __detox_sync_CFRunLoopTimerCreateWithHandler(CFAllocatorRef al
 	return (__bridge_retained CFRunLoopTimerRef)[[NSTimer alloc] initWithFireDate:CFBridgingRelease(CFDateCreate(allocator, fireDate)) interval:interval repeats:interval > 0 block:block];
 }
 
-//__attribute__((__always_inline__))
+//DTX_ALWAYS_INLINE
 //static NSTimer* _DTXTimerInit(id instance, SEL selector, BOOL track, NSDate* date, NSTimeInterval ti, id t, SEL s, id ui, BOOL rep)
 //{
 //	id (*timerInitMsgSend)(id, SEL, id, NSTimeInterval, id, SEL, id, BOOL) = (void*)objc_msgSend;
