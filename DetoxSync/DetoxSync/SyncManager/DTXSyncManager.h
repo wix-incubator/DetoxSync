@@ -40,6 +40,7 @@ __attribute__((weak_import))
 @property (class, nonatomic, weak) id<DTXSyncManagerDelegate> delegate;
 
 + (void)enqueueIdleBlock:(dispatch_block_t)block;
++ (void)enqueueMainQueueIdleBlock:(dispatch_block_t)block;
 + (void)enqueueIdleBlock:(dispatch_block_t)block queue:(nullable dispatch_queue_t)queue;
 
 + (void)trackDispatchQueue:(dispatch_queue_t)dispatchQueue NS_SWIFT_NAME(track(dispatchQueue:));

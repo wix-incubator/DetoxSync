@@ -324,6 +324,11 @@ static BOOL DTXIsSystemBusyNow(void)
 	[self enqueueIdleBlock:block queue:nil];
 }
 
++ (void)enqueueMainQueueIdleBlock:(void(^)(void))block;
+{
+	[self enqueueIdleBlock:block queue:dispatch_get_main_queue()];
+}
+
 + (void)enqueueIdleBlock:(void(^)(void))block queue:(dispatch_queue_t)queue;
 {
 	dispatch_block_t outerBlock = ^ {
