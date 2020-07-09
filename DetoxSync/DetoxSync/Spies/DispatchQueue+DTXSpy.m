@@ -192,6 +192,22 @@ typedef struct _dispatch_host_time_data_s {
 
 static _dispatch_host_time_data_s _dispatch_host_time_data;
 
+static void
+_dispatch_host_time_init(mach_timebase_info_data_t *tbi)
+{
+	_dispatch_host_time_data.frac = tbi->numer;
+	_dispatch_host_time_data.frac /= tbi->denom;
+	_dispatch_host_time_data.ratio_1_to_1 = (tbi->numer == tbi->denom);
+}
+
+__attribute__((constructor))
+void
+_dispatch_time_init(void)
+{
+	mach_timebase_info_data_t tbi;
+	_dispatch_host_time_init(&tbi);
+}
+
 static uint64_t
 _dispatch_mach_host_time_mach2nano(uint64_t machtime)
 {
