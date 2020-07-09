@@ -13,6 +13,8 @@
 #import "DTXSyncManager-Private.h"
 @import Darwin;
 
+#define unlikely dtx_unlikely
+
 DTX_ALWAYS_INLINE
 void __dispatch_wrapper_func_2param(void (*func)(id, id), NSString* name, dispatch_queue_t param1, dispatch_block_t param2)
 {
@@ -183,12 +185,34 @@ _dispatch_time_mach2nano(uint64_t machtime)
 }
 #else
 #define DISPATCH_USE_HOST_TIME 1
-extern uint64_t (*_dispatch_host_time_mach2nano)(uint64_t machtime);
-extern uint64_t (*_dispatch_host_time_nano2mach)(uint64_t nsec);
+typedef struct _dispatch_host_time_data_s {
+	long double frac;
+	bool ratio_1_to_1;
+} _dispatch_host_time_data_s;
+
+static _dispatch_host_time_data_s _dispatch_host_time_data;
+
+static uint64_t
+_dispatch_mach_host_time_mach2nano(uint64_t machtime)
+{
+	_dispatch_host_time_data_s *const data = &_dispatch_host_time_data;
+	if (unlikely(!machtime || data->ratio_1_to_1)) {
+		return machtime;
+	}
+	if (machtime >= INT64_MAX) {
+		return INT64_MAX;
+	}
+	long double big_tmp = ((long double)machtime * data->frac) + .5L;
+	if (unlikely(big_tmp >= INT64_MAX)) {
+		return INT64_MAX;
+	}
+	return (uint64_t)big_tmp;
+}
+
 static inline uint64_t
 _dispatch_time_mach2nano(uint64_t machtime)
 {
-	return _dispatch_host_time_mach2nano(machtime);
+	return _dispatch_mach_host_time_mach2nano(machtime);
 }
 #endif // DISPATCH_USE_HOST_TIME
 
