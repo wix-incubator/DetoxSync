@@ -41,56 +41,23 @@ static void _DTXTrackTimerTrampolineIfNeeded(id<DTXTimerProxy> trampoline, CFRun
 	}
 	else
 	{
-		DTXSyncResourceVerboseLog(@"⏲ Ignoring timer “%@” failure reason: \"%@\"", trampoline.timer, failuireReasonForTrampoline(trampoline, rl));
+		DTXSyncResourceVerboseLog(@"⏲ Ignoring timer “%@”; failure reason: \"%@\"", trampoline.timer, failuireReasonForTrampoline(trampoline, rl));
 	}
-}
-
-static const void* _DTXCFTimerTrampolineRetain(const void* info)
-{
-	const void* rv = CFRetain(info);
-	id<DTXTimerProxy> tp = (__bridge id)info;
-	[tp retainContext];
-	
-	return rv;
-}
-
-static void _DTXCFTimerTrampolineRelease(const void* info)
-{
-	id<DTXTimerProxy> tp = (__bridge id)info;
-	[tp retainContext];
-	CFRelease(info);
 }
 
 static void _DTXCFTimerTrampoline(CFRunLoopTimerRef timer, void *info)
 {
-	id<DTXTimerProxy> tp = (__bridge id)info;
+	id<DTXTimerProxy> tp = [DTXTimerSyncResource existingTimeProxyWithTimer:NS(timer)];
 	[tp fire:(__bridge NSTimer*)timer];
 }
 
 static CFRunLoopTimerRef (*__orig_CFRunLoopTimerCreate)(CFAllocatorRef allocator, CFAbsoluteTime fireDate, CFTimeInterval interval, CFOptionFlags flags, CFIndex order, CFRunLoopTimerCallBack callout, CFRunLoopTimerContext *context);
 CFRunLoopTimerRef __detox_sync_CFRunLoopTimerCreate(CFAllocatorRef allocator, CFAbsoluteTime fireDate, CFTimeInterval interval, CFOptionFlags flags, CFIndex order, CFRunLoopTimerCallBack callout, CFRunLoopTimerContext *context)
 {
-	id<DTXTimerProxy> trampoline = [DTXTimerSyncResource timerProxyWithCallBack:callout context:context fireDate:CFBridgingRelease(CFDateCreate(allocator, fireDate)) interval:interval repeats:interval > 0];
-	
-	BOOL freeContext = NO;
-	if(context == NULL)
-	{
-		context = malloc(sizeof(CFRunLoopTimerContext));
-		freeContext = YES;
-	}
-	
-	context->info=(__bridge void*)trampoline;
-	context->retain = _DTXCFTimerTrampolineRetain;
-	context->release = _DTXCFTimerTrampolineRelease;
-	context->copyDescription = NULL;
-	
 	CFRunLoopTimerRef rv = __orig_CFRunLoopTimerCreate(allocator, fireDate, interval, flags, order, _DTXCFTimerTrampoline, context);
 	
-	if(freeContext)
-	{
-		free(context);
-	}
-	
+	id<DTXTimerProxy> trampoline = [DTXTimerSyncResource timerProxyWithCallback:callout fireDate:CFBridgingRelease(CFDateCreate(allocator, fireDate)) interval:interval repeats:interval > 0];
+
 	[trampoline setTimer:(__bridge NSTimer*)rv];
 	
 	return rv;
@@ -102,36 +69,37 @@ CFRunLoopTimerRef __detox_sync_CFRunLoopTimerCreateWithHandler(CFAllocatorRef al
 	return (__bridge_retained CFRunLoopTimerRef)[[NSTimer alloc] initWithFireDate:CFBridgingRelease(CFDateCreate(allocator, fireDate)) interval:interval repeats:interval > 0 block:block];
 }
 
-//DTX_ALWAYS_INLINE
-//static NSTimer* _DTXTimerInit(id instance, SEL selector, BOOL track, NSDate* date, NSTimeInterval ti, id t, SEL s, id ui, BOOL rep)
-//{
-//	id (*timerInitMsgSend)(id, SEL, id, NSTimeInterval, id, SEL, id, BOOL) = (void*)objc_msgSend;
-//
-//	id<DTXTimerProxy> trampoline = [DTXTimerSyncResource timerProxyWithTarget:t selector:s fireDate:date interval:ti repeats:rep];
-//	if(track)
-//	{
-//		[trampoline track];
-//	}
-//	NSTimer* rv = timerInitMsgSend(instance, selector, date, ti, trampoline, @selector(fire:), ui, rep);
-//	[trampoline setTimer:rv];
-//	return rv;
-//}
-//
-////__NSCFTimer (CoreFoundation)
-//- (instancetype)__detox_sync_initWithFireDate2:(NSDate *)date interval:(NSTimeInterval)ti target:(id)t selector:(SEL)s userInfo:(id)ui repeats:(BOOL)rep
-//{
-//	//Need to track here because CFRunLoopTimerCreate/CFRunLoopAddTimer will not be intercepted in this case.
-//	return _DTXTimerInit(self, @selector(__detox_sync_initWithFireDate2:interval:target:selector:userInfo:repeats:), YES, date, ti, t, s, ui, rep);
-//}
-
 static void (*__orig_CFRunLoopAddTimer)(CFRunLoopRef rl, CFRunLoopTimerRef timer, CFRunLoopMode mode);
 void __detox_sync_CFRunLoopAddTimer(CFRunLoopRef rl, CFRunLoopTimerRef timer, CFRunLoopMode mode)
 {
-	id<DTXTimerProxy> trampoline = [DTXTimerSyncResource existingTimeProxyWithTimer:(__bridge NSTimer*)timer];
+//	NSLog(@"🤦‍♂️ addTimer: %@", NS(timer));
 	
+	id<DTXTimerProxy> trampoline = [DTXTimerSyncResource existingTimeProxyWithTimer:NS(timer)];
 	_DTXTrackTimerTrampolineIfNeeded(trampoline, rl);
 	
 	__orig_CFRunLoopAddTimer(rl, timer, mode);
+}
+
+static void (*__orig_CFRunLoopRemoveTimer)(CFRunLoopRef rl, CFRunLoopTimerRef timer, CFRunLoopMode mode);
+void __detox_sync_CFRunLoopRemoveTimer(CFRunLoopRef rl, CFRunLoopTimerRef timer, CFRunLoopMode mode)
+{
+//	NSLog(@"🤦‍♂️ removeTimer: %@", NS(timer));
+	
+	id<DTXTimerProxy> trampoline = [DTXTimerSyncResource existingTimeProxyWithTimer:NS(timer)];
+	[trampoline untrack];
+	
+	__orig_CFRunLoopRemoveTimer(rl, timer, mode);
+}
+
+static void (*__orig_CFRunLoopTimerInvalidate)(CFRunLoopTimerRef timer);
+void __detox_sync_CFRunLoopTimerInvalidate(CFRunLoopTimerRef timer)
+{
+//	NSLog(@"🤦‍♂️ invalidate: %@", NS(timer));
+	
+	id<DTXTimerProxy> trampoline = [DTXTimerSyncResource existingTimeProxyWithTimer:NS(timer)];
+	[trampoline untrack];
+	
+	__orig_CFRunLoopTimerInvalidate(timer);
 }
 
 + (void)load
@@ -140,6 +108,8 @@ void __detox_sync_CFRunLoopAddTimer(CFRunLoopRef rl, CFRunLoopTimerRef timer, CF
 	{
 		struct rebinding r[] = (struct rebinding[]) {
 			"CFRunLoopAddTimer", __detox_sync_CFRunLoopAddTimer, (void*)&__orig_CFRunLoopAddTimer,
+			"CFRunLoopRemoveTimer", __detox_sync_CFRunLoopRemoveTimer, (void*)&__orig_CFRunLoopRemoveTimer,
+			"CFRunLoopTimerInvalidate", __detox_sync_CFRunLoopTimerInvalidate, (void*)&__orig_CFRunLoopTimerInvalidate,
 			"CFRunLoopTimerCreate", __detox_sync_CFRunLoopTimerCreate, (void*)&__orig_CFRunLoopTimerCreate,
 			"CFRunLoopTimerCreateWithHandler", __detox_sync_CFRunLoopTimerCreateWithHandler, (void*)&__orig_CFRunLoopTimerCreateWithHandler,
 		};

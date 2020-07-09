@@ -10,181 +10,12 @@
 #import "NSTimer+DTXSpy.h"
 #import "DTXSyncManager-Private.h"
 #import "CADisplayLink+DTXSpy.h"
+#import "_DTXTimerTrampoline.h"
 
 @import ObjectiveC;
 
-static const void* _DTXTimerTrampolineKey = &_DTXTimerTrampolineKey;
-
-@implementation _DTXTimerTrampoline
-{
-	id _target;
-	SEL _sel;
-	
-	//NSTimer
-	__weak NSTimer* _timer;
-	
-	//CFRunLoopTimer
-	CFRunLoopTimerCallBack _callBack;
-	void* _info;
-    const void* (*_retain)(const void* info);
-    void (*_release)(const void* info);
-	
-	//CADisplayLink
-	__weak CADisplayLink* _displayLink;
-	
-	BOOL _tracking;
-}
-
-@synthesize fireDate=_fireDate;
-@synthesize interval=_ti;
-@synthesize repeats=_repeats;
-@synthesize timer=_timer;
-@synthesize displayLink=_displayLink;
-
-- (instancetype)initWithTarget:(id)target selector:(SEL)selector fireDate:(NSDate*)fireDate interval:(NSTimeInterval)ti repeats:(BOOL)rep
-{
-	self = [super init];
-	if(self)
-	{
-		_target = target;
-		_sel = selector;
-		
-		_fireDate = fireDate;
-		_ti = ti;
-		_repeats = rep;
-	}
-	return self;
-}
-
-- (instancetype)initWithCallBack:(CFRunLoopTimerCallBack)callBack context:(CFRunLoopTimerContext*)context fireDate:(NSDate*)fireDate interval:(NSTimeInterval)ti repeats:(BOOL)rep
-{
-	self = [super init];
-	if(self)
-	{
-		_callBack = callBack;
-		if(context)
-		{
-			_info = context->info;
-			_retain = context->retain;
-			_release = context->release;
-		}
-		
-		_fireDate = fireDate;
-		_ti = ti;
-		_repeats = rep;
-	}
-	return self;
-}
-
-- (void)retainContext
-{
-	if(_retain)
-	{
-		_retain(_info);
-	}
-}
-
-- (void)releaseContext
-{
-	if(_release)
-	{
-		_release(_info);
-	}
-}
-
-- (void)dealloc
-{
-	[self untrack];
-	
-	_target = nil;
-	objc_setAssociatedObject(_timer, _DTXTimerTrampolineKey, nil, OBJC_ASSOCIATION_ASSIGN);
-}
-
-- (void)setTimer:(NSTimer*)timer
-{
-	_timer = timer;
-	objc_setAssociatedObject(timer, _DTXTimerTrampolineKey, self, OBJC_ASSOCIATION_ASSIGN);
-}
-
-- (void)setDisplayLink:(CADisplayLink*)displayLink
-{
-	_displayLink = displayLink;
-	objc_setAssociatedObject(_displayLink, _DTXTimerTrampolineKey, self, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
-- (void)fire:(id)timer
-{
-	if(_callBack)
-	{
-		_callBack((__bridge CFRunLoopTimerRef)timer, _info);
-		return;
-	}
-	
-	#pragma clang diagnostic push
-	#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-	[_target performSelector:_sel withObject:timer];
-	#pragma clang diagnostic pop
-}
-
-- (void)track
-{
-	if(_tracking == YES)
-	{
-		return;
-	}
-	
-	_tracking = YES;
-	[DTXTimerSyncResource.sharedInstance trackTimerTrampoline:self];
-}
-
-- (void)untrack
-{
-	if(_tracking == NO)
-	{
-		return;
-	}
-	
-	[DTXTimerSyncResource.sharedInstance untrackTimerTrampoline:self];
-	_tracking = NO;
-}
-
-+ (NSDateFormatter*)_descriptionDateFormatter
-{
-	static NSDateFormatter* _dateFormatter;
-	static dispatch_once_t onceToken;
-	dispatch_once(&onceToken, ^{
-		_dateFormatter = [NSDateFormatter new];
-		_dateFormatter.locale = NSLocale.autoupdatingCurrentLocale;
-		_dateFormatter.dateFormat = @"YYYY-MM-dd HH:mm:ss Z";
-	});
-	return _dateFormatter;
-}
-
-- (NSString *)description
-{
-	if(_displayLink != nil)
-	{
-		return _displayLink.description;
-	}
-	
-	return [NSString stringWithFormat:@"<%@: %p fireDate: %@ interval: %@ repeats: %@>", _timer.class, _timer, [_DTXTimerTrampoline._descriptionDateFormatter stringFromDate:_fireDate], @(_ti), _repeats ? @"YES" : @"NO"];
-}
-
-- (NSString*)syncResourceDescription
-{
-	return [NSString stringWithFormat:@"Timer with fire date: “%@” interval: “%@” repeats: “%@”", [_DTXTimerTrampoline._descriptionDateFormatter stringFromDate:_fireDate], @(_ti), _repeats ? @"YES" : @"NO"];
-}
-
-- (NSString*)syncResourceGenericDescription
-{
-	return @"Timer";
-}
-
-@end
-
 @implementation DTXTimerSyncResource
 {
-	dispatch_queue_t _queue;
 	NSHashTable* _timers;
 }
 
@@ -193,19 +24,19 @@ static const void* _DTXTimerTrampolineKey = &_DTXTimerTrampolineKey;
 	return [[_DTXTimerTrampoline alloc] initWithTarget:target selector:selector fireDate:fireDate interval:ti repeats:rep];
 }
 
-+ (id<DTXTimerProxy>)timerProxyWithCallBack:(CFRunLoopTimerCallBack)callBack context:(CFRunLoopTimerContext*)context fireDate:(NSDate*)fireDate interval:(NSTimeInterval)ti repeats:(BOOL)rep
++ (id<DTXTimerProxy>)timerProxyWithCallback:(CFRunLoopTimerCallBack)callback fireDate:(NSDate*)fireDate interval:(NSTimeInterval)ti repeats:(BOOL)rep
 {
-	return [[_DTXTimerTrampoline alloc] initWithCallBack:callBack context:context fireDate:fireDate interval:ti repeats:rep];
+	return [[_DTXTimerTrampoline alloc] initWithCallback:callback fireDate:fireDate interval:ti repeats:rep];
 }
 
 + (id<DTXTimerProxy>)existingTimeProxyWithTimer:(NSTimer*)timer
 {
-	return objc_getAssociatedObject(timer, _DTXTimerTrampolineKey);
+	return objc_getAssociatedObject(timer, __DTXTimerTrampolineKey);
 }
 
 + (void)clearExistingTimeProxyWithTimer:(NSTimer *)timer
 {
-	objc_setAssociatedObject(timer, _DTXTimerTrampolineKey, nil, OBJC_ASSOCIATION_ASSIGN);
+	objc_setAssociatedObject(timer, __DTXTimerTrampolineKey, nil, OBJC_ASSOCIATION_RETAIN);
 }
 
 + (id<DTXTimerProxy>)_timerProxyWithDisplayLink:(CADisplayLink *)displayLink
@@ -217,18 +48,18 @@ static const void* _DTXTimerTrampolineKey = &_DTXTimerTrampolineKey;
 
 + (id<DTXTimerProxy>)existingTimeProxyWithDisplayLink:(CADisplayLink *)displayLink create:(BOOL)create
 {
-	id rv = objc_getAssociatedObject(displayLink, _DTXTimerTrampolineKey);
+	id rv = objc_getAssociatedObject(displayLink, __DTXTimerTrampolineKey);
 	if(rv == nil && create == YES)
 	{
 		rv = [self _timerProxyWithDisplayLink:displayLink];
-		objc_setAssociatedObject(displayLink, _DTXTimerTrampolineKey, rv, OBJC_ASSOCIATION_RETAIN);
+		objc_setAssociatedObject(displayLink, __DTXTimerTrampolineKey, rv, OBJC_ASSOCIATION_RETAIN);
 	}
 	return rv;
 }
 
 + (void)clearExistingTimeProxyWithDisplayLink:(CADisplayLink *)displayLink
 {
-	objc_setAssociatedObject(displayLink, _DTXTimerTrampolineKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	objc_setAssociatedObject(displayLink, __DTXTimerTrampolineKey, nil, OBJC_ASSOCIATION_RETAIN);
 }
 
 - (instancetype)init
@@ -255,11 +86,25 @@ static const void* _DTXTimerTrampolineKey = &_DTXTimerTrampolineKey;
 	return shared;
 }
 
+
+/// Ugly hack for rare occasions where NSTimer gets released, but its associated objects are not released.
+static NSUInteger _DTXCleanTimersAndReturnCount(NSHashTable* _timers)
+{	
+	for (_DTXTimerTrampoline* trampoline in _timers.copy) {
+		if(trampoline.timer == nil && trampoline.displayLink == nil)
+		{
+			[_timers removeObject:trampoline];
+		}
+	}
+	
+	return _timers.count;
+}
+
 - (void)trackTimerTrampoline:(_DTXTimerTrampoline *)trampoline
 {
 	[self performUpdateBlock:^{
 		[_timers addObject:trampoline];
-		return _timers.count;
+		return _DTXCleanTimersAndReturnCount(_timers);
 	} eventIdentifier:[NSString stringWithFormat:@"%p", trampoline] eventDescription:self.syncResourceGenericDescription objectDescription:trampoline.syncResourceDescription additionalDescription:nil];
 }
 
@@ -267,7 +112,7 @@ static const void* _DTXTimerTrampolineKey = &_DTXTimerTrampolineKey;
 {
 	[self performUpdateBlock:^{
 		[_timers removeObject:trampoline];
-		return _timers.count;
+		return _DTXCleanTimersAndReturnCount(_timers);
 	} eventIdentifier:[NSString stringWithFormat:@"%p", trampoline] eventDescription:self.syncResourceGenericDescription objectDescription:trampoline.syncResourceDescription additionalDescription:nil];
 }
 

@@ -7,10 +7,9 @@
 //
 
 #import "DTXTimerSyncResource.h"
+@class _DTXTimerTrampoline;
 
 NS_ASSUME_NONNULL_BEGIN
-
-@interface _DTXTimerTrampoline : NSObject <DTXTimerProxy> @end
 
 @interface DTXTimerSyncResource ()
 
