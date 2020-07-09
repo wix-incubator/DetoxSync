@@ -12,6 +12,43 @@
 
 @import ObjectiveC;
 
+@implementation DTXDispatchBlockProxy
+{
+	NSString* _debugDescription;
+	NSString* _operation;
+}
+
++ (instancetype)proxyWithBlock:(dispatch_block_t)block operation:(NSString*)operation
+{
+	return [self proxyWithBlock:block operation:operation moreInfo:nil];
+}
+
++ (instancetype)proxyWithBlock:(dispatch_block_t)block operation:(NSString*)operation moreInfo:(NSString*)moreInfo
+{
+	DTXDispatchBlockProxy* rv = [DTXDispatchBlockProxy new];
+	
+	if(rv)
+	{
+		rv->_operation = operation;
+		
+		rv->_debugDescription = [NSString stringWithFormat:@"%@%@ with %@", moreInfo == nil ? @"" : [NSString stringWithFormat:@"(%@)", moreInfo], operation, [block debugDescription]];
+	}
+	
+	return rv;
+}
+
+- (NSString *)description
+{
+	return _debugDescription;
+}
+
+- (NSString *)debugDescription
+{
+	return _debugDescription;
+}
+
+@end
+
 static const void* DTXQueueDeallocHelperKey = &DTXQueueDeallocHelperKey;
 
 @implementation DTXDispatchQueueSyncResource
@@ -77,22 +114,28 @@ static const void* DTXQueueDeallocHelperKey = &DTXQueueDeallocHelperKey;
 	return @"Dispatch Queue";
 }
 
-- (void)addWorkBlock:(id)block operation:(NSString*)operation
+- (void)addWorkBlockProxy:(DTXDispatchBlockProxy*)blockProxy operation:(NSString*)operation
 {
 	[self performUpdateBlock:^NSUInteger{
 		_busyCount += 1;
-		[_busyBlocks addObject:block];
+#if DEBUG
+		NSAssert([_busyBlocks containsObject:blockProxy] == NO, @"Tried to add a duplicate block proxy");
+#endif
+		[_busyBlocks addObject:blockProxy];
 		return _busyCount;
-	} eventIdentifier:[NSString stringWithFormat:@"%p", block] eventDescription:self.syncResourceGenericDescription objectDescription:[self _descriptionForOperation:operation block:block] additionalDescription:nil];
+	} eventIdentifier:[NSString stringWithFormat:@"%p", blockProxy] eventDescription:self.syncResourceGenericDescription objectDescription:[self _descriptionForOperation:operation block:blockProxy] additionalDescription:nil];
 }
 
-- (void)removeWorkBlock:(id)block operation:(NSString*)operation
+- (void)removeWorkBlockProxy:(DTXDispatchBlockProxy*)blockProxy operation:(NSString*)operation
 {
 	[self performUpdateBlock:^NSUInteger{
 		_busyCount -= 1;
-		[_busyBlocks removeObject:block];
+#if DEBUG
+		NSAssert([_busyBlocks containsObject:blockProxy], @"Tried to remove a block proxy that doesn't exist");
+#endif
+		[_busyBlocks removeObject:blockProxy];
 		return _busyCount;
-	} eventIdentifier:[NSString stringWithFormat:@"%p", block] eventDescription:self.syncResourceGenericDescription objectDescription:[self _descriptionForOperation:operation block:block] additionalDescription:nil];
+	} eventIdentifier:[NSString stringWithFormat:@"%p", blockProxy] eventDescription:self.syncResourceGenericDescription objectDescription:[self _descriptionForOperation:operation block:blockProxy] additionalDescription:nil];
 }
 
 - (NSString*)_descriptionForOperation:(NSString*)op block:(id)block

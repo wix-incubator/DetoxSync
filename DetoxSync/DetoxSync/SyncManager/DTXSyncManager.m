@@ -61,8 +61,8 @@ static BOOL _delegate_syncSystemDidBecomeBusy = NO;
 static BOOL _delegate_syncSystemDidStartTrackingEventWithDescription = NO;
 static BOOL _delegate_syncSystemDidEndTrackingEventWithDescription = NO;
 
-static NSTimeInterval _maximumAllowedDelayedActionTrackingDuration = __builtin_inf();
-static NSTimeInterval _maximumTimerIntervalTrackingDuration = __builtin_inf();
+static NSTimeInterval _maximumAllowedDelayedActionTrackingDuration = 1.5;
+static NSTimeInterval _maximumTimerIntervalTrackingDuration = 1.5;
 
 @implementation DTXSyncManager
 
@@ -128,7 +128,7 @@ static NSTimeInterval _maximumTimerIntervalTrackingDuration = __builtin_inf();
 		__detox_sync_orig_dispatch_async = dlsym(RTLD_DEFAULT, "dispatch_async");
 		__detox_sync_orig_dispatch_after = dlsym(RTLD_DEFAULT, "dispatch_after");
 		
-		_queue = dispatch_queue_create("com.wix.syncmanager", dispatch_queue_attr_make_with_autorelease_frequency(NULL, DISPATCH_AUTORELEASE_FREQUENCY_WORK_ITEM));
+		_queue = dispatch_queue_create("com.wix.DTXSyncManager", dispatch_queue_attr_make_with_autorelease_frequency(NULL, DISPATCH_AUTORELEASE_FREQUENCY_WORK_ITEM));
 		dispatch_queue_set_specific(_queue, _queueSpecific, _queueSpecific, NULL);
 		NSString* DTXEnableDelayedIdleFire = [NSUserDefaults.standardUserDefaults stringForKey:@"DTXEnableDelayedIdleFire"];
 		NSNumberFormatter* nf = [NSNumberFormatter new];
@@ -310,7 +310,7 @@ static BOOL DTXIsSystemBusyNow(void)
 	for(dispatch_queue_t queue in blockDispatches.keyEnumerator)
 	{
 		NSMutableArray<DTXIdleBlock>* arr = [blockDispatches objectForKey:queue];
-		dispatch_async(queue, ^ {
+		__detox_sync_orig_dispatch_async(queue, ^ {
 			for(DTXIdleBlock block in arr)
 			{
 				block();

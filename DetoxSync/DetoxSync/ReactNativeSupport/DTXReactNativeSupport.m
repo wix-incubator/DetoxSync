@@ -19,7 +19,7 @@
 @import ObjectiveC;
 @import Darwin;
 
-DTX_CREATE_LOG(DTXReactNativeSupport);
+DTX_CREATE_LOG(DTXSyncReactNativeSupport);
 
 atomic_cfrunloop __RNRunLoop;
 static atomic_constvoidptr __RNThread;
