@@ -529,10 +529,10 @@ static BOOL DTXIsSystemBusyNow(void)
 	return [self _syncStatus:YES];
 }
 
-+ (void)syncStatusWithCompletionHandler:(void (^)(NSString* information))completionHandler
++ (void)idleStatusWithCompletionHandler:(void (^)(NSString* information))completionHandler
 {
 	__detox_sync_orig_dispatch_async(_queue, ^ {
-		completionHandler([self _syncStatus:NO]);
+		completionHandler([self _syncStatus:YES]);
 	});
 }
 

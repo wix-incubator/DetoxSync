@@ -49,6 +49,13 @@ static DTXSingleUseSyncResource* _DTXSRForAnimation(NSTimeInterval duration, NST
 + (void)__detox_sync_animateWithDuration:(NSTimeInterval)duration delay:(NSTimeInterval)delay options:(UIViewAnimationOptions)options animations:(void (^)(void))animations completion:(void (^ __nullable)(BOOL finished))completion
 {
 	DTXSingleUseSyncResource* sr = _DTXSRForAnimation(duration, delay);
+	BOOL isTheOne = [NSThread.callStackSymbols.description containsString:@"_UIRefreshControlModernContentView"];
+	if(isTheOne)
+	{
+		NSLog(@"");
+	}
+	
+	__block BOOL wasEnded;
 	
 	[self __detox_sync_animateWithDuration:duration delay:delay options:options animations:animations completion:^(BOOL finished) {
 		if(completion)
@@ -56,8 +63,20 @@ static DTXSingleUseSyncResource* _DTXSRForAnimation(NSTimeInterval duration, NST
 			completion(finished);
 		}
 		
+		if(isTheOne == YES)
+		{
+			NSLog(@"");
+		}
+		
 		[sr endTracking];
+		
+		wasEnded = YES;
 	}];
+	
+	//Failsafe, just in case.
+	__detox_sync_orig_dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((delay + duration + 0.1) * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+		[sr endTracking];
+	});
 }
 
 + (void)__detox_sync_animateWithDuration:(NSTimeInterval)duration animations:(void (^)(void))animations completion:(void (^)(BOOL))completion

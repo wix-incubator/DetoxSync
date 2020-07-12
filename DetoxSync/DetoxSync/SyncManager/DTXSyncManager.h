@@ -56,7 +56,7 @@ __attribute__((weak_import))
 
 + (id<DTXEventTracker>)trackEventWithDescription:(NSString*)description objectDescription:(NSString*)objectDescription NS_SWIFT_NAME(track(eventWithdescription:objectDescription:));
 
-+ (void)syncStatusWithCompletionHandler:(void (^)(NSString* information))completionHandler;
++ (void)idleStatusWithCompletionHandler:(void (^)(NSString* information))completionHandler;
 
 @end
 
