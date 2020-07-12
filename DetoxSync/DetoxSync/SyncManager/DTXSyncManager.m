@@ -493,9 +493,12 @@ static BOOL DTXIsSystemBusyNow(void)
 		{
 			[rv appendString:@"\n"];
 			
-			if(prevClass != nil && [prevClass isEqualToString:newClass] == NO)
+			if(includeAll == YES)
 			{
-				[rv appendFormat:@"%@\n", includeAll == YES ? [NSString stringWithFormat:@"\n%@", sr.class] : @""];
+				if(prevClass != nil && [prevClass isEqualToString:newClass] == NO)
+				{
+					[rv appendFormat:@"%@\n", includeAll == YES ? [NSString stringWithFormat:@"\n%@", sr.class] : @""];
+				}
 			}
 		}
 		else if(includeAll == YES)

@@ -39,9 +39,9 @@ __attribute__((weak_import))
 
 @property (class, nonatomic, weak) id<DTXSyncManagerDelegate> delegate;
 
-+ (void)enqueueIdleBlock:(dispatch_block_t)block;
-+ (void)enqueueMainQueueIdleBlock:(dispatch_block_t)block;
-+ (void)enqueueIdleBlock:(dispatch_block_t)block queue:(nullable dispatch_queue_t)queue;
++ (void)enqueueIdleBlock:(dispatch_block_t)block NS_SWIFT_NAME(enqueueIdleClosure(_:));
++ (void)enqueueMainQueueIdleBlock:(dispatch_block_t)block NS_SWIFT_NAME(enqueueMainQueueIdleClosure(_:));
++ (void)enqueueIdleBlock:(dispatch_block_t)block queue:(nullable dispatch_queue_t)queue NS_SWIFT_NAME(enqueueIdleClosure(_:queue:));
 
 + (void)trackDispatchQueue:(dispatch_queue_t)dispatchQueue NS_SWIFT_NAME(track(dispatchQueue:));
 + (void)untrackDispatchQueue:(dispatch_queue_t)dispatchQueue NS_SWIFT_NAME(untrack(dispatchQueue:));
@@ -54,7 +54,7 @@ __attribute__((weak_import))
 + (void)trackThread:(NSThread*)thread NS_SWIFT_NAME(track(thread:));
 + (void)untrackThread:(NSThread*)thread NS_SWIFT_NAME(untrack(thread:));
 
-+ (id<DTXEventTracker>)trackEventWithDescription:(NSString*)description objectDescription:(NSString*)objectDescription NS_SWIFT_NAME(track(description:objectDescription:));
++ (id<DTXEventTracker>)trackEventWithDescription:(NSString*)description objectDescription:(NSString*)objectDescription NS_SWIFT_NAME(track(eventWithdescription:objectDescription:));
 
 + (void)syncStatusWithCompletionHandler:(void (^)(NSString* information))completionHandler;
 

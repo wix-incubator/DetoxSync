@@ -96,7 +96,7 @@ static void __detox_sync_loadBundleAtURL_onProgress_onComplete(id self, SEL _cmd
 	
 	dtx_log_info(@"Adding idling resource for RN load");
 	
-	id<DTXSingleUse> sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:[self description] eventDescription:@"React Native (Bundle Load)"];
+	id<DTXSingleUse> sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:nil eventDescription:@"React Native (bundle load)"];
 	
 	[DTXReactNativeSupport waitForReactNativeLoadWithCompletionHandler:^{
 		[sr endTracking];
