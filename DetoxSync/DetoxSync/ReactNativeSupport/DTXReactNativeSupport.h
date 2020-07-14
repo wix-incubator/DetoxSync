@@ -14,7 +14,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (BOOL)hasReactNative;
 + (void)waitForReactNativeLoadWithCompletionHandler:(void (^)(void))handler;
-+ (void)cleanupBeforeReload;
 
 @end
 

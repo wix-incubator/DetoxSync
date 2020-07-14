@@ -358,7 +358,7 @@ static BOOL DTXIsSystemBusyNow(void)
 
 + (void)untrackDispatchQueue:(dispatch_queue_t)dispatchQueue
 {
-	DTXDispatchQueueSyncResource* sr = [DTXDispatchQueueSyncResource _existingSyncResourceWithQueue:dispatchQueue];
+	DTXDispatchQueueSyncResource* sr = [DTXDispatchQueueSyncResource _existingSyncResourceWithQueue:dispatchQueue cleanup:YES];
 	if(sr)
 	{
 		[self unregisterSyncResource:sr];

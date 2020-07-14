@@ -15,7 +15,7 @@
 		396C8B1623038CED00979E86 /* CADisplayLink+DTXSpy.h in Headers */ = {isa = PBXBuildFile; fileRef = 396C8B1423038CED00979E86 /* CADisplayLink+DTXSpy.h */; };
 		396C8B1723038CED00979E86 /* CADisplayLink+DTXSpy.m in Sources */ = {isa = PBXBuildFile; fileRef = 396C8B1523038CED00979E86 /* CADisplayLink+DTXSpy.m */; };
 		396C8B842304424E00979E86 /* ReactNativeHeaders.h in Headers */ = {isa = PBXBuildFile; fileRef = 396C8B832304424E00979E86 /* ReactNativeHeaders.h */; };
-		396C8B87230442A300979E86 /* DTXReactNativeSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 396C8B85230442A300979E86 /* DTXReactNativeSupport.h */; };
+		396C8B87230442A300979E86 /* DTXReactNativeSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 396C8B85230442A300979E86 /* DTXReactNativeSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		396C8B88230442A300979E86 /* DTXReactNativeSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 396C8B86230442A300979E86 /* DTXReactNativeSupport.m */; };
 		39725B412304870900B991ED /* NSRunLoop+DTXSpy.h in Headers */ = {isa = PBXBuildFile; fileRef = 39725B3F2304870900B991ED /* NSRunLoop+DTXSpy.h */; };
 		39725B422304870900B991ED /* NSRunLoop+DTXSpy.m in Sources */ = {isa = PBXBuildFile; fileRef = 39725B402304870900B991ED /* NSRunLoop+DTXSpy.m */; };

@@ -86,7 +86,19 @@ static const void* DTXQueueDeallocHelperKey = &DTXQueueDeallocHelperKey;
 
 + (instancetype)_existingSyncResourceWithQueue:(dispatch_queue_t)queue
 {
-	return (id)[((_DTXObjectDeallocHelper*)objc_getAssociatedObject(queue, DTXQueueDeallocHelperKey)) syncResource];
+	return [self _existingSyncResourceWithQueue:queue cleanup:NO];
+}
+
++ (instancetype)_existingSyncResourceWithQueue:(dispatch_queue_t)queue cleanup:(BOOL)cleanup
+{
+	id rv = (id)[((_DTXObjectDeallocHelper*)objc_getAssociatedObject(queue, DTXQueueDeallocHelperKey)) syncResource];
+	
+	if(cleanup)
+	{
+		objc_setAssociatedObject(queue, DTXQueueDeallocHelperKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	}
+	
+	return rv;
 }
 
 - (instancetype)init
@@ -101,7 +113,7 @@ static const void* DTXQueueDeallocHelperKey = &DTXQueueDeallocHelperKey;
 
 - (NSString *)description
 {
-	return [NSString stringWithFormat:@"<%@: %p queue: %@%@>", self.class, self, _queue, _busyBlocks.count > 0 ? [NSString stringWithFormat:@"work blocks: %@", _busyBlocks] : @""];
+	return [NSString stringWithFormat:@"<%@: %p queue: %@%@>", self.class, self, _queue, _busyBlocks.count > 0 ? [NSString stringWithFormat:@" work blocks: %@", _busyBlocks] : @""];
 }
 
 - (NSString*)syncResourceDescription

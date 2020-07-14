@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithSyncResource:(nullable __kindof DTXSyncResource*)syncResource;
 
-@property (nonatomic, weak, nullable) __kindof DTXSyncResource* syncResource;
+@property (nonatomic, strong, nullable) __kindof DTXSyncResource* syncResource;
 
 @property (nonatomic, copy, nullable) void (^performOnDealloc)(void);
 

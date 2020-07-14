@@ -15,3 +15,4 @@ FOUNDATION_EXPORT double DetoxSyncVersionNumber;
 FOUNDATION_EXPORT const unsigned char DetoxSyncVersionString[];
 
 #import <DetoxSync/DTXSyncManager.h>
+#import <DetoxSync/DTXReactNativeSupport.h>

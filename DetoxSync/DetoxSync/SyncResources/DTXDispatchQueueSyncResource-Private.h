@@ -20,6 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface DTXDispatchQueueSyncResource ()
 
 + (nullable instancetype)_existingSyncResourceWithQueue:(dispatch_queue_t)queue;
++ (nullable instancetype)_existingSyncResourceWithQueue:(dispatch_queue_t)queue cleanup:(BOOL)cleanup;
 
 - (void)addWorkBlockProxy:(DTXDispatchBlockProxy*)blockProxy operation:(NSString*)operation;
 - (void)removeWorkBlockProxy:(DTXDispatchBlockProxy*)blockProxy operation:(NSString*)operation;

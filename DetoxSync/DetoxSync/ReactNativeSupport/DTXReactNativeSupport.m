@@ -21,6 +21,12 @@
 
 DTX_CREATE_LOG(DTXSyncReactNativeSupport);
 
+@interface DTXReactNativeSupport ()
+
++ (void)cleanupBeforeReload;
+
+@end
+
 atomic_cfrunloop __RNRunLoop;
 static atomic_constvoidptr __RNThread;
 static void (*orig_runRunLoopThread)(id, SEL) = NULL;
@@ -126,7 +132,7 @@ static void _setupRNSupport()
 			
 			dispatch_queue_t queue = object_getIvar(_self, class_getInstanceVariable(cls, "_methodQueue"));
 			
-			if(queue != nil && [queue isKindOfClass:[NSNull class]] == NO && queue != dispatch_get_main_queue() && [_observedQueues containsObject:queue] == NO)
+			if(queue != nil && [queue isKindOfClass:NSNull.class] == NO && queue != dispatch_get_main_queue() && [_observedQueues containsObject:queue] == NO)
 			{
 				NSString* queueName = [[NSString alloc] initWithUTF8String:dispatch_queue_get_label(queue) ?: queue.description.UTF8String];
 				
@@ -142,14 +148,9 @@ static void _setupRNSupport()
 		dispatch_queue_t (*RCTGetUIManagerQueue)(void) = dlsym(RTLD_DEFAULT, "RCTGetUIManagerQueue");
 		
 		//Must be performed in +load and not in +setUp in order to correctly catch the ui queue, runloop and display link initialization by RN.
-		dispatch_queue_t queue = RCTGetUIManagerQueue();
-		
-		[DTXSyncManager trackDispatchQueue:queue];
-		
-		[_observedQueues addObject:queue];
-		
 		DTXSyncResourceVerboseLog(@"Adding sync resource for RCTUIManagerQueue");
-		
+		dispatch_queue_t queue = RCTGetUIManagerQueue();
+		[_observedQueues addObject:queue];
 		[DTXSyncManager trackDispatchQueue:queue];
 		
 		m = class_getInstanceMethod(UIApplication.class, NSSelectorFromString(@"_run"));
@@ -196,12 +197,16 @@ static void _setupRNSupport()
 	__block __weak id observer;
 	
 	observer = [[NSNotificationCenter defaultCenter] addObserverForName:@"RCTJavaScriptDidLoadNotification" object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
-		if(handler)
-		{
-			handler();
-		}
-		
 		[[NSNotificationCenter defaultCenter] removeObserver:observer];
+		
+		observer = [[NSNotificationCenter defaultCenter] addObserverForName:@"RCTContentDidAppearNotification" object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
+			[[NSNotificationCenter defaultCenter] removeObserver:observer];
+			
+			if(handler)
+			{
+				handler();
+			}
+		}];
 	}];
 }
 
