@@ -28,6 +28,18 @@
 	return self;
 }
 
+- (void)suspendTracking
+{
+	DTXSingleUseSyncResource* sr = self.syncResource;
+	[sr suspendTracking];
+}
+
+- (void)resumeTracking
+{
+	DTXSingleUseSyncResource* sr = self.syncResource;
+	[sr resumeTracking];
+}
+
 - (void)endTracking
 {
 	DTXSingleUseSyncResource* sr = self.syncResource;
@@ -55,21 +67,30 @@
 	rv->_description = description;
 	rv->_object = object;
 	[DTXSyncManager registerSyncResource:rv];
-	[rv performUpdateBlock:^ NSUInteger {
-		return 1;
-	} eventIdentifier:[NSString stringWithFormat:@"%p", rv] eventDescription:description objectDescription:[NSString stringWithFormat:@"%@", object] additionalDescription:nil];
+	[rv resumeTracking];
 	
 	_DTXSingleUseDeallocationHelper* helper = [[_DTXSingleUseDeallocationHelper alloc] initWithSyncResource:rv];
 	
 	return helper;
 }
 
-- (void)endTracking;
+- (void)suspendTracking
 {
 	[self performUpdateBlock:^ NSUInteger {
 		return 0;
 	} eventIdentifier:[NSString stringWithFormat:@"%p", self] eventDescription:_description objectDescription:[NSString stringWithFormat:@"%@", _object] additionalDescription:nil];
-	
+}
+
+- (void)resumeTracking
+{
+	[self performUpdateBlock:^ NSUInteger {
+		return 1;
+	} eventIdentifier:[NSString stringWithFormat:@"%p", self] eventDescription:_description objectDescription:[NSString stringWithFormat:@"%@", _object] additionalDescription:nil];
+}
+
+- (void)endTracking;
+{
+	[self suspendTracking];
 	[DTXSyncManager unregisterSyncResource:self];
 }
 

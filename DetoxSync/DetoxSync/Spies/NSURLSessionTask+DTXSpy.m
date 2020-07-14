@@ -8,6 +8,7 @@
 
 #import "NSURLSessionTask+DTXSpy.h"
 #import "DTXSingleUseSyncResource.h"
+#import "NSURL+DetoxSyncUtils.h"
 
 @import ObjectiveC;
 
@@ -33,16 +34,39 @@ static const void* _DTXNetworkTaskSRKey = &_DTXNetworkTaskSRKey;
 		{
 			DTXSwizzleMethod(cls, @selector(resume), @selector(__detox_sync_resume), &error);
 		}
+		DTXSwizzleMethod(cls, @selector(suspend), @selector(__detox_sync_suspend), &error);
 		DTXSwizzleMethod(cls, NSSelectorFromString(@"connection:didFinishLoadingWithError:"), @selector(__detox_sync_connection:didFinishLoadingWithError:), &error);
 	}
 }
 
 - (void)__detox_sync_resume
 {
-	id<DTXSingleUse> sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:[NSString stringWithFormat:@"URL: “%@”", self.originalRequest.URL.absoluteString] eventDescription:@"Network Request"];
-	objc_setAssociatedObject(self, _DTXNetworkTaskSRKey, sr, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	id<DTXSingleUse> sr = objc_getAssociatedObject(self, _DTXNetworkTaskSRKey);
+	if(sr != nil)
+	{
+		[sr resumeTracking];
+	}
+	else
+	{
+		if([self.originalRequest.URL detox_sync_shouldTrack])
+		{
+			sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:[NSString stringWithFormat:@"URL: “%@”", self.originalRequest.URL.absoluteString] eventDescription:@"Network Request"];
+			objc_setAssociatedObject(self, _DTXNetworkTaskSRKey, sr, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+		}
+	}
 	
 	[self __detox_sync_resume];
+}
+
+- (void)__detox_sync_suspend
+{
+	id<DTXSingleUse> sr = objc_getAssociatedObject(self, _DTXNetworkTaskSRKey);
+	if(sr != nil)
+	{
+		[sr suspendTracking];
+	}
+	
+	[self __detox_sync_suspend];
 }
 
 - (void)__detox_sync_untrackTask

@@ -121,7 +121,7 @@ static NSUInteger _DTXCleanTimersAndReturnCount(NSHashTable* _timers)
 	id x = nil;
 	
 	@try {
-		x = [NSString stringWithFormat:@"<%@: %p timers: %@", self.class, self, [_timers.allObjects valueForKey:@"description"]];
+		x = [NSString stringWithFormat:@"<%@: %p%@>", self.class, self, _timers.count > 0 ? [NSString stringWithFormat:@"  timers: %@", [_timers.allObjects valueForKey:@"description"]] : @""];
 	} @catch (NSException *exception) {
 		return [super description];
 	}

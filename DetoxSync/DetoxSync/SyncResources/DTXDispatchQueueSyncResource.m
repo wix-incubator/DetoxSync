@@ -31,7 +31,7 @@
 	{
 		rv->_operation = operation;
 		
-		rv->_debugDescription = [NSString stringWithFormat:@"%@%@ with %@", moreInfo == nil ? @"" : [NSString stringWithFormat:@"(%@)", moreInfo], operation, [block debugDescription]];
+		rv->_debugDescription = [NSString stringWithFormat:@"%@%@ with %p", operation, moreInfo == nil ? @"" : [NSString stringWithFormat:@"(%@)", moreInfo], block];
 	}
 	
 	return rv;

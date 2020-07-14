@@ -84,7 +84,7 @@ static void __detox_sync_dispatch_after(dispatch_time_t when, dispatch_queue_t q
 	DTXDispatchBlockProxy* proxy = nil;
 	if(shouldTrack)
 	{
-		proxy = [DTXDispatchBlockProxy proxyWithBlock:block operation:@"dispatch_after"];
+		proxy = [DTXDispatchBlockProxy proxyWithBlock:block operation:@"dispatch_after" moreInfo:@(DTXDoubleWithMaxFractionLength(timeFromNow, 3)).description];
 		[sr addWorkBlockProxy:proxy operation:@"dispatch_after"];
 	}
 	
@@ -120,6 +120,11 @@ dispatch_queue_t __detox_sync_dispatch_queue_create(const char *_Nullable label,
 	dispatch_queue_t rv = __orig_dispatch_queue_create(label, attr);
 	
 	if(label != NULL && strncmp(label, "com.apple.NSURLSession-work", strlen("com.apple.NSURLSession-work")) == 0)
+	{
+		[DTXSyncManager trackDispatchQueue:rv];
+	}
+	
+	if(label != NULL && strncmp(label, "com.apple.NSURLSession-delegate", strlen("com.apple.NSURLSession-delegate")) == 0)
 	{
 		[DTXSyncManager trackDispatchQueue:rv];
 	}

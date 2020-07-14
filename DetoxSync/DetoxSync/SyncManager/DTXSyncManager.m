@@ -61,31 +61,57 @@ static BOOL _delegate_syncSystemDidBecomeBusy = NO;
 static BOOL _delegate_syncSystemDidStartTrackingEventWithDescription = NO;
 static BOOL _delegate_syncSystemDidEndTrackingEventWithDescription = NO;
 
-static NSTimeInterval _maximumAllowedDelayedActionTrackingDuration = 1.5;
-static NSTimeInterval _maximumTimerIntervalTrackingDuration = 1.5;
+static atomic_nstimeinterval _maximumAllowedDelayedActionTrackingDuration = ATOMIC_VAR_INIT(__builtin_inf());
+static atomic_nstimeinterval _maximumTimerIntervalTrackingDuration = ATOMIC_VAR_INIT(__builtin_inf());
+static atomic_bool _synchronizationDisabled = ATOMIC_VAR_INIT(NO);
+static atomic_voidptr _URLBlacklist = ATOMIC_VAR_INIT(NULL);
 
 @implementation DTXSyncManager
 
++ (BOOL)synchronizationDisabled
+{
+	return atomic_load(&_synchronizationDisabled);
+}
+
++ (void)setSynchronizationDisabled:(BOOL)synchronizationDisabled
+{
+	atomic_store(&_synchronizationDisabled, synchronizationDisabled);
+}
+
 + (NSTimeInterval)maximumAllowedDelayedActionTrackingDuration
 {
-	return _maximumAllowedDelayedActionTrackingDuration;
+	return atomic_load(&_maximumAllowedDelayedActionTrackingDuration);
 }
 
 + (void)setMaximumAllowedDelayedActionTrackingDuration:(NSTimeInterval)maximumAllowedDelayedActionTrackingDuration
 {
-	_maximumAllowedDelayedActionTrackingDuration = maximumAllowedDelayedActionTrackingDuration;
+	atomic_store(&_maximumAllowedDelayedActionTrackingDuration, maximumAllowedDelayedActionTrackingDuration);
 }
 
 + (NSTimeInterval)maximumTimerIntervalTrackingDuration
 {
-	return _maximumAllowedDelayedActionTrackingDuration;
+	return atomic_load(&_maximumAllowedDelayedActionTrackingDuration);
 }
 
 + (void)setMaximumTimerIntervalTrackingDuration:(NSTimeInterval)maximumTimerIntervalTrackingDuration
 {
-	_maximumTimerIntervalTrackingDuration = maximumTimerIntervalTrackingDuration;
+	atomic_store(&_maximumTimerIntervalTrackingDuration, maximumTimerIntervalTrackingDuration);
 }
 
++ (NSArray<NSString *> *)URLBlacklist
+{
+	return NS(atomic_load(&_URLBlacklist));
+}
+
++ (void)setURLBlacklist:(NSArray<NSString *> *)URLBlacklist
+{
+	void* old = atomic_load(&_URLBlacklist);
+	if(old != NULL)
+	{
+		CFRelease(old);
+	}
+	atomic_store(&_URLBlacklist, (void*)CFBridgingRetain(URLBlacklist.copy));
+}
 
 + (id<DTXSyncManagerDelegate>)delegate
 {
@@ -128,7 +154,7 @@ static NSTimeInterval _maximumTimerIntervalTrackingDuration = 1.5;
 		__detox_sync_orig_dispatch_async = dlsym(RTLD_DEFAULT, "dispatch_async");
 		__detox_sync_orig_dispatch_after = dlsym(RTLD_DEFAULT, "dispatch_after");
 		
-		_queue = dispatch_queue_create("com.wix.DTXSyncManager", dispatch_queue_attr_make_with_autorelease_frequency(NULL, DISPATCH_AUTORELEASE_FREQUENCY_WORK_ITEM));
+		_queue = dtx_dispatch_queue_create_autoreleasing("com.wix.DTXSyncManager", NULL);
 		dispatch_queue_set_specific(_queue, _queueSpecific, _queueSpecific, NULL);
 		NSString* DTXEnableDelayedIdleFire = [NSUserDefaults.standardUserDefaults stringForKey:@"DTXEnableDelayedIdleFire"];
 		NSNumberFormatter* nf = [NSNumberFormatter new];
@@ -173,7 +199,7 @@ static NSTimeInterval _maximumTimerIntervalTrackingDuration = 1.5;
 		NSUInteger busyCount = block();
 		if(previousBusyCount != busyCount)
 		{
-			DTXSyncResourceVerboseLog(@"%@ %@ (count: %lu)", busyCount > 0 ? @"👎" : @"👍", resource, (unsigned long)busyCount);
+			DTXSyncResourceVerboseLog(@"%@ %@ (count: %lu)", busyCount > 0 ? @"👎" : @"👍", resource.syncResourceDescription, (unsigned long)busyCount);
 			
 			if(previousBusyCount < busyCount && dtx_unlikely(_delegate_syncSystemDidStartTrackingEventWithDescription))
 			{
@@ -331,6 +357,20 @@ static BOOL DTXIsSystemBusyNow(void)
 
 + (void)enqueueIdleBlock:(void(^)(void))block queue:(dispatch_queue_t)queue;
 {
+	if(dtx_unlikely(DTXSyncManager.synchronizationDisabled))
+	{
+		if(queue == nil)
+		{
+			block();
+			
+			return;
+		}
+		
+		__detox_sync_orig_dispatch_async(queue, block);
+		
+		return;
+	}
+	
 	dispatch_block_t outerBlock = ^ {
 		_DTXIdleTupple* t = [_DTXIdleTupple new];
 		t.block = block;

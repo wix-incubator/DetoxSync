@@ -162,13 +162,6 @@ static void _setupRNSupport()
 		DTXJSTimerSyncResource* sr = [DTXJSTimerSyncResource new];
 		[DTXSyncManager registerSyncResource:sr];
 		
-//		//TODO:
-//		if([WXAnimatedDisplayLinkIdlingResource isAvailable]) {
-//			_DTXSyncResourceVerboseLog(@"Adding idling resource for Animated display link");
-//			
-//			[[GREYUIThreadExecutor sharedInstance] registerIdlingResource:[WXAnimatedDisplayLinkIdlingResource new]];
-//		}
-		
 		cls = NSClassFromString(@"RCTJavaScriptLoader");
 		if(cls == nil)
 		{

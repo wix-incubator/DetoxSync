@@ -34,8 +34,10 @@ NS_ASSUME_NONNULL_BEGIN
 __attribute__((weak_import))
 @interface DTXSyncManager : NSObject
 
-@property (class, nonatomic) NSTimeInterval maximumAllowedDelayedActionTrackingDuration;
-@property (class, nonatomic) NSTimeInterval maximumTimerIntervalTrackingDuration;
+@property (class, atomic) BOOL synchronizationDisabled;
+@property (class, atomic) NSTimeInterval maximumAllowedDelayedActionTrackingDuration;
+@property (class, atomic) NSTimeInterval maximumTimerIntervalTrackingDuration;
+@property (class, atomic, copy) NSArray<NSString*>* URLBlacklist NS_SWIFT_NAME(urlBlacklist);
 
 @property (class, nonatomic, weak) id<DTXSyncManagerDelegate> delegate;
 

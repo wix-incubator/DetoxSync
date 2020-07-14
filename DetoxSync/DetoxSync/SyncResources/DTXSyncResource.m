@@ -52,4 +52,9 @@
 	return nil;
 }
 
+- (void)dealloc
+{
+	[DTXSyncManager unregisterSyncResource:self];
+}
+
 @end
