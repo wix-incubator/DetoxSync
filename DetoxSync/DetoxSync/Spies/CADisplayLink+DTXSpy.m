@@ -60,9 +60,14 @@ pthread_mutex_t runLoopMappingMutex;
 	return [self __detox_sync_displayLinkWithDisplay:arg1 target:arg2 selector:arg3];
 }
 
-- (void)__detox_sync_addToRunLoop:(NSRunLoop *)runloop forMode:(NSRunLoopMode)mode
+extern atomic_cfrunloop __RNRunLoop;
+
+- (void)__detox_sync_addToRunLoop:(NSRunLoop *)runLoop forMode:(NSRunLoopMode)mode
 {
-	if([DTXSyncManager isTrackedRunLoop:runloop.getCFRunLoop])
+	CFRunLoopRef RNRunLoop = atomic_load(&__RNRunLoop);
+	CFRunLoopRef cfRunLoop = runLoop.getCFRunLoop;
+	
+	if(cfRunLoop != RNRunLoop && [DTXSyncManager isTrackedRunLoop:cfRunLoop])
 	{
 //		void* frames[2];
 //		backtrace(frames, 2);
@@ -73,7 +78,7 @@ pthread_mutex_t runLoopMappingMutex;
 //
 //		if(info.dli_fname == NULL || [binary hasSuffix:@"WebKit"] == NO || [binary hasSuffix:@"WebCode"])
 //		{
-		NSString* str = [NSString stringWithFormat:@"%p_%@", runloop.getCFRunLoop, mode];
+		NSString* str = [NSString stringWithFormat:@"%p_%@", runLoop.getCFRunLoop, mode];
 		pthread_mutex_lock(&runLoopMappingMutex);
 		[self.__detox_sync_runLoopMapping addObject:str];
 		pthread_mutex_unlock(&runLoopMappingMutex);
@@ -86,7 +91,7 @@ pthread_mutex_t runLoopMappingMutex;
 //		}
 	}
 	
-	[self __detox_sync_addToRunLoop:runloop forMode:mode];
+	[self __detox_sync_addToRunLoop:runLoop forMode:mode];
 }
 
 - (void)__detox_sync_setPaused:(BOOL)paused
