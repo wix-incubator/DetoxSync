@@ -8,10 +8,53 @@
 
 #import "NSURLSession+DTXSpy.h"
 #import "NSURLSessionTask+DTXSpy.h"
+@import ObjectiveC;
 
-@interface NSURLSession ()
+@interface __detox_sync_URLSessionDelegateProxy : NSObject <NSURLSessionDataDelegate> @end
 
-- (id)_dataTaskWithTaskForClass:(id)arg1;
+@implementation __detox_sync_URLSessionDelegateProxy
+
+- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSURLResponse *)response completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler
+{
+	Class superclass = DTXDynamicSubclassSuper(self, __detox_sync_URLSessionDelegateProxy.class);
+	if([superclass instancesRespondToSelector:_cmd])
+	{
+		id detoxSyncCompletionHandler = ^(NSURLSessionResponseDisposition disposition) {
+			completionHandler(disposition);
+			
+			//If the task is "upgraded" to a different type, stop tracking it.
+			switch (disposition) {
+				case NSURLSessionResponseBecomeDownload:
+				case NSURLSessionResponseBecomeStream:
+					[dataTask __detox_sync_untrackTask];
+					break;
+				default:
+					break;
+			}
+		};
+		
+		struct objc_super super = {.receiver = self, .super_class = superclass};
+		void (*super_class)(struct objc_super*, SEL, id, id, id, id) = (void*)objc_msgSendSuper;
+		super_class(&super, _cmd, session, dataTask, response, detoxSyncCompletionHandler);
+	}
+	else
+	{
+		completionHandler(NSURLSessionResponseAllow);
+	}
+}
+
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(nullable NSError *)error
+{
+	Class superclass = DTXDynamicSubclassSuper(self, __detox_sync_URLSessionDelegateProxy.class);
+	if([superclass instancesRespondToSelector:_cmd])
+	{
+		struct objc_super super = {.receiver = self, .super_class = superclass};
+		void (*super_class)(struct objc_super*, SEL, id, id, id) = (void*)objc_msgSendSuper;
+		super_class(&super, _cmd, session, task, error);
+	}
+	
+	[task __detox_sync_untrackTask];
+}
 
 @end
 
@@ -24,31 +67,73 @@
 	@autoreleasepool
 	{
 		NSError* error;
-		if(NSProcessInfo.processInfo.operatingSystemVersion.majorVersion >= 13)
-		{
-			Class cls = NSClassFromString(@"__NSURLSessionLocal");
-			Method m2 = class_getInstanceMethod(NSURLSession.class, @selector(__detox_sync__dataTaskWithTaskForClass:));
-			class_addMethod(cls, @selector(__detox_sync__dataTaskWithTaskForClass:), method_getImplementation(m2), method_getTypeEncoding(m2));
-			
-			DTXSwizzleMethod(cls, @selector(_dataTaskWithTaskForClass:), @selector(__detox_sync__dataTaskWithTaskForClass:), &error);
-		}
-		else
-		{
-			DTXSwizzleMethod(NSURLSession.class, @selector(dataTaskWithRequest:completionHandler:), @selector(__detox_sync_dataTaskWithRequest:completionHandler:), &error);
-		}
+		
+		Class cls = NSClassFromString(@"__NSURLSessionLocal");
+		DTXSwizzleClassMethod(NSURLSession.class, @selector(sessionWithConfiguration:delegate:delegateQueue:), @selector(__detox_sync_sessionWithConfiguration:delegate:delegateQueue:), &error);
+		
+//		DTXSwizzleMethod(cls, @selector(dataTaskWithRequest:), @selector(__detox_sync_dataTaskWithRequest:), &error);
+//		DTXSwizzleMethod(cls, @selector(dataTaskWithURL:), @selector(__detox_sync_dataTaskWithURL:), &error);
+		DTXSwizzleMethod(cls, @selector(dataTaskWithRequest:completionHandler:), @selector(__detox_sync_dataTaskWithRequest:completionHandler:), &error);
+		DTXSwizzleMethod(cls, @selector(dataTaskWithURL:completionHandler:), @selector(__detox_sync_dataTaskWithURL:completionHandler:), &error);
 	}
 }
 
-- (NSURLSessionDataTask *)__detox_sync__dataTaskWithTaskForClass:(id)arg1
++ (NSURLSession *)__detox_sync_sessionWithConfiguration:(NSURLSessionConfiguration *)configuration delegate:(id<NSURLSessionDelegate>)delegate delegateQueue:(NSOperationQueue *)queue
 {
-	id rv = [self __detox_sync__dataTaskWithTaskForClass:arg1];
+	DTXDynamicallySubclass(delegate, __detox_sync_URLSessionDelegateProxy.class);
+	
+	return [self __detox_sync_sessionWithConfiguration:configuration delegate:delegate delegateQueue:queue];
+}
+
+//- (NSURLSessionDataTask *)__detox_sync_dataTaskWithRequest:(NSURLRequest *)request
+//{
+//	if(self.delegate != nil)
+//	{
+////		DTXDynamicallySubclass(self.delegate, __detox_sync_URLSessionDelegateProxy.class);
+//	}
+//	id rv = [self __detox_sync_dataTaskWithRequest:request];
+//
+//	return rv;
+//}
+//
+//- (NSURLSessionDataTask *)__detox_sync_dataTaskWithURL:(NSURL *)url;
+//{
+//	if(self.delegate != nil)
+//	{
+//		DTXDynamicallySubclass(self.delegate, __detox_sync_URLSessionDelegateProxy.class);
+//		DTXDynamicallySubclass(self.delegate, __detox_sync_URLSessionDelegateProxy2.class);
+//	}
+//	id rv = [self __detox_sync_dataTaskWithURL:url];
+//
+//	return rv;
+//}
+
+- (NSURLSessionDataTask *)__detox_sync_dataTaskWithRequest:(NSURLRequest *)request completionHandler:(void (^)(NSData * _Nullable, NSURLResponse * _Nullable, NSError * _Nullable))completionHandler
+{
+	__block NSURLSessionDataTask* rv;
+	
+	id syncCompletionHandler = completionHandler == nil ? nil : ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+		completionHandler(data, response, error);
+		
+		[rv __detox_sync_untrackTask];
+	};
+	
+	rv = [self __detox_sync_dataTaskWithRequest:request completionHandler:syncCompletionHandler];
 	
 	return rv;
 }
 
-- (NSURLSessionDataTask *)__detox_sync_dataTaskWithRequest:(NSURLRequest *)request completionHandler:(void (^)(NSData * _Nullable, NSURLResponse * _Nullable, NSError * _Nullable))completionHandler
+- (NSURLSessionDataTask *)__detox_sync_dataTaskWithURL:(NSURL *)url completionHandler:(void (^)(NSData * _Nullable, NSURLResponse * _Nullable, NSError * _Nullable))completionHandler
 {
-	id rv = [self __detox_sync_dataTaskWithRequest:request completionHandler:completionHandler];
+	__block NSURLSessionDataTask* rv;
+	
+	id syncCompletionHandler = completionHandler == nil ? nil : ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+		completionHandler(data, response, error);
+		
+		[rv __detox_sync_untrackTask];
+	};
+	
+	rv = [self __detox_sync_dataTaskWithURL:url completionHandler:syncCompletionHandler];
 	
 	return rv;
 }

@@ -119,15 +119,15 @@ dispatch_queue_t __detox_sync_dispatch_queue_create(const char *_Nullable label,
 {
 	dispatch_queue_t rv = __orig_dispatch_queue_create(label, attr);
 	
-	if(label != NULL && strncmp(label, "com.apple.NSURLSession-work", strlen("com.apple.NSURLSession-work")) == 0)
-	{
-		[DTXSyncManager trackDispatchQueue:rv];
-	}
-	
-	if(label != NULL && strncmp(label, "com.apple.NSURLSession-delegate", strlen("com.apple.NSURLSession-delegate")) == 0)
-	{
-		[DTXSyncManager trackDispatchQueue:rv];
-	}
+//	if(label != NULL && strncmp(label, "com.apple.NSURLSession-work", strlen("com.apple.NSURLSession-work")) == 0)
+//	{
+//		[DTXSyncManager trackDispatchQueue:rv];
+//	}
+//	
+//	if(label != NULL && strncmp(label, "com.apple.NSURLSession-delegate", strlen("com.apple.NSURLSession-delegate")) == 0)
+//	{
+//		[DTXSyncManager trackDispatchQueue:rv];
+//	}
 	
 	return rv;
 }

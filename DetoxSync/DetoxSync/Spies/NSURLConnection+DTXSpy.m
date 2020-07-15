@@ -21,9 +21,9 @@ rv = super_class(&super, _cmd, application, launchOptions);
 }
 */
 
-@interface __detox_sync_DelegateProxy : NSObject <NSURLConnectionDataDelegate> @end
+@interface __detox_sync_URLConnectionDelegateProxy : NSObject <NSURLConnectionDataDelegate> @end
 
-@implementation __detox_sync_DelegateProxy
+@implementation __detox_sync_URLConnectionDelegateProxy
 
 - (nullable NSURLRequest *)connection:(NSURLConnection *)connection willSendRequest:(NSURLRequest *)request redirectResponse:(nullable NSURLResponse *)response
 {
@@ -35,7 +35,7 @@ rv = super_class(&super, _cmd, application, launchOptions);
 	}
 	
 	NSURLRequest* rv = request;
-	Class superclass = DTXDynamicSubclassSuper(self, __detox_sync_DelegateProxy.class);
+	Class superclass = DTXDynamicSubclassSuper(self, __detox_sync_URLConnectionDelegateProxy.class);
 	if([superclass instancesRespondToSelector:_cmd])
 	{
 		struct objc_super super = {.receiver = self, .super_class = superclass};
@@ -47,13 +47,10 @@ rv = super_class(&super, _cmd, application, launchOptions);
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
 {
-	if(error != nil)
-	{
-		[objc_getAssociatedObject(self, __DTXConnectionUnique) endTracking];
-		objc_setAssociatedObject(self, __DTXConnectionUnique, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-	}
+	[objc_getAssociatedObject(self, __DTXConnectionUnique) endTracking];
+	objc_setAssociatedObject(self, __DTXConnectionUnique, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	
-	Class superclass = DTXDynamicSubclassSuper(self, __detox_sync_DelegateProxy.class);
+	Class superclass = DTXDynamicSubclassSuper(self, __detox_sync_URLConnectionDelegateProxy.class);
 	if([superclass instancesRespondToSelector:_cmd])
 	{
 		struct objc_super super = {.receiver = self, .super_class = superclass};
@@ -67,7 +64,7 @@ rv = super_class(&super, _cmd, application, launchOptions);
 	[objc_getAssociatedObject(self, __DTXConnectionUnique) endTracking];
 	objc_setAssociatedObject(self, __DTXConnectionUnique, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	
-	Class superclass = DTXDynamicSubclassSuper(self, __detox_sync_DelegateProxy.class);
+	Class superclass = DTXDynamicSubclassSuper(self, __detox_sync_URLConnectionDelegateProxy.class);
 	if([superclass instancesRespondToSelector:_cmd])
 	{
 		struct objc_super super = {.receiver = self, .super_class = superclass};
@@ -75,10 +72,6 @@ rv = super_class(&super, _cmd, application, launchOptions);
 		super_class(&super, _cmd, connection);
 	}
 }
-
-@end
-
-@interface detox_sync_DTXSpy : NSObject
 
 @end
 
@@ -103,12 +96,12 @@ rv = super_class(&super, _cmd, application, launchOptions);
 {
 	if(origDelegate != nil)
 	{
-		DTXDynamicallySubclass(origDelegate, __detox_sync_DelegateProxy.class);
+		DTXDynamicallySubclass(origDelegate, __detox_sync_URLConnectionDelegateProxy.class);
 	}
 	
 	if(origDelegate == nil)
 	{
-		origDelegate = [__detox_sync_DelegateProxy new];
+		origDelegate = [__detox_sync_URLConnectionDelegateProxy new];
 	}
 	
 	return [self _initWithRequest___detox_sync:arg1 delegate:origDelegate usesCache:arg3 maxContentLength:arg4 startImmediately:arg5 connectionProperties:arg6];

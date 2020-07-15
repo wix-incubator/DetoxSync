@@ -19,6 +19,8 @@ static const void* _DTXNetworkTaskSRKey = &_DTXNetworkTaskSRKey;
 - (void)resume;
 - (void)connection:(id)arg1 didFinishLoadingWithError:(id)arg2;
 
+@property (nonatomic, readonly, strong) NSURLSession* session;
+
 @end
 
 @implementation NSURLSessionTask (DTXSpy)
@@ -80,7 +82,10 @@ static const void* _DTXNetworkTaskSRKey = &_DTXNetworkTaskSRKey;
 {
 	[self __detox_sync_connection:arg1 didFinishLoadingWithError:arg2];
 	
-	[self __detox_sync_untrackTask];
+	if(self.session.delegate == nil)
+	{
+		[self __detox_sync_untrackTask];
+	}
 }
 
 @end
