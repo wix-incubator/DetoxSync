@@ -187,19 +187,27 @@ static void _setupRNSupport()
 
 + (void)waitForReactNativeLoadWithCompletionHandler:(void (^)(void))handler
 {
+	NSParameterAssert(handler != nil);
+	
 	__block __weak id observer;
+	__block __weak id observer2;
 	
 	observer = [[NSNotificationCenter defaultCenter] addObserverForName:@"RCTJavaScriptDidLoadNotification" object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
 		[[NSNotificationCenter defaultCenter] removeObserver:observer];
+		[[NSNotificationCenter defaultCenter] removeObserver:observer2];
 		
 		observer = [[NSNotificationCenter defaultCenter] addObserverForName:@"RCTContentDidAppearNotification" object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
 			[[NSNotificationCenter defaultCenter] removeObserver:observer];
 			
-			if(handler)
-			{
-				handler();
-			}
+			handler();
 		}];
+	}];
+	
+	observer2 = [[NSNotificationCenter defaultCenter] addObserverForName:@"RCTJavaScriptDidFailToLoadNotification" object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
+		[[NSNotificationCenter defaultCenter] removeObserver:observer];
+		[[NSNotificationCenter defaultCenter] removeObserver:observer2];
+		
+		handler();
 	}];
 }
 
