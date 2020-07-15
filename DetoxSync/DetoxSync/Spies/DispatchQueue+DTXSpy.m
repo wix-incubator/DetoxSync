@@ -77,7 +77,7 @@ static void __detox_sync_dispatch_after(dispatch_time_t when, dispatch_queue_t q
 		
 		if(shouldTrack == NO)
 		{
-			DTXSyncResourceVerboseLog(@"⏲ Ignoring dispatch_after with work block “%@”; failure reason: \"%@\"", [block debugDescription], [NSString stringWithFormat:@"duration>%@", @(timeFromNow)]);
+			DTXSyncResourceVerboseLog(@"⏲ Ignoring dispatch_after with work block “%@”; failure reason: \"%@\"", [block debugDescription], [NSString stringWithFormat:@"duration>%@", @(DTXSyncManager.maximumAllowedDelayedActionTrackingDuration)]);
 		}
 	}
 	
