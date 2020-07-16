@@ -21,4 +21,6 @@ typedef _Atomic(CFRunLoopRef) atomic_cfrunloop;
 #endif
 #endif
 
+#define DTXAddressInfo detox_sync_DTXAddressInfo
+
 #endif /* DetoxSync_pch */

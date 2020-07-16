@@ -8,7 +8,7 @@
 
 #import "DTXSyncResource-Private.h"
 #import "DTXSyncManager-Private.h"
-#import "____DTXAddressInfo.h"
+#import "DTXAddressInfo.h"
 #import <execinfo.h>
 
 #define MAX_FRAME_COUNT 50
@@ -46,7 +46,7 @@
 	//Symbolicate
 	NSMutableString* str = [NSMutableString new];
 	for (int idx = 0; idx < _symbolCount; idx++) {
-		____DTXAddressInfo* addrInfo = [[____DTXAddressInfo alloc] initWithAddress:(NSUInteger)_symbols[idx]];
+		DTXAddressInfo* addrInfo = [[DTXAddressInfo alloc] initWithAddress:(NSUInteger)_symbols[idx]];
 		[str appendFormat:@"%@\n", [addrInfo formattedDescriptionForIndex:idx]];
 	}
 	
