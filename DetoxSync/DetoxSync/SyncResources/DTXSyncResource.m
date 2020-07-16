@@ -8,22 +8,29 @@
 
 #import "DTXSyncResource-Private.h"
 #import "DTXSyncManager-Private.h"
+#import "____DTXAddressInfo.h"
+#import <execinfo.h>
+
+#define MAX_FRAME_COUNT 50
 
 @import ObjectiveC;
 
 @implementation DTXSyncResource
 {
-	NSString* _history;
+	void** _symbols;
+	int _symbolCount;
+	
+	NSString* _historyString;
 }
 
-#if DEBUG
 - (instancetype)init
 {
 	self = [super init];
 	
 	if(self)
 	{
-//		_history = [NSString stringWithFormat:@"%@", NSThread.callStackSymbols];
+		_symbols = malloc(MAX_FRAME_COUNT * sizeof(void*));
+		_symbolCount = backtrace(_symbols, MAX_FRAME_COUNT);
 	}
 	
 	return self;
@@ -31,9 +38,26 @@
 
 - (NSString*)history
 {
-	return _history;
+	if(_historyString)
+	{
+		return _historyString;
+	}
+	
+	//Symbolicate
+	NSMutableString* str = [NSMutableString new];
+	for (int idx = 0; idx < _symbolCount; idx++) {
+		____DTXAddressInfo* addrInfo = [[____DTXAddressInfo alloc] initWithAddress:(NSUInteger)_symbols[idx]];
+		[str appendFormat:@"%@\n", [addrInfo formattedDescriptionForIndex:idx]];
+	}
+	
+	_historyString = str;
+	
+	_symbolCount = 0;
+	free(_symbols);
+	_symbols = NULL;
+	
+	return _historyString;
 }
-#endif
 
 - (void)performUpdateBlock:(NSUInteger(^)(void))block eventIdentifier:eventID eventDescription:(NSString*)eventDescription objectDescription:(NSString*)objectDescription additionalDescription:(nullable NSString*)additionalDescription
 {
@@ -55,6 +79,12 @@
 - (void)dealloc
 {
 	[DTXSyncManager unregisterSyncResource:self];
+	
+	if(_symbols != NULL)
+	{
+		free(_symbols);
+		_symbols = NULL;
+	}
 }
 
 @end

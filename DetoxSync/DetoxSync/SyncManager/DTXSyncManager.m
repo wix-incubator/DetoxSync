@@ -193,7 +193,7 @@ static atomic_voidptr _URLBlacklist = ATOMIC_VAR_INIT(NULL);
 + (void)performUpdateWithEventIdentifier:(NSString*)eventID eventDescription:(NSString*)eventDescription objectDescription:(NSString*)objectDescription additionalDescription:(NSString*)additionalDescription syncResource:(DTXSyncResource*)resource block:(NSUInteger(^)(void))block
 {
 	dispatch_block_t outerBlock = ^ {
-		NSCAssert([_registeredResources containsObject:resource], @"Provided resource %@ is not registered", resource);
+		NSCAssert([_registeredResources containsObject:resource], @"Provided resource %@ is not registered; history:\n%@", resource, resource.history);
 		
 		NSUInteger previousBusyCount = [[_resourceMapping objectForKey:resource] unsignedIntegerValue];
 		NSUInteger busyCount = block();

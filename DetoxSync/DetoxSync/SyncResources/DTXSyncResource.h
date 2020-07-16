@@ -16,9 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSString*)syncResourceGenericDescription;
 - (NSString*)syncResourceDescription;
 
-#if DEBUG
 - (NSString*)history;
-#endif
 
 @end
 
