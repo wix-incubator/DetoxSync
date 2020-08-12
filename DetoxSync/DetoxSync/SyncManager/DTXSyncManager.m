@@ -283,7 +283,7 @@ static BOOL DTXIsSystemBusyNow(void)
 	{
 		if(systemBusy != _systemWasBusy)
 		{
-			dtx_log_verbose_sync_system(@"❌ Sync system is busy");
+			dtx_log_verbose_sync_system(@"🛑 Sync system is busy");
 			if(dtx_unlikely(_delegate_syncSystemDidBecomeBusy))
 			{
 				[_delegate syncSystemDidBecomeBusy];
@@ -296,7 +296,7 @@ static BOOL DTXIsSystemBusyNow(void)
 		if(systemBusy != _systemWasBusy || now == YES)
 		{
 			BOOL isDelayed = now == NO && _pendingIdleBlocks.count > 0;
-			dtx_log_verbose_sync_system(@"%@ Sync system idle%@", isDelayed ? @"↩️" : @"✅" , isDelayed ? @" (delayed)" : @"");
+			dtx_log_verbose_sync_system(@"%@ Sync system idle%@", isDelayed ? @"↩️" : @"🏁" , isDelayed ? @" (delayed)" : @"");
 			if(dtx_unlikely(_delegate_syncSystemDidBecomeIdle))
 			{
 				[_delegate syncSystemDidBecomeIdle];
