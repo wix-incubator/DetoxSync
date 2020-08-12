@@ -17,7 +17,7 @@
 
 #include <dlfcn.h>
 
-DTX_CREATE_LOG("SyncManager");
+DTX_CREATE_LOG(SyncManager);
 static BOOL _enableVerboseSystemLogging = NO;
 BOOL __detox_sync_enableVerboseSyncResourceLogging = NO;
 #define dtx_log_verbose_sync_system(format, ...) __extension__({ \
