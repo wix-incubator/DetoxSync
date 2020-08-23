@@ -111,6 +111,19 @@ static void __detox_sync_loadBundleAtURL_onProgress_onComplete(id self, SEL _cmd
 	__orig_loadBundleAtURL_onProgress_onComplete(self, _cmd, url, onProgress, onComplete);
 }
 
+static void _DTXTrackUIManagerQueue(void)
+{
+	//Cannot just extern this function - we are not linked with RN, so linker will fail. Instead, look for symbol in runtime.
+	dispatch_queue_t (*RCTGetUIManagerQueue)(void) = dlsym(RTLD_DEFAULT, "RCTGetUIManagerQueue");
+	
+	//Must be performed in +load and not in +setUp in order to correctly catch the ui queue, runloop and display link initialization by RN.
+	dispatch_queue_t queue = RCTGetUIManagerQueue();
+	NSString* queueName = [[NSString alloc] initWithUTF8String:dispatch_queue_get_label(queue) ?: queue.description.UTF8String];
+	DTXSyncResourceVerboseLog(@"Adding sync resource for RCTUIManagerQueue: %@ %p", queueName, queue);
+	[_observedQueues addObject:queue];
+	[DTXSyncManager trackDispatchQueue:queue];
+}
+
 __attribute__((constructor))
 static void _setupRNSupport()
 {
@@ -138,20 +151,13 @@ static void _setupRNSupport()
 				
 				[_observedQueues addObject:queue];
 				
-				DTXSyncResourceVerboseLog(@"Adding sync resource for queue: %@", queueName);
+				DTXSyncResourceVerboseLog(@"Adding sync resource for queue: %@ %p", queueName, queue);
 				
 				[DTXSyncManager trackDispatchQueue:queue];
 			}
 		}));
 		
-		//Cannot just extern this function - we are not linked with RN, so linker will fail. Instead, look for symbol in runtime.
-		dispatch_queue_t (*RCTGetUIManagerQueue)(void) = dlsym(RTLD_DEFAULT, "RCTGetUIManagerQueue");
-		
-		//Must be performed in +load and not in +setUp in order to correctly catch the ui queue, runloop and display link initialization by RN.
-		DTXSyncResourceVerboseLog(@"Adding sync resource for RCTUIManagerQueue");
-		dispatch_queue_t queue = RCTGetUIManagerQueue();
-		[_observedQueues addObject:queue];
-		[DTXSyncManager trackDispatchQueue:queue];
+		_DTXTrackUIManagerQueue();
 		
 		m = class_getInstanceMethod(UIApplication.class, NSSelectorFromString(@"_run"));
 		__orig__UIApplication_run_orig = (void*)method_getImplementation(m);
@@ -213,9 +219,17 @@ static void _setupRNSupport()
 
 + (void)cleanupBeforeReload
 {
+	dtx_log_info(@"Cleaning idling resource before RN load");
+	
 	for (dispatch_queue_t queue in _observedQueues) {
+		NSString* queueName = [[NSString alloc] initWithUTF8String:dispatch_queue_get_label(queue) ?: queue.description.UTF8String];
+		DTXSyncResourceVerboseLog(@"Remobing sync resource for queue: %@ %p", queueName, queue);
 		[DTXSyncManager untrackDispatchQueue:queue];
 	}
+	
+	[_observedQueues removeAllObjects];
+	
+	_DTXTrackUIManagerQueue();
 }
 
 @end
