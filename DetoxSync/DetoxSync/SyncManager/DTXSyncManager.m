@@ -14,6 +14,7 @@
 #import "DTXTimerSyncResource.h"
 #import "DTXSingleUseSyncResource.h"
 #import "_DTXObjectDeallocHelper.h"
+#import "CADisplayLink+DTXSpy-Private.h"
 
 #include <dlfcn.h>
 
@@ -507,6 +508,17 @@ static BOOL DTXIsSystemBusyNow(void)
 	});
 	
 	return rv;
+}
+
++ (void)trackDisplayLink:(CADisplayLink *)displayLink
+{
+	[DTXTimerSyncResource existingTimeProxyWithDisplayLink:displayLink create:YES];
+	[displayLink _detox_sync_trackIfNeeded];
+}
+
++ (void)untrackDisplayLink:(CADisplayLink *)displayLink
+{
+	[DTXTimerSyncResource clearExistingTimeProxyWithDisplayLink:displayLink];
 }
 
 + (id<DTXEventTracker>)trackEventWithDescription:(NSString*)description objectDescription:(NSString*)objectDescription

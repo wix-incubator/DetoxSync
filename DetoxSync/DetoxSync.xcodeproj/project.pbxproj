@@ -89,6 +89,7 @@
 		392250E323047179008E811D /* RCTNativeAnimatedNodesManager+DTXSpy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "RCTNativeAnimatedNodesManager+DTXSpy.m"; sourceTree = "<group>"; };
 		3923B11C23045B1F009D8780 /* DTXJSTimerSyncResource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DTXJSTimerSyncResource.h; sourceTree = "<group>"; };
 		3923B11D23045B1F009D8780 /* DTXJSTimerSyncResource.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DTXJSTimerSyncResource.m; sourceTree = "<group>"; };
+		3957930525253A1200A55B31 /* CADisplayLink+DTXSpy-Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "CADisplayLink+DTXSpy-Private.h"; sourceTree = "<group>"; };
 		395AD82224B784BB002B382B /* _DTXTimerTrampoline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = _DTXTimerTrampoline.h; sourceTree = "<group>"; };
 		395AD82324B784BB002B382B /* _DTXTimerTrampoline.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = _DTXTimerTrampoline.m; sourceTree = "<group>"; };
 		396C8B112303317900979E86 /* DTXSyncResource-Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DTXSyncResource-Private.h"; sourceTree = "<group>"; };
@@ -289,6 +290,7 @@
 				39DE8F8022F707F400780546 /* CAAnimation+DTXSpy.h */,
 				39DE8F8D22F707F400780546 /* CAAnimation+DTXSpy.m */,
 				396C8B1423038CED00979E86 /* CADisplayLink+DTXSpy.h */,
+				3957930525253A1200A55B31 /* CADisplayLink+DTXSpy-Private.h */,
 				396C8B1523038CED00979E86 /* CADisplayLink+DTXSpy.m */,
 				39DE8F7A22F707F400780546 /* CALayer+DTXSpy.h */,
 				39DE8F8622F707F400780546 /* CALayer+DTXSpy.m */,
@@ -427,7 +429,7 @@
 		39DE8F4922F707DD00780546 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1200;
+				LastUpgradeCheck = 1220;
 				ORGANIZATIONNAME = wix;
 				TargetAttributes = {
 					39DE8F5122F707DD00780546 = {

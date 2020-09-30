@@ -56,6 +56,9 @@ __attribute__((weak_import))
 + (void)trackThread:(NSThread*)thread NS_SWIFT_NAME(track(thread:));
 + (void)untrackThread:(NSThread*)thread NS_SWIFT_NAME(untrack(thread:));
 
++ (void)trackDisplayLink:(CADisplayLink*)displayLink;
++ (void)untrackDisplayLink:(CADisplayLink*)displayLink;
+
 + (id<DTXEventTracker>)trackEventWithDescription:(NSString*)description objectDescription:(NSString*)objectDescription NS_SWIFT_NAME(track(eventWithdescription:objectDescription:));
 
 + (void)idleStatusWithCompletionHandler:(void (^)(NSString* information))completionHandler;

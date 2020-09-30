@@ -6,7 +6,7 @@
 //  Copyright © 2019 wix. All rights reserved.
 //
 
-#import "CADisplayLink+DTXSpy.h"
+#import "CADisplayLink+DTXSpy-Private.h"
 #import "DTXTimerSyncResource.h"
 #import "DTXSyncManager-Private.h"
 #import <execinfo.h>
@@ -64,34 +64,37 @@ extern atomic_cfrunloop __RNRunLoop;
 
 - (void)__detox_sync_addToRunLoop:(NSRunLoop *)runLoop forMode:(NSRunLoopMode)mode
 {
-	CFRunLoopRef RNRunLoop = atomic_load(&__RNRunLoop);
 	CFRunLoopRef cfRunLoop = runLoop.getCFRunLoop;
 	
-	if(cfRunLoop != RNRunLoop && [DTXSyncManager isTrackedRunLoop:cfRunLoop])
+	if([DTXSyncManager isTrackedRunLoop:cfRunLoop])
 	{
-//		void* frames[2];
-//		backtrace(frames, 2);
-//		Dl_info info;
-//		memset(&info, 0, sizeof(Dl_info));
-//		dladdr(frames[1], &info);
-//		NSString* binary = info.dli_fname ? [NSString stringWithCString:info.dli_fname encoding:NSUTF8StringEncoding] : nil;
-//
-//		if(info.dli_fname == NULL || [binary hasSuffix:@"WebKit"] == NO || [binary hasSuffix:@"WebCode"])
-//		{
 		NSString* str = [NSString stringWithFormat:@"%p_%@", runLoop.getCFRunLoop, mode];
 		pthread_mutex_lock(&runLoopMappingMutex);
 		[self.__detox_sync_runLoopMapping addObject:str];
 		pthread_mutex_unlock(&runLoopMappingMutex);
 		
-		id<DTXTimerProxy> proxy = [DTXTimerSyncResource existingTimeProxyWithDisplayLink:self create:YES];
+		id<DTXTimerProxy> proxy = [DTXTimerSyncResource existingTimeProxyWithDisplayLink:self create:NO];
 		if(self.isPaused == NO)
 		{
 			[proxy track];
 		}
-//		}
 	}
 	
 	[self __detox_sync_addToRunLoop:runLoop forMode:mode];
+}
+
+- (void)_detox_sync_trackIfNeeded
+{
+	id<DTXTimerProxy> proxy = [DTXTimerSyncResource existingTimeProxyWithDisplayLink:self create:NO];
+	
+	pthread_mutex_lock(&runLoopMappingMutex);
+	NSUInteger count = self.__detox_sync_runLoopMapping.count;
+	pthread_mutex_unlock(&runLoopMappingMutex);
+	
+	if(count > 0)
+	{
+		[proxy track];
+	}
 }
 
 - (void)__detox_sync_setPaused:(BOOL)paused
@@ -105,14 +108,7 @@ extern atomic_cfrunloop __RNRunLoop;
 		}
 		else
 		{
-			pthread_mutex_lock(&runLoopMappingMutex);
-			NSUInteger count = self.__detox_sync_runLoopMapping.count;
-			pthread_mutex_unlock(&runLoopMappingMutex);
-			
-			if(count > 0)
-			{
-				[proxy track];
-			}
+			[self _detox_sync_trackIfNeeded];
 		}
 	}
 	

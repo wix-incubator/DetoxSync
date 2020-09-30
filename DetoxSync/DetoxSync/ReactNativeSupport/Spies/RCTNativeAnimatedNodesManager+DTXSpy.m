@@ -42,18 +42,18 @@
 {
 	[self __detox_sync_startAnimationLoopIfNeeded];
 	
-//	[DTXSyncManager trackDisplayLink:[self valueForKey:@"_displayLink"]];
+	[DTXSyncManager trackDisplayLink:[self valueForKey:@"displayLink"]];
 }
 
 - (void)__detox_sync_stopAnimationLoop
 {
-//	CADisplayLink* dl = [self valueForKey:@"_displayLink"];
+	CADisplayLink* dl = [self valueForKey:@"displayLink"];
 	[self __detox_sync_stopAnimationLoop];
 
-//	if(dl != nil)
-//	{
-//		[DTXSyncManager untrackDisplayLink:dl];
-//	}
+	if(dl != nil)
+	{
+		[DTXSyncManager untrackDisplayLink:dl];
+	}
 }
 
 @end

@@ -59,6 +59,8 @@
 
 + (void)clearExistingTimeProxyWithDisplayLink:(CADisplayLink *)displayLink
 {
+	id rv = objc_getAssociatedObject(displayLink, __DTXTimerTrampolineKey);
+	[rv untrack];
 	objc_setAssociatedObject(displayLink, __DTXTimerTrampolineKey, nil, OBJC_ASSOCIATION_RETAIN);
 }
 
