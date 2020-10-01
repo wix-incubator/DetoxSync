@@ -182,14 +182,14 @@ static void _setupRNSupport()
 		__orig_loadBundleAtURL_onProgress_onComplete = (void*)method_getImplementation(m);
 		method_setImplementation(m, (void*)__detox_sync_loadBundleAtURL_onProgress_onComplete);
 		
-		cls = NSClassFromString(@"RCTDisplayLink");
-		m = class_getInstanceMethod(cls, @selector(init));
-		id(*orig_init_imp)(id, SEL) = (id(*)(id, SEL))method_getImplementation(m);
-		method_setImplementation(m, imp_implementationWithBlock(^id(id _self) {
-			id rv = orig_init_imp(_self, @selector(init));
-			[DTXSyncManager trackDisplayLink:[rv valueForKey:@"jsDisplayLink"]];
-			return rv;
-		}));
+//		cls = NSClassFromString(@"RCTDisplayLink");
+//		m = class_getInstanceMethod(cls, @selector(init));
+//		id(*orig_init_imp)(id, SEL) = (id(*)(id, SEL))method_getImplementation(m);
+//		method_setImplementation(m, imp_implementationWithBlock(^id(id _self) {
+//			id rv = orig_init_imp(_self, @selector(init));
+//			[DTXSyncManager trackDisplayLink:[rv valueForKey:@"jsDisplayLink"]];
+//			return rv;
+//		}));
 	}
 }
 
