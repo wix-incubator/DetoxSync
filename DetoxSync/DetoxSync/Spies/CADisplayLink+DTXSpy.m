@@ -73,7 +73,7 @@ extern atomic_cfrunloop __RNRunLoop;
 		[self.__detox_sync_runLoopMapping addObject:str];
 		pthread_mutex_unlock(&runLoopMappingMutex);
 		
-		id<DTXTimerProxy> proxy = [DTXTimerSyncResource existingTimeProxyWithDisplayLink:self create:NO];
+		id<DTXTimerProxy> proxy = [DTXTimerSyncResource existingTimerProxyWithDisplayLink:self create:NO];
 		if(self.isPaused == NO)
 		{
 			[proxy track];
@@ -85,7 +85,7 @@ extern atomic_cfrunloop __RNRunLoop;
 
 - (void)_detox_sync_trackIfNeeded
 {
-	id<DTXTimerProxy> proxy = [DTXTimerSyncResource existingTimeProxyWithDisplayLink:self create:NO];
+	id<DTXTimerProxy> proxy = [DTXTimerSyncResource existingTimerProxyWithDisplayLink:self create:NO];
 	
 	pthread_mutex_lock(&runLoopMappingMutex);
 	NSUInteger count = self.__detox_sync_runLoopMapping.count;
@@ -101,7 +101,7 @@ extern atomic_cfrunloop __RNRunLoop;
 {
 	if(self.isPaused != paused)
 	{
-		id<DTXTimerProxy> proxy = [DTXTimerSyncResource existingTimeProxyWithDisplayLink:self create:NO];
+		id<DTXTimerProxy> proxy = [DTXTimerSyncResource existingTimerProxyWithDisplayLink:self create:NO];
 		if(paused == YES)
 		{
 			[proxy untrack];
@@ -119,7 +119,7 @@ extern atomic_cfrunloop __RNRunLoop;
 {
 	[self __detox_sync_removeFromRunLoop:runloop forMode:mode];
 	
-	id<DTXTimerProxy> proxy = [DTXTimerSyncResource existingTimeProxyWithDisplayLink:self create:NO];
+	id<DTXTimerProxy> proxy = [DTXTimerSyncResource existingTimerProxyWithDisplayLink:self create:NO];
 	if(proxy)
 	{
 		NSString* str = [NSString stringWithFormat:@"%p_%@", runloop.getCFRunLoop, mode];
@@ -141,9 +141,9 @@ extern atomic_cfrunloop __RNRunLoop;
 
 - (void)__detox_sync_invalidate
 {
-	id<DTXTimerProxy> proxy = [DTXTimerSyncResource existingTimeProxyWithDisplayLink:self create:NO];
+	id<DTXTimerProxy> proxy = [DTXTimerSyncResource existingTimerProxyWithDisplayLink:self create:NO];
 	[proxy untrack];
-	[DTXTimerSyncResource clearExistingTimeProxyWithDisplayLink:self];
+	[DTXTimerSyncResource clearExistingTimerProxyWithDisplayLink:self];
 	
 	[self __detox_sync_invalidate];
 }

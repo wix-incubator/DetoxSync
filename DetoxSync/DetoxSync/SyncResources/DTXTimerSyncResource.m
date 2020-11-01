@@ -29,12 +29,12 @@
 	return [[_DTXTimerTrampoline alloc] initWithCallback:callback fireDate:fireDate interval:ti repeats:rep];
 }
 
-+ (id<DTXTimerProxy>)existingTimeProxyWithTimer:(NSTimer*)timer
++ (id<DTXTimerProxy>)existingTimerProxyWithTimer:(NSTimer*)timer
 {
 	return objc_getAssociatedObject(timer, __DTXTimerTrampolineKey);
 }
 
-+ (void)clearExistingTimeProxyWithTimer:(NSTimer *)timer
++ (void)clearExistingTimerProxyWithTimer:(NSTimer *)timer
 {
 	objc_setAssociatedObject(timer, __DTXTimerTrampolineKey, nil, OBJC_ASSOCIATION_RETAIN);
 }
@@ -46,7 +46,7 @@
 	return rv;
 }
 
-+ (id<DTXTimerProxy>)existingTimeProxyWithDisplayLink:(CADisplayLink *)displayLink create:(BOOL)create
++ (id<DTXTimerProxy>)existingTimerProxyWithDisplayLink:(CADisplayLink *)displayLink create:(BOOL)create
 {
 	id rv = objc_getAssociatedObject(displayLink, __DTXTimerTrampolineKey);
 	if(rv == nil && create == YES)
@@ -57,7 +57,7 @@
 	return rv;
 }
 
-+ (void)clearExistingTimeProxyWithDisplayLink:(CADisplayLink *)displayLink
++ (void)clearExistingTimerProxyWithDisplayLink:(CADisplayLink *)displayLink
 {
 	id rv = objc_getAssociatedObject(displayLink, __DTXTimerTrampolineKey);
 	[rv untrack];
@@ -87,7 +87,6 @@
 	
 	return shared;
 }
-
 
 /// Ugly hack for rare occasions where NSTimer gets released, but its associated objects are not released.
 static NSUInteger _DTXCleanTimersAndReturnCount(NSHashTable* _timers)

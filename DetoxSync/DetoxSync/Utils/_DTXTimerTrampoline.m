@@ -32,6 +32,7 @@ const void* __DTXTimerTrampolineKey = &__DTXTimerTrampolineKey;
 	__weak NSTimer* _timer;
 	CFRunLoopTimerCallBack _callback;
 	NSString* _timerDescription;
+	NSTimeInterval _deltaSinceNow;
 	
 	//CADisplayLink
 	__weak CADisplayLink* _displayLink;
@@ -57,6 +58,7 @@ const void* __DTXTimerTrampolineKey = &__DTXTimerTrampolineKey;
 		_target = target;
 		_sel = selector;
 		_fireDate = fireDate;
+		_deltaSinceNow = [fireDate timeIntervalSinceNow];
 		_ti = ti;
 		_repeats = rep;
 		
@@ -74,6 +76,7 @@ const void* __DTXTimerTrampolineKey = &__DTXTimerTrampolineKey;
 	{
 		_callback = callback;
 		_fireDate = fireDate;
+		_deltaSinceNow = [fireDate timeIntervalSinceNow];
 		_ti = ti;
 		_repeats = rep;
 		
@@ -198,13 +201,13 @@ const void* __DTXTimerTrampolineKey = &__DTXTimerTrampolineKey;
 		return _displayLink.description;
 	}
 	
-	return [NSString stringWithFormat:@"<%@: %p %@fireDate: %@ interval: %@ repeats: %@>", _timer.class, _timer,
+	return [NSString stringWithFormat:@"<%@: %p %@fireDate: %@ (%@) interval: %@ repeats: %@>", _timer.class, _timer,
 #if DEBUG
 			[NSString stringWithFormat:@"(%p) ", self],
 #else
 			@"",
 #endif
-			[_DTXTimerTrampoline._descriptionDateFormatter stringFromDate:_fireDate], @(_ti), _repeats ? @"YES" : @"NO"];
+			[_DTXTimerTrampoline._descriptionDateFormatter stringFromDate:_fireDate], @(_deltaSinceNow), @(_ti), _repeats ? @"YES" : @"NO"];
 }
 
 - (NSString*)syncResourceDescription

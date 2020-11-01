@@ -512,13 +512,13 @@ static BOOL DTXIsSystemBusyNow(void)
 
 + (void)trackDisplayLink:(CADisplayLink *)displayLink
 {
-	[DTXTimerSyncResource existingTimeProxyWithDisplayLink:displayLink create:YES];
+	[DTXTimerSyncResource existingTimerProxyWithDisplayLink:displayLink create:YES];
 	[displayLink _detox_sync_trackIfNeeded];
 }
 
 + (void)untrackDisplayLink:(CADisplayLink *)displayLink
 {
-	[DTXTimerSyncResource clearExistingTimeProxyWithDisplayLink:displayLink];
+	[DTXTimerSyncResource clearExistingTimerProxyWithDisplayLink:displayLink];
 }
 
 + (id<DTXEventTracker>)trackEventWithDescription:(NSString*)description objectDescription:(NSString*)objectDescription

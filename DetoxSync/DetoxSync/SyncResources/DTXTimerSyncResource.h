@@ -38,11 +38,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (id<DTXTimerProxy>)timerProxyWithTarget:(id)target selector:(SEL)selector fireDate:(NSDate*)fireDate interval:(NSTimeInterval)ti repeats:(BOOL)rep;
 + (id<DTXTimerProxy>)timerProxyWithCallback:(CFRunLoopTimerCallBack)callback fireDate:(NSDate*)fireDate interval:(NSTimeInterval)ti repeats:(BOOL)rep;
-+ (id<DTXTimerProxy>)existingTimeProxyWithTimer:(NSTimer*)timer;
-+ (void)clearExistingTimeProxyWithTimer:(NSTimer*)timer;
++ (id<DTXTimerProxy>)existingTimerProxyWithTimer:(NSTimer*)timer;
++ (void)clearExistingTimerProxyWithTimer:(NSTimer*)timer;
 
-+ (id<DTXTimerProxy>)existingTimeProxyWithDisplayLink:(CADisplayLink *)displayLink create:(BOOL)create;
-+ (void)clearExistingTimeProxyWithDisplayLink:(CADisplayLink*)displayLink;
++ (id<DTXTimerProxy>)existingTimerProxyWithDisplayLink:(CADisplayLink *)displayLink create:(BOOL)create;
++ (void)clearExistingTimerProxyWithDisplayLink:(CADisplayLink*)displayLink;
 
 @end
 
