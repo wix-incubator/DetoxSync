@@ -7,7 +7,7 @@
 //
 
 #import "NSURLConnection+DTXSpy.h"
-#import "DTXSingleUseSyncResource.h"
+#import "DTXSingleEventSyncResource.h"
 @import ObjectiveC;
 
 static void* __DTXConnectionUnique = &__DTXConnectionUnique;
@@ -29,7 +29,7 @@ rv = super_class(&super, _cmd, application, launchOptions);
 {
 	if(objc_getAssociatedObject(self, __DTXConnectionUnique) == nil)
 	{
-		DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:[NSString stringWithFormat:@"URL: “%@”", request.URL.absoluteString] eventDescription:@"Network Request"];
+		DTXSingleEventSyncResource* sr = [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:[NSString stringWithFormat:@"URL: “%@”", request.URL.absoluteString] eventDescription:@"Network Request"];
 		
 		objc_setAssociatedObject(self, __DTXConnectionUnique, sr, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	}

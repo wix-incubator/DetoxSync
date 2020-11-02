@@ -10,6 +10,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NSString* _DTXCFRunLoopDescription(CFRunLoopRef runLoop);
+NSString* _DTXCFRunLoopDescription(CFRunLoopRef runLoop, NSString* __nullable name);
 
 NS_ASSUME_NONNULL_END

@@ -63,6 +63,7 @@ static const void* DTXQueueDeallocHelperKey = &DTXQueueDeallocHelperKey;
 	@autoreleasepool
 	{
 		DTXDispatchQueueSyncResource* mainQueueSync = [DTXDispatchQueueSyncResource dispatchQueueSyncResourceWithQueue:dispatch_get_main_queue()];
+		mainQueueSync.name = @"Main Queue";
 		[DTXSyncManager registerSyncResource:mainQueueSync];
 	}
 }
@@ -111,14 +112,19 @@ static const void* DTXQueueDeallocHelperKey = &DTXQueueDeallocHelperKey;
 	return self;
 }
 
+static NSString* _DTXQueueDescription(dispatch_queue_t queue, NSString* name)
+{
+	return [NSString stringWithFormat:@"“%@%@%@”", name != nil ? [NSString stringWithFormat:@"%@ (", name] : @"", queue, name != nil ? @")" : @""];
+}
+
 - (NSString *)description
 {
-	return [NSString stringWithFormat:@"<%@: %p queue: %@%@>", self.class, self, _queue, _busyBlocks.count > 0 ? [NSString stringWithFormat:@" work blocks: %@", _busyBlocks] : @""];
+	return [NSString stringWithFormat:@"<%@: %p queue: %@%@>", self.class, self, _DTXQueueDescription(_queue, self.name), _busyBlocks.count > 0 ? [NSString stringWithFormat:@" work blocks: %@", _busyBlocks] : @""];
 }
 
 - (NSString*)syncResourceDescription
 {
-	return [NSString stringWithFormat:@"%lu work blocks on dispatch queue “%@”", (unsigned long)_busyCount, _queue];
+	return [NSString stringWithFormat:@"%lu work blocks on dispatch queue “%@”", (unsigned long)_busyCount, _DTXQueueDescription(_queue, self.name)];
 }
 
 - (NSString*)syncResourceGenericDescription

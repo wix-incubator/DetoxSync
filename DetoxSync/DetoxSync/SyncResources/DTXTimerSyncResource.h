@@ -14,6 +14,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol DTXTimerProxy <NSObject>
 
+@property (nonatomic, strong) NSString* name;
+
 @property (nonatomic, strong) NSDate* fireDate;
 @property (nonatomic, assign) NSTimeInterval interval;
 @property (nonatomic, assign) BOOL repeats;

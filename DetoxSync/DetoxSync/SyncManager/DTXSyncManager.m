@@ -12,7 +12,7 @@
 #import "DTXDispatchQueueSyncResource-Private.h"
 #import "DTXRunLoopSyncResource-Private.h"
 #import "DTXTimerSyncResource.h"
-#import "DTXSingleUseSyncResource.h"
+#import "DTXSingleEventSyncResource.h"
 #import "_DTXObjectDeallocHelper.h"
 #import "CADisplayLink+DTXSpy-Private.h"
 
@@ -53,7 +53,7 @@ static dispatch_source_t _delayedFire;
 static NSMapTable* _resourceMapping;
 static NSMutableSet* _registeredResources;
 static NSMutableArray<_DTXIdleTupple*>* _pendingIdleBlocks;
-static NSHashTable<NSThread*>* _trackedThreads;
+static NSMapTable<NSThread*, NSDictionary*>* _trackedThreads;
 static BOOL _systemWasBusy = NO;
 
 static __weak id<DTXSyncManagerDelegate> _delegate;
@@ -166,10 +166,10 @@ static atomic_voidptr _URLBlacklist = ATOMIC_VAR_INIT(NULL);
 		_registeredResources = [NSMutableSet new];
 		_pendingIdleBlocks = [NSMutableArray new];
 		
-		_trackedThreads = [NSHashTable weakObjectsHashTable];
-		[_trackedThreads addObject:[NSThread mainThread]];
+		_trackedThreads = [NSMapTable weakToStrongObjectsMapTable];
+		[_trackedThreads setObject:@{@"name": @"Main Thread"} forKey:[NSThread mainThread]];
 		
-		[self _trackCFRunLoop:CFRunLoopGetMain()];
+		[self _trackCFRunLoop:CFRunLoopGetMain() name:@"Main RunLoop"];
 		_systemWasBusy = DTXIsSystemBusyNow();
 	}
 }
@@ -395,9 +395,10 @@ static BOOL DTXIsSystemBusyNow(void)
 	__detox_sync_orig_dispatch_sync(_queue, outerBlock);
 }
 
-+ (void)trackDispatchQueue:(dispatch_queue_t)dispatchQueue
++ (void)trackDispatchQueue:(dispatch_queue_t)dispatchQueue name:(nullable NSString*)name
 {
 	DTXDispatchQueueSyncResource* sr = [DTXDispatchQueueSyncResource dispatchQueueSyncResourceWithQueue:dispatchQueue];
+	sr.name = name;
 	[self registerSyncResource:sr];
 }
 
@@ -410,9 +411,9 @@ static BOOL DTXIsSystemBusyNow(void)
 	}
 }
 
-+ (void)trackRunLoop:(NSRunLoop *)runLoop
++ (void)trackRunLoop:(NSRunLoop *)runLoop name:(nullable NSString*)name
 {
-	[self trackCFRunLoop:runLoop.getCFRunLoop];
+	[self trackCFRunLoop:runLoop.getCFRunLoop name:name];
 }
 
 + (void)untrackRunLoop:(NSRunLoop *)runLoop
@@ -420,25 +421,26 @@ static BOOL DTXIsSystemBusyNow(void)
 	[self untrackCFRunLoop:runLoop.getCFRunLoop];
 }
 
-+ (void)trackCFRunLoop:(CFRunLoopRef)runLoop
++ (void)trackCFRunLoop:(CFRunLoopRef)runLoop name:(nullable NSString*)name
 {
 	if(runLoop == CFRunLoopGetMain())
 	{
 		return;
 	}
 	
-	[self _trackCFRunLoop:runLoop];
+	[self _trackCFRunLoop:runLoop name:name];
 }
 
-+ (void)_trackCFRunLoop:(CFRunLoopRef)runLoop
++ (void)_trackCFRunLoop:(CFRunLoopRef)runLoop name:(nullable NSString*)name
 {
-	id sr = [DTXRunLoopSyncResource _existingSyncResourceWithRunLoop:runLoop];
+	DTXRunLoopSyncResource* sr = [DTXRunLoopSyncResource _existingSyncResourceWithRunLoop:runLoop];
 	if(sr != nil)
 	{
 		return;
 	}
 	
 	sr = [DTXRunLoopSyncResource runLoopSyncResourceWithRunLoop:runLoop];
+	sr.name = name;
 	[self registerSyncResource:sr];
 	[sr _startTracking];
 }
@@ -471,7 +473,7 @@ static BOOL DTXIsSystemBusyNow(void)
 	return sr != nil;
 }
 
-+ (void)trackThread:(NSThread *)thread
++ (void)trackThread:(NSThread *)thread name:(nullable NSString*)name
 {
 	if([thread isMainThread])
 	{
@@ -479,7 +481,8 @@ static BOOL DTXIsSystemBusyNow(void)
 	}
 	
 	__detox_sync_orig_dispatch_sync(_queue, ^ {
-		[_trackedThreads addObject:thread];
+		NSDictionary* dict = name ? @{@"name": name} : @{};
+		[_trackedThreads setObject:dict forKey:thread];
 	});
 }
 
@@ -491,7 +494,7 @@ static BOOL DTXIsSystemBusyNow(void)
 	}
 	
 	__detox_sync_orig_dispatch_sync(_queue, ^ {
-		[_trackedThreads removeObject:thread];
+		[_trackedThreads removeObjectForKey:thread];
 	});
 }
 
@@ -504,15 +507,16 @@ static BOOL DTXIsSystemBusyNow(void)
 
 	__block BOOL rv = NO;
 	__detox_sync_orig_dispatch_sync(_queue, ^ {
-		rv = [_trackedThreads containsObject:thread];
+		rv = [_trackedThreads objectForKey:thread] != nil;
 	});
 	
 	return rv;
 }
 
-+ (void)trackDisplayLink:(CADisplayLink *)displayLink
++ (void)trackDisplayLink:(CADisplayLink *)displayLink name:(nullable NSString*)name
 {
-	[DTXTimerSyncResource existingTimerProxyWithDisplayLink:displayLink create:YES];
+	id<DTXTimerProxy> proxy = [DTXTimerSyncResource existingTimerProxyWithDisplayLink:displayLink create:YES];
+	proxy.name = name;
 	[displayLink _detox_sync_trackIfNeeded];
 }
 
@@ -523,10 +527,10 @@ static BOOL DTXIsSystemBusyNow(void)
 
 + (id<DTXEventTracker>)trackEventWithDescription:(NSString*)description objectDescription:(NSString*)objectDescription
 {
-	return [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:objectDescription eventDescription:description];
+	return [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:objectDescription eventDescription:description];
 }
 
-+ (NSString*)_syncStatus:(BOOL)includeAll;
++ (NSString*)_syncStatus:(BOOL)prettyNames;
 {
 	NSMutableString* rv = [NSMutableString new];
 	
@@ -539,7 +543,7 @@ static BOOL DTXIsSystemBusyNow(void)
 	{
 		BOOL isBusy = [[_resourceMapping objectForKey:sr] boolValue];
 		
-		if(includeAll == NO && isBusy == NO)
+		if(prettyNames == YES && isBusy == NO)
 		{
 			continue;
 		}
@@ -549,22 +553,19 @@ static BOOL DTXIsSystemBusyNow(void)
 		{
 			[rv appendString:@"\n"];
 			
-			if(includeAll == YES)
+			if(prevClass != nil && [prevClass isEqualToString:newClass] == NO)
 			{
-				if(prevClass != nil && [prevClass isEqualToString:newClass] == NO)
-				{
-					[rv appendFormat:@"%@\n", includeAll == YES ? [NSString stringWithFormat:@"\n%@", sr.class] : @""];
-				}
+				[rv appendFormat:@"\n%@\n", prettyNames == YES ? sr.syncResourceGenericDescription : sr.class];
 			}
 		}
-		else if(includeAll == YES)
+		else
 		{
-			[rv appendFormat:@"%@\n", sr.class];
+			[rv appendFormat:@"%@\n", prettyNames == YES ? sr.syncResourceGenericDescription : sr.class];
 		}
 		
 		prevClass = newClass;
 		
-		[rv appendFormat:@"• %@%@", includeAll == NO ? @"" : (isBusy == YES) ? @"❌ " : @"✅ " , includeAll ? sr.description : sr.syncResourceDescription];
+		[rv appendFormat:@"%@%@", (isBusy == YES) ? @"❌ " : @"✅ " , sr.description];
 	}
 	
 	if(rv.length == 0)
@@ -577,12 +578,12 @@ static BOOL DTXIsSystemBusyNow(void)
 
 + (NSString*)idleStatus
 {
-	return [self _syncStatus:YES];
+	return [self _syncStatus:NO];
 }
 
 + (NSString*)syncStatus
 {
-	return [self _syncStatus:YES];
+	return [self _syncStatus:NO];
 }
 
 + (void)idleStatusWithCompletionHandler:(void (^)(NSString* information))completionHandler

@@ -44,6 +44,7 @@ const void* __DTXTimerTrampolineKey = &__DTXTimerTrampolineKey;
 #endif
 }
 
+@synthesize name=_name;
 @synthesize fireDate=_fireDate;
 @synthesize interval=_ti;
 @synthesize repeats=_repeats;
@@ -194,20 +195,25 @@ const void* __DTXTimerTrampolineKey = &__DTXTimerTrampolineKey;
 	return _dateFormatter;
 }
 
-- (NSString *)description
+- (NSString *)_description
 {
 	if(_displayLink != nil)
 	{
 		return _displayLink.description;
 	}
 	
-	return [NSString stringWithFormat:@"<%@: %p %@fireDate: %@ (%@) interval: %@ repeats: %@>", _timer.class, _timer,
-#if DEBUG
-			[NSString stringWithFormat:@"(%p) ", self],
-#else
-			@"",
-#endif
-			[_DTXTimerTrampoline._descriptionDateFormatter stringFromDate:_fireDate], @(_deltaSinceNow), @(_ti), _repeats ? @"YES" : @"NO"];
+	return [NSString stringWithFormat:@"<%@: %p (proxy: %p) fireDate: %@ (time delta: %@) interval: %@ repeats: %@>", _timer.class, _timer, self, [_DTXTimerTrampoline._descriptionDateFormatter stringFromDate:_fireDate], @(_deltaSinceNow), @(_ti), _repeats ? @"YES" : @"NO"];
+}
+
+- (NSString *)description
+{
+	NSString* _description = self._description;
+	if(_name == nil)
+	{
+		return _description;
+	}
+	
+	return [NSString stringWithFormat:@"%@: %@", _name, _description];
 }
 
 - (NSString*)syncResourceDescription

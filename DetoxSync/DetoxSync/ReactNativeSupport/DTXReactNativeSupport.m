@@ -10,7 +10,7 @@
 #import "ReactNativeHeaders.h"
 #import "DTXSyncManager-Private.h"
 #import "DTXJSTimerSyncResource.h"
-#import "DTXSingleUseSyncResource.h"
+#import "DTXSingleEventSyncResource.h"
 #import <dlfcn.h>
 #import <stdatomic.h>
 #import <fishhook.h>
@@ -41,9 +41,9 @@ static void swz_runRunLoopThread(id self, SEL _cmd)
 	
 	atomic_store(&__RNThread, CFBridgingRetain([NSThread currentThread]));
 
-	[DTXSyncManager trackThread:[NSThread currentThread]];
+	[DTXSyncManager trackThread:[NSThread currentThread] name:@"JavaScript Thread"];
 	[DTXSyncManager untrackThread:oldThread];
-	[DTXSyncManager trackCFRunLoop:current];
+	[DTXSyncManager trackCFRunLoop:current name:@"JavaScript RunLoop"];
 	[DTXSyncManager untrackCFRunLoop:oldRunloop];
 	
 	oldThread = nil;
@@ -102,7 +102,7 @@ static void __detox_sync_loadBundleAtURL_onProgress_onComplete(id self, SEL _cmd
 	
 	dtx_log_info(@"Adding idling resource for RN load");
 	
-	id<DTXSingleUse> sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:nil eventDescription:@"React Native (bundle load)"];
+	id<DTXSingleEvent> sr = [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:nil eventDescription:@"React Native (bundle load)"];
 	
 	[DTXReactNativeSupport waitForReactNativeLoadWithCompletionHandler:^{
 		[sr endTracking];
@@ -121,7 +121,7 @@ static void _DTXTrackUIManagerQueue(void)
 	NSString* queueName = [[NSString alloc] initWithUTF8String:dispatch_queue_get_label(queue) ?: queue.description.UTF8String];
 	DTXSyncResourceVerboseLog(@"Adding sync resource for RCTUIManagerQueue: %@ %p", queueName, queue);
 	[_observedQueues addObject:queue];
-	[DTXSyncManager trackDispatchQueue:queue];
+	[DTXSyncManager trackDispatchQueue:queue name:@"RN Module: UIManager"];
 }
 
 __attribute__((constructor))
@@ -153,7 +153,13 @@ static void _setupRNSupport()
 				
 				DTXSyncResourceVerboseLog(@"Adding sync resource for queue: %@ %p", queueName, queue);
 				
-				[DTXSyncManager trackDispatchQueue:queue];
+				NSString* moduleName = [_self valueForKey:@"name"];
+				if(moduleName.length == 0)
+				{
+					moduleName = [_self description];
+				}
+				
+				[DTXSyncManager trackDispatchQueue:queue name:[NSString stringWithFormat:@"RN Module: %@", moduleName]];
 			}
 		}));
 		

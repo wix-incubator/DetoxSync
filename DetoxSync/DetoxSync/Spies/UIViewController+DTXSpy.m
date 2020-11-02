@@ -7,7 +7,7 @@
 //
 
 #import "UIViewController+DTXSpy.h"
-#import "DTXSingleUseSyncResource.h"
+#import "DTXSingleEventSyncResource.h"
 
 @import ObjectiveC;
 
@@ -30,7 +30,7 @@
 	
 	if(self.transitionCoordinator)
 	{
-		DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"Controller View Will Appear"];
+		DTXSingleEventSyncResource* sr = [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"Controller View Will Appear"];
 		
 		[self.transitionCoordinator animateAlongsideTransition:nil completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
 			[sr endTracking];
@@ -49,7 +49,7 @@
 	
 	if(self.transitionCoordinator)
 	{
-		DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"Controller View Will Disappear"];
+		DTXSingleEventSyncResource* sr = [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"Controller View Will Disappear"];
 		
 		[self.transitionCoordinator animateAlongsideTransition:nil completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
 			[sr endTracking];

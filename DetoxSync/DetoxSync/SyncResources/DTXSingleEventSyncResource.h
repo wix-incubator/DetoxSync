@@ -11,7 +11,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol DTXSingleUse <DTXEventTracker>
+@protocol DTXSingleEvent <DTXEventTracker>
 
 - (void)suspendTracking;
 - (void)resumeTracking;
@@ -20,9 +20,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface DTXSingleUseSyncResource : DTXSyncResource <DTXSingleUse>
+@interface DTXSingleEventSyncResource : DTXSyncResource <DTXSingleEvent>
 
-+ (id<DTXSingleUse>)singleUseSyncResourceWithObjectDescription:(NSString* __nullable)object eventDescription:(NSString*)description;
++ (id<DTXSingleEvent>)singleUseSyncResourceWithObjectDescription:(NSString* __nullable)object eventDescription:(NSString*)description;
 
 - (void)suspendTracking;
 - (void)resumeTracking;

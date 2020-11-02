@@ -42,7 +42,7 @@
 {
 	[self __detox_sync_startAnimationLoopIfNeeded];
 	
-	[DTXSyncManager trackDisplayLink:[self valueForKey:@"displayLink"]];
+	[DTXSyncManager trackDisplayLink:[self valueForKey:@"displayLink"] name:@"React Native Animations Display Link"];
 }
 
 - (void)__detox_sync_stopAnimationLoop

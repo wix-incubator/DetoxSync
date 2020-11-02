@@ -8,7 +8,7 @@
 
 #import "UIAnimation+DTXSpy.h"
 #import "CALayer+DTXSpy.h"
-#import "DTXSingleUseSyncResource.h"
+#import "DTXSingleEventSyncResource.h"
 
 static const void* _DTXUIAnimationSRKey = &_DTXUIAnimationSRKey;
 
@@ -29,9 +29,9 @@ static const void* _DTXUIAnimationSRKey = &_DTXUIAnimationSRKey;
 
 - (void)__detox_sync_markStart:(double)arg1
 {
-	DTXSingleUseSyncResource* sr = objc_getAssociatedObject(self, _DTXUIAnimationSRKey);
+	DTXSingleEventSyncResource* sr = objc_getAssociatedObject(self, _DTXUIAnimationSRKey);
 	NSParameterAssert(sr == nil);
-	sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"Animation"];
+	sr = [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"Animation"];
 	objc_setAssociatedObject(self, _DTXUIAnimationSRKey, sr, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	
 	[self __detox_sync_markStart:arg1];
@@ -41,7 +41,7 @@ static const void* _DTXUIAnimationSRKey = &_DTXUIAnimationSRKey;
 {
 	[self __detox_sync_markStop];
 	
-	DTXSingleUseSyncResource* sr = objc_getAssociatedObject(self, _DTXUIAnimationSRKey);
+	DTXSingleEventSyncResource* sr = objc_getAssociatedObject(self, _DTXUIAnimationSRKey);
 	[sr endTracking];
 }
 

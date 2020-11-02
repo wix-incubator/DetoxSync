@@ -7,7 +7,7 @@
 //
 
 #import "CALayer+DTXSpy.h"
-#import "DTXSingleUseSyncResource.h"
+#import "DTXSingleEventSyncResource.h"
 #import "DTXOrigDispatch.h"
 #import "CAAnimation+DTXSpy.h"
 
@@ -32,7 +32,7 @@
 
 - (void)__detox_sync_setNeedsLayout
 {
-	DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"Layer Layout"];
+	DTXSingleEventSyncResource* sr = [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"Layer Layout"];
 	
 	[self __detox_sync_setNeedsLayout];
 	
@@ -43,7 +43,7 @@
 
 - (void)__detox_sync_setNeedsDisplay
 {
-	DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"Layer Display"];
+	DTXSingleEventSyncResource* sr = [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"Layer Display"];
 	
 	[self __detox_sync_setNeedsDisplay];
 	
@@ -54,7 +54,7 @@
 
 - (void)__detox_sync_setNeedsDisplayInRect:(CGRect)rect
 {
-	DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"Layer Display"];
+	DTXSingleEventSyncResource* sr = [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"Layer Display"];
 	
 	[self __detox_sync_setNeedsDisplayInRect:rect];
 	
@@ -65,7 +65,7 @@
 
 - (void)__detox_sync_addAnimation:(CAAnimation *)anim forKey:(NSString *)key
 {
-	DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"Layer Pending Animation"];
+	DTXSingleEventSyncResource* sr = [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"Layer Pending Animation"];
 	
 	[self __detox_sync_addAnimation:anim forKey:key];
 	

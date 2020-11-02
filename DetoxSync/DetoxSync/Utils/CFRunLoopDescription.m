@@ -11,7 +11,7 @@
 extern atomic_cfrunloop __RNRunLoop;
 static CFRunLoopRef _mainRunLoop;
 
-NSString* _DTXCFRunLoopDescription(CFRunLoopRef _runLoop)
+NSString* _DTXCFRunLoopDescription(CFRunLoopRef _runLoop, NSString* name)
 {
 	static dispatch_once_t onceToken;
 	dispatch_once(&onceToken, ^{
@@ -19,5 +19,5 @@ NSString* _DTXCFRunLoopDescription(CFRunLoopRef _runLoop)
 	});
 	CFRunLoopRef rnLoop = atomic_load(&__RNRunLoop);
 	
-	return _runLoop == _mainRunLoop ? @"<Main Run Loop>" : (rnLoop != NULL && _runLoop == rnLoop) ? @"<JS Run Loop>" : [NSString stringWithFormat:@"<CFRunLoop: %p>", _runLoop];
+	return _runLoop == _mainRunLoop ? @"Main Run Loop" : (rnLoop != NULL && _runLoop == rnLoop) ? @"JS Run Loop" : [NSString stringWithFormat:@"%@: %p>", name == nil ? @"<CFRunLoop" : [NSString stringWithFormat:@"%@ <CFRunLoop", name], _runLoop];
 }

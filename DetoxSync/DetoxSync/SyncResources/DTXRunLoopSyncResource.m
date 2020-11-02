@@ -85,7 +85,7 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 	[self performUpdateBlock:^ NSUInteger {
 		self._wasPreviouslyBusy = isBusyNow;
 		return isBusyNow;
-	} eventIdentifier:[NSString stringWithFormat:@"%p", self] eventDescription:self.syncResourceGenericDescription objectDescription:_DTXCFRunLoopDescription(_runLoop) additionalDescription:nil];
+	} eventIdentifier:[NSString stringWithFormat:@"%p", self] eventDescription:self.syncResourceGenericDescription objectDescription:_DTXCFRunLoopDescription(_runLoop, self.name) additionalDescription:nil];
 }
 
 - (void)_startTracking
@@ -130,7 +130,7 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 		self._wasPreviouslyBusy = YES;
 		[self performUpdateBlock:^ NSUInteger {
 			return 1;
-		} eventIdentifier:[NSString stringWithFormat:@"%p", self] eventDescription:self.syncResourceGenericDescription objectDescription:_DTXCFRunLoopDescription(_runLoop) additionalDescription:nil];
+		} eventIdentifier:[NSString stringWithFormat:@"%p", self] eventDescription:self.syncResourceGenericDescription objectDescription:_DTXCFRunLoopDescription(_runLoop, self.name) additionalDescription:nil];
 	}
 }
 
@@ -149,7 +149,7 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 	
 	[self performUpdateBlock:^ NSUInteger {
 		return 0;
-	} eventIdentifier:[NSString stringWithFormat:@"%p", self] eventDescription:self.syncResourceGenericDescription objectDescription:_DTXCFRunLoopDescription(_runLoop) additionalDescription:nil];
+	} eventIdentifier:[NSString stringWithFormat:@"%p", self] eventDescription:self.syncResourceGenericDescription objectDescription:_DTXCFRunLoopDescription(_runLoop, self.name) additionalDescription:nil];
 	
 	_isTracking = NO;
 }
@@ -168,12 +168,12 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 
 - (NSString *)description
 {
-	return [NSString stringWithFormat:@"<%@: %p runLoop: %@>", self.class, self, _runLoop == CFRunLoopGetMain() ? @"mainRunloop" : _DTXCFRunLoopDescription(_runLoop)];
+	return [NSString stringWithFormat:@"<%@: %p runLoop: “%@”>", self.class, self, _runLoop == CFRunLoopGetMain() ? @"Main Run Loop" : _DTXCFRunLoopDescription(_runLoop, self.name)];
 }
 
 - (NSString *)syncResourceDescription
 {
-	return [NSString stringWithFormat:@"Run Loop (%@)", _DTXCFRunLoopDescription(_runLoop)];
+	return [NSString stringWithFormat:@"Run Loop (“%@”)", _DTXCFRunLoopDescription(_runLoop, self.name)];
 }
 
 - (NSString*)syncResourceGenericDescription

@@ -7,7 +7,7 @@
 //
 
 #import "CAAnimation+DTXSpy.h"
-#import "DTXSingleUseSyncResource.h"
+#import "DTXSingleEventSyncResource.h"
 @import ObjectiveC;
 
 static const void* _DTXCAAnimationDelegateProxySRKey = &_DTXCAAnimationDelegateProxySRKey;
@@ -41,7 +41,7 @@ static const void* _DTXCAAnimationDelegateProxySRKey = &_DTXCAAnimationDelegateP
 
 - (void)__detox_sync_trackAnimation
 {
-	id<DTXSingleUse> newSr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:[NSString stringWithFormat:@"%@ with duration: “%@” delay: “%@”", self.class, @(self.duration), @(self.beginTime)] eventDescription:@"Animation"];
+	id<DTXSingleEvent> newSr = [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:[NSString stringWithFormat:@"%@ with duration: “%@” delay: “%@”", self.class, @(self.duration), @(self.beginTime)] eventDescription:@"Animation"];
 	
 	[self __detox_sync_untrackAnimation];
 	
@@ -50,7 +50,7 @@ static const void* _DTXCAAnimationDelegateProxySRKey = &_DTXCAAnimationDelegateP
 
 - (void)__detox_sync_untrackAnimation
 {
-	DTXSingleUseSyncResource* sr = objc_getAssociatedObject(self, _DTXCAAnimationDelegateProxySRKey);
+	DTXSingleEventSyncResource* sr = objc_getAssociatedObject(self, _DTXCAAnimationDelegateProxySRKey);
 	if(sr == nil)
 	{
 		return;

@@ -6,11 +6,11 @@
 //  Copyright © 2019 wix. All rights reserved.
 //
 
-#import "DTXSingleUseSyncResource.h"
+#import "DTXSingleEventSyncResource.h"
 #import "DTXSyncManager-Private.h"
 #import "_DTXObjectDeallocHelper.h"
 
-@interface _DTXSingleUseDeallocationHelper : _DTXObjectDeallocHelper <DTXSingleUse> @end
+@interface _DTXSingleUseDeallocationHelper : _DTXObjectDeallocHelper <DTXSingleEvent> @end
 @implementation _DTXSingleUseDeallocationHelper
 
 - (instancetype)initWithSyncResource:(__kindof DTXSyncResource *)syncResource
@@ -30,19 +30,19 @@
 
 - (void)suspendTracking
 {
-	DTXSingleUseSyncResource* sr = self.syncResource;
+	DTXSingleEventSyncResource* sr = self.syncResource;
 	[sr suspendTracking];
 }
 
 - (void)resumeTracking
 {
-	DTXSingleUseSyncResource* sr = self.syncResource;
+	DTXSingleEventSyncResource* sr = self.syncResource;
 	[sr resumeTracking];
 }
 
 - (void)endTracking
 {
-	DTXSingleUseSyncResource* sr = self.syncResource;
+	DTXSingleEventSyncResource* sr = self.syncResource;
 	if(sr == nil)
 	{
 		return;
@@ -55,15 +55,15 @@
 
 @end
 
-@implementation DTXSingleUseSyncResource
+@implementation DTXSingleEventSyncResource
 {
 	NSString* _description;
 	NSString* _object;
 }
 
-+ (id<DTXSingleUse>)singleUseSyncResourceWithObjectDescription:(NSString*)object eventDescription:(NSString*)description
++ (id<DTXSingleEvent>)singleUseSyncResourceWithObjectDescription:(NSString*)object eventDescription:(NSString*)description
 {
-	DTXSingleUseSyncResource* rv = [[DTXSingleUseSyncResource alloc] init];
+	DTXSingleEventSyncResource* rv = [[DTXSingleEventSyncResource alloc] init];
 	rv->_description = description;
 	rv->_object = object;
 	[DTXSyncManager registerSyncResource:rv];
@@ -101,7 +101,7 @@
 		return [super description];
 	}
 	
-	return [NSString stringWithFormat:@"<%@: %p%@%@>", self.class, self, _description ? [NSString stringWithFormat:@" description: “%@”", _description] : @"", _object ? [NSString stringWithFormat:@" object: %@", _object] : @""];
+	return [NSString stringWithFormat:@"<%@: %p%@%@>", self.class, self, _description ? [NSString stringWithFormat:@" description: “%@”", _description] : @"", _object ? [NSString stringWithFormat:@" object: “%@”", _object] : @""];
 }
 
 - (NSString*)syncResourceDescription

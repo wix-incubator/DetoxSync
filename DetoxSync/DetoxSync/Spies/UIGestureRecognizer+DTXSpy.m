@@ -7,7 +7,7 @@
 //
 
 #import "UIGestureRecognizer+DTXSpy.h"
-#import "DTXSingleUseSyncResource.h"
+#import "DTXSingleEventSyncResource.h"
 
 @import ObjectiveC;
 
@@ -37,7 +37,7 @@ static const void* _DTXGestureRecognizerSRKey = &_DTXGestureRecognizerSRKey;
 
 - (void)__detox_sync__setDirty
 {
-	DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"Gesture Recognizer"];
+	DTXSingleEventSyncResource* sr = [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"Gesture Recognizer"];
 	objc_setAssociatedObject(self, _DTXGestureRecognizerSRKey, sr, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	
 	[self __detox_sync__setDirty];
@@ -45,7 +45,7 @@ static const void* _DTXGestureRecognizerSRKey = &_DTXGestureRecognizerSRKey;
 
 - (void)__detox_sync_resetSyncResource
 {
-	DTXSingleUseSyncResource* sr = objc_getAssociatedObject(self, _DTXGestureRecognizerSRKey);
+	DTXSingleEventSyncResource* sr = objc_getAssociatedObject(self, _DTXGestureRecognizerSRKey);
 	[sr endTracking];
 	objc_setAssociatedObject(self, _DTXGestureRecognizerSRKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }

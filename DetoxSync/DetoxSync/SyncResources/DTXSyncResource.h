@@ -12,6 +12,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface DTXSyncResource : NSObject
 
+@property (nonatomic, copy) NSString* name;
+
 - (void)performUpdateBlock:(NSUInteger(^)(void))block eventIdentifier:eventID eventDescription:(NSString*)eventDescription objectDescription:(NSString*)objectDescription additionalDescription:(nullable NSString*)additionalDescription;
 - (NSString*)syncResourceGenericDescription;
 - (NSString*)syncResourceDescription;

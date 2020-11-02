@@ -7,7 +7,7 @@
 //
 
 #import "UIView+DTXSpy.h"
-#import "DTXSingleUseSyncResource.h"
+#import "DTXSingleEventSyncResource.h"
 #import "DTXOrigDispatch.h"
 
 @import ObjectiveC;
@@ -41,14 +41,14 @@
 }
 
 DTX_ALWAYS_INLINE
-static DTXSingleUseSyncResource* _DTXSRForAnimation(NSTimeInterval duration, NSTimeInterval delay)
+static DTXSingleEventSyncResource* _DTXSRForAnimation(NSTimeInterval duration, NSTimeInterval delay)
 {
-	return [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:[NSString stringWithFormat:@"UIView animation with duration: “%@” delay: “%@”", @(duration), @(delay)] eventDescription:@"Animation"];
+	return [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:[NSString stringWithFormat:@"UIView animation with duration: “%@” delay: “%@”", @(duration), @(delay)] eventDescription:@"Animation"];
 }
 
 + (void)__detox_sync_animateWithDuration:(NSTimeInterval)duration delay:(NSTimeInterval)delay options:(UIViewAnimationOptions)options animations:(void (^)(void))animations completion:(void (^ __nullable)(BOOL finished))completion
 {
-	DTXSingleUseSyncResource* sr = _DTXSRForAnimation(duration, delay);
+	DTXSingleEventSyncResource* sr = _DTXSRForAnimation(duration, delay);
 //	BOOL isTheOne = [NSThread.callStackSymbols.description containsString:@"_UIRefreshControlModernContentView"];
 //	if(isTheOne)
 //	{
@@ -91,7 +91,7 @@ static DTXSingleUseSyncResource* _DTXSRForAnimation(NSTimeInterval duration, NST
 
 + (void)__detox_sync_animateWithDuration:(NSTimeInterval)duration delay:(NSTimeInterval)delay usingSpringWithDamping:(CGFloat)dampingRatio initialSpringVelocity:(CGFloat)velocity options:(UIViewAnimationOptions)options animations:(void (^)(void))animations completion:(void (^ __nullable)(BOOL finished))completion
 {
-	DTXSingleUseSyncResource* sr = _DTXSRForAnimation(duration, delay);
+	DTXSingleEventSyncResource* sr = _DTXSRForAnimation(duration, delay);
 	
 	[self __detox_sync_animateWithDuration:duration delay:delay usingSpringWithDamping:dampingRatio initialSpringVelocity:velocity options:options animations:animations completion:^(BOOL finished) {
 		if(completion)
@@ -105,7 +105,7 @@ static DTXSingleUseSyncResource* _DTXSRForAnimation(NSTimeInterval duration, NST
 
 + (void)__detox_sync_transitionFromView:(UIView *)fromView toView:(UIView *)toView duration:(NSTimeInterval)duration options:(UIViewAnimationOptions)options completion:(void (^ __nullable)(BOOL finished))completion
 {
-	DTXSingleUseSyncResource* sr = _DTXSRForAnimation(duration, 0.0);
+	DTXSingleEventSyncResource* sr = _DTXSRForAnimation(duration, 0.0);
 	
 	[self __detox_sync_transitionFromView:fromView toView:toView duration:duration options:options completion:^(BOOL finished) {
 		if(completion)
@@ -119,7 +119,7 @@ static DTXSingleUseSyncResource* _DTXSRForAnimation(NSTimeInterval duration, NST
 
 + (void)__detox_sync_transitionWithView:(UIView *)view duration:(NSTimeInterval)duration options:(UIViewAnimationOptions)options animations:(void (^ __nullable)(void))animations completion:(void (^ __nullable)(BOOL finished))completion
 {
-	DTXSingleUseSyncResource* sr = _DTXSRForAnimation(duration, 0.0);
+	DTXSingleEventSyncResource* sr = _DTXSRForAnimation(duration, 0.0);
 	
 	[self __detox_sync_transitionWithView:view duration:duration options:options animations:animations completion:^(BOOL finished) {
 		if(completion)
@@ -133,7 +133,7 @@ static DTXSingleUseSyncResource* _DTXSRForAnimation(NSTimeInterval duration, NST
 
 + (void)__detox_sync_animateKeyframesWithDuration:(NSTimeInterval)duration delay:(NSTimeInterval)delay options:(UIViewKeyframeAnimationOptions)options animations:(void (^)(void))animations completion:(void (^ __nullable)(BOOL finished))completion
 {
-	DTXSingleUseSyncResource* sr = _DTXSRForAnimation(duration, delay);
+	DTXSingleEventSyncResource* sr = _DTXSRForAnimation(duration, delay);
 	
 	[self __detox_sync_animateKeyframesWithDuration:duration delay:delay options:options animations:animations completion:^(BOOL finished) {
 		if(completion)
@@ -152,7 +152,7 @@ static DTXSingleUseSyncResource* _DTXSRForAnimation(NSTimeInterval duration, NST
 
 - (void)__detox_sync_setNeedsLayout
 {
-	DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"View Layout"];
+	DTXSingleEventSyncResource* sr = [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"View Layout"];
 	
 	[self __detox_sync_setNeedsLayout];
 	
@@ -163,7 +163,7 @@ static DTXSingleUseSyncResource* _DTXSRForAnimation(NSTimeInterval duration, NST
 
 - (void)__detox_sync_setNeedsDisplay
 {
-	DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"View Display"];
+	DTXSingleEventSyncResource* sr = [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"View Display"];
 	
 	[self __detox_sync_setNeedsDisplay];
 	
@@ -174,7 +174,7 @@ static DTXSingleUseSyncResource* _DTXSRForAnimation(NSTimeInterval duration, NST
 
 - (void)__detox_sync_setNeedsDisplayInRect:(CGRect)rect
 {
-	DTXSingleUseSyncResource* sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"View Display"];
+	DTXSingleEventSyncResource* sr = [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"View Display"];
 	
 	[self __detox_sync_setNeedsDisplayInRect:rect];
 	

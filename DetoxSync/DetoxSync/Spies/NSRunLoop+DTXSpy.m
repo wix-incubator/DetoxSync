@@ -8,7 +8,7 @@
 
 #import "NSRunLoop+DTXSpy.h"
 #import "DTXSyncManager-Private.h"
-#import "DTXSingleUseSyncResource.h"
+#import "DTXSingleEventSyncResource.h"
 #import "DTXRunLoopSyncResource-Private.h"
 #import "fishhook.h"
 
@@ -23,7 +23,7 @@ static void __detox_sync_CFRunLoopPerformBlock(CFRunLoopRef rl, CFTypeRef mode, 
 		return;
 	}
 	
-	id<DTXSingleUse> sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:_DTXCFRunLoopDescription(rl) eventDescription:@"Runloop Perform Block"];
+	id<DTXSingleEvent> sr = [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:_DTXCFRunLoopDescription(rl, nil) eventDescription:@"Runloop Perform Block"];
 	
 	__orig_CFRunLoopPerformBlock(rl, mode, ^ {
 		block();

@@ -7,7 +7,7 @@
 //
 
 #import "NSURLSessionTask+DTXSpy.h"
-#import "DTXSingleUseSyncResource.h"
+#import "DTXSingleEventSyncResource.h"
 #import "NSURL+DetoxSyncUtils.h"
 
 @import ObjectiveC;
@@ -47,7 +47,7 @@ static const void* _DTXNetworkTaskSRKey = &_DTXNetworkTaskSRKey;
 
 - (void)__detox_sync_resume
 {
-	id<DTXSingleUse> sr = objc_getAssociatedObject(self, _DTXNetworkTaskSRKey);
+	id<DTXSingleEvent> sr = objc_getAssociatedObject(self, _DTXNetworkTaskSRKey);
 	if(sr != nil)
 	{
 		[sr resumeTracking];
@@ -56,7 +56,7 @@ static const void* _DTXNetworkTaskSRKey = &_DTXNetworkTaskSRKey;
 	{
 		if([self.originalRequest.URL detox_sync_shouldTrack])
 		{
-			sr = [DTXSingleUseSyncResource singleUseSyncResourceWithObjectDescription:[NSString stringWithFormat:@"URL: “%@”", self.originalRequest.URL.absoluteString] eventDescription:@"Network Request"];
+			sr = [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:[NSString stringWithFormat:@"URL: “%@”", self.originalRequest.URL.absoluteString] eventDescription:@"Network Request"];
 			objc_setAssociatedObject(self, _DTXNetworkTaskSRKey, sr, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 		}
 	}
@@ -66,7 +66,7 @@ static const void* _DTXNetworkTaskSRKey = &_DTXNetworkTaskSRKey;
 
 - (void)__detox_sync_suspend
 {
-	id<DTXSingleUse> sr = objc_getAssociatedObject(self, _DTXNetworkTaskSRKey);
+	id<DTXSingleEvent> sr = objc_getAssociatedObject(self, _DTXNetworkTaskSRKey);
 	if(sr != nil)
 	{
 		[sr suspendTracking];
@@ -77,7 +77,7 @@ static const void* _DTXNetworkTaskSRKey = &_DTXNetworkTaskSRKey;
 
 - (void)__detox_sync_untrackTask
 {
-	id<DTXSingleUse> sr = objc_getAssociatedObject(self, _DTXNetworkTaskSRKey);
+	id<DTXSingleEvent> sr = objc_getAssociatedObject(self, _DTXNetworkTaskSRKey);
 	[sr endTracking];
 	objc_setAssociatedObject(self, _DTXNetworkTaskSRKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
