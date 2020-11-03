@@ -47,7 +47,7 @@ static void _DTXTrackTimerTrampolineIfNeeded(id<DTXTimerProxy> trampoline, CFRun
 
 static void _DTXCFTimerTrampoline(CFRunLoopTimerRef timer, void *info)
 {
-	NSLog(@"❤️ %p", timer);
+//	NSLog(@"❤️ %p", timer);
 	
 	id<DTXTimerProxy> tp = [DTXTimerSyncResource existingTimerProxyWithTimer:NS(timer)];
 	[tp fire:(__bridge NSTimer*)timer];
@@ -58,7 +58,7 @@ CFRunLoopTimerRef __detox_sync_CFRunLoopTimerCreate(CFAllocatorRef allocator, CF
 {
 	CFRunLoopTimerRef rv = __orig_CFRunLoopTimerCreate(allocator, fireDate, interval, flags, order, _DTXCFTimerTrampoline, context);
 	
-	NSLog(@"❤️ %p", rv);
+//	NSLog(@"❤️ %p", rv);
 	
 	id<DTXTimerProxy> trampoline = [DTXTimerSyncResource timerProxyWithCallback:callout fireDate:CFBridgingRelease(CFDateCreate(allocator, fireDate)) interval:interval repeats:interval > 0];
 
