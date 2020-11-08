@@ -80,7 +80,10 @@
 
 + (NSURLSession *)__detox_sync_sessionWithConfiguration:(NSURLSessionConfiguration *)configuration delegate:(id<NSURLSessionDelegate>)delegate delegateQueue:(NSOperationQueue *)queue
 {
-	DTXDynamicallySubclass(delegate, __detox_sync_URLSessionDelegateProxy.class);
+	if(delegate != nil)
+	{
+		DTXDynamicallySubclass(delegate, __detox_sync_URLSessionDelegateProxy.class);
+	}
 	
 	return [self __detox_sync_sessionWithConfiguration:configuration delegate:delegate delegateQueue:queue];
 }

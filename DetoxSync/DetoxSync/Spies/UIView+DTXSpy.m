@@ -149,10 +149,20 @@ static DTXSingleEventSyncResource* _DTXSRForAnimation(NSTimeInterval duration, N
 
 //+ (void)performSystemAnimation:(UISystemAnimation)animation onViews:(NSArray<__kindof UIView *> *)views options:(UIViewAnimationOptions)options animations:(void (^ __nullable)(void))parallelAnimations completion:(void (^ __nullable)(BOOL finished))completion API_AVAILABLE(ios(7.0));
 
+- (NSString*)__detox_sync_safeDescription
+{
+	if([self isKindOfClass:UISearchBar.class])
+	{
+		//Under iOS 14, UISearchBar gets triggered if -text is called before its initial layout 🤦‍♂️🤦‍♂️🤦‍♂️
+		return [NSString stringWithFormat:@"<%@: %p; frame = (%@ %@; %@ %@); text = <redacted>; gestureRecognizers = <NSArray: %p>; layer = <CALayer: %p>>", NSStringFromClass(self.class), self, @(self.frame.origin.x), @(self.frame.origin.y), @(self.frame.size.width), @(self.frame.size.height), self.gestureRecognizers, self.layer];
+	}
+	
+	return [self description];
+}
 
 - (void)__detox_sync_setNeedsLayout
 {
-	DTXSingleEventSyncResource* sr = [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"View Layout"];
+	DTXSingleEventSyncResource* sr = [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:self.__detox_sync_safeDescription eventDescription:@"View Layout"];
 	
 	[self __detox_sync_setNeedsLayout];
 	
@@ -163,7 +173,7 @@ static DTXSingleEventSyncResource* _DTXSRForAnimation(NSTimeInterval duration, N
 
 - (void)__detox_sync_setNeedsDisplay
 {
-	DTXSingleEventSyncResource* sr = [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"View Display"];
+	DTXSingleEventSyncResource* sr = [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:self.__detox_sync_safeDescription eventDescription:@"View Display"];
 	
 	[self __detox_sync_setNeedsDisplay];
 	
@@ -174,7 +184,7 @@ static DTXSingleEventSyncResource* _DTXSRForAnimation(NSTimeInterval duration, N
 
 - (void)__detox_sync_setNeedsDisplayInRect:(CGRect)rect
 {
-	DTXSingleEventSyncResource* sr = [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"View Display"];
+	DTXSingleEventSyncResource* sr = [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:self.__detox_sync_safeDescription eventDescription:@"View Display"];
 	
 	[self __detox_sync_setNeedsDisplayInRect:rect];
 	
