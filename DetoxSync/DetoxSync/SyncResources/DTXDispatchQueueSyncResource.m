@@ -113,7 +113,7 @@ static const void* DTXQueueDeallocHelperKey = &DTXQueueDeallocHelperKey;
 }
 
 static NSString* _DTXQueueDescription(dispatch_queue_t queue, NSString* name)
-{
+{	
 	return [NSString stringWithFormat:@"“%@%@%@”", name != nil ? [NSString stringWithFormat:@"%@ (", name] : @"", queue, name != nil ? @")" : @""];
 }
 
@@ -124,7 +124,7 @@ static NSString* _DTXQueueDescription(dispatch_queue_t queue, NSString* name)
 
 - (NSString*)syncResourceDescription
 {
-	return [NSString stringWithFormat:@"%lu work blocks on dispatch queue “%@”", (unsigned long)_busyCount, _DTXQueueDescription(_queue, self.name)];
+	return [NSString stringWithFormat:@"Queue: %@%@", _DTXQueueDescription(_queue, self.name), _busyBlocks.count > 0 ? [NSString stringWithFormat:@" work blocks: %@", _busyBlocks] : @""];
 }
 
 - (NSString*)syncResourceGenericDescription

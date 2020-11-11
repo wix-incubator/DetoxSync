@@ -132,7 +132,7 @@ static NSUInteger _DTXCleanTimersAndReturnCount(NSHashTable* _timers)
 
 - (NSString*)syncResourceDescription
 {
-	return [NSString stringWithFormat:@"Timers: %@", [_timers.allObjects valueForKey:@"syncResourceDescription"]];
+	return [NSString stringWithFormat:@"Timers: %@", _timers.count > 0 ? [_timers.allObjects valueForKey:@"syncResourceDescription"] : @"-"];
 }
 
 - (NSString*)syncResourceGenericDescription

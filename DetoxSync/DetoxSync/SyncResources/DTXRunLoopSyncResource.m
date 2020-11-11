@@ -173,7 +173,7 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 
 - (NSString *)syncResourceDescription
 {
-	return [NSString stringWithFormat:@"Run Loop (“%@”)", _DTXCFRunLoopDescription(_runLoop, self.name)];
+	return [NSString stringWithFormat:@"“%@”", _DTXCFRunLoopDescription(_runLoop, self.name)];
 }
 
 - (NSString*)syncResourceGenericDescription

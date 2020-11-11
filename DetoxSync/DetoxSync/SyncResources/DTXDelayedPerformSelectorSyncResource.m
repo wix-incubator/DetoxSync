@@ -64,7 +64,7 @@
 
 - (NSString*)syncResourceDescription
 {
-	return [NSString stringWithFormat:@"Delayed perform selector: %@", self._selectorTargetDescription];
+	return self._selectorTargetDescription;
 }
 
 - (NSString *)syncResourceGenericDescription

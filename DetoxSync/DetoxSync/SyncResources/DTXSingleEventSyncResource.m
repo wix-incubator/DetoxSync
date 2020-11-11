@@ -106,12 +106,12 @@
 
 - (NSString*)syncResourceDescription
 {
-	return [NSString stringWithFormat:@"%@%@", _description, _object != nil ? [NSString stringWithFormat:@" (“%@”)", _object] : @""];
+	return [NSString stringWithFormat:@"“%@”%@", _description ? [NSString stringWithFormat:@"%@", _description] : @"Event", _object ? [NSString stringWithFormat:@" with object: “%@”", _object] : @""];
 }
 
 - (NSString*)syncResourceGenericDescription
 {
-	return @"Single Event";
+	return @"One Time Events";
 }
 
 @end

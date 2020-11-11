@@ -565,7 +565,7 @@ static BOOL DTXIsSystemBusyNow(void)
 		
 		prevClass = newClass;
 		
-		[rv appendFormat:@"%@%@", (isBusy == YES) ? @"❌ " : @"✅ " , sr.description];
+		[rv appendFormat:@"%@%@", (isBusy == YES) ? @"⏱ " : @"🏁 " ,  prettyNames == YES ? sr.syncResourceDescription : sr.description];
 	}
 	
 	if(rv.length == 0)
