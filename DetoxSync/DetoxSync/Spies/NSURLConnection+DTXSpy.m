@@ -12,15 +12,6 @@
 
 static void* __DTXConnectionUnique = &__DTXConnectionUnique;
 
-/*
-if([class_getSuperclass(object_getClass(self)) instancesRespondToSelector:_cmd])
-{
-struct objc_super super = {.receiver = self, .super_class = class_getSuperclass(object_getClass(self))};
-BOOL (*super_class)(struct objc_super*, SEL, id, id) = (void*)objc_msgSendSuper;
-rv = super_class(&super, _cmd, application, launchOptions);
-}
-*/
-
 @interface __detox_sync_URLConnectionDelegateProxy : NSObject <NSURLConnectionDataDelegate> @end
 
 @implementation __detox_sync_URLConnectionDelegateProxy
@@ -36,11 +27,12 @@ rv = super_class(&super, _cmd, application, launchOptions);
 	
 	NSURLRequest* rv = request;
 	Class superclass = DTXDynamicSubclassSuper(self, __detox_sync_URLConnectionDelegateProxy.class);
-	if([superclass instancesRespondToSelector:_cmd])
+	SEL cmd = @selector(connection:willSendRequest:redirectResponse:);
+	if([superclass instancesRespondToSelector:cmd])
 	{
 		struct objc_super super = {.receiver = self, .super_class = superclass};
 		NSURLRequest* (*super_class)(struct objc_super*, SEL, id, id, id) = (void*)objc_msgSendSuper;
-		rv = super_class(&super, _cmd, connection, request, response);
+		rv = super_class(&super, cmd, connection, request, response);
 	}
 	return rv;
 }
@@ -51,11 +43,12 @@ rv = super_class(&super, _cmd, application, launchOptions);
 	objc_setAssociatedObject(self, __DTXConnectionUnique, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	
 	Class superclass = DTXDynamicSubclassSuper(self, __detox_sync_URLConnectionDelegateProxy.class);
-	if([superclass instancesRespondToSelector:_cmd])
+	SEL cmd = @selector(connection:didFailWithError:);
+	if([superclass instancesRespondToSelector:cmd])
 	{
 		struct objc_super super = {.receiver = self, .super_class = superclass};
 		void (*super_class)(struct objc_super*, SEL, id, id) = (void*)objc_msgSendSuper;
-		super_class(&super, _cmd, connection, error);
+		super_class(&super, cmd, connection, error);
 	}
 }
 
@@ -65,11 +58,12 @@ rv = super_class(&super, _cmd, application, launchOptions);
 	objc_setAssociatedObject(self, __DTXConnectionUnique, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	
 	Class superclass = DTXDynamicSubclassSuper(self, __detox_sync_URLConnectionDelegateProxy.class);
-	if([superclass instancesRespondToSelector:_cmd])
+	SEL cmd = @selector(connectionDidFinishLoading:);
+	if([superclass instancesRespondToSelector:cmd])
 	{
 		struct objc_super super = {.receiver = self, .super_class = superclass};
 		void (*super_class)(struct objc_super*, SEL, id) = (void*)objc_msgSendSuper;
-		super_class(&super, _cmd, connection);
+		super_class(&super, cmd, connection);
 	}
 }
 

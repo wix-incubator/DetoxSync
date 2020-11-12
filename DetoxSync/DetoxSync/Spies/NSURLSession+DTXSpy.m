@@ -17,7 +17,8 @@
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSURLResponse *)response completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler
 {
 	Class superclass = DTXDynamicSubclassSuper(self, __detox_sync_URLSessionDelegateProxy.class);
-	if([superclass instancesRespondToSelector:_cmd])
+	SEL cmd = @selector(URLSession:dataTask:didReceiveResponse:completionHandler:);
+	if([superclass instancesRespondToSelector:cmd])
 	{
 		id detoxSyncCompletionHandler = ^(NSURLSessionResponseDisposition disposition) {
 			completionHandler(disposition);
@@ -35,7 +36,7 @@
 		
 		struct objc_super super = {.receiver = self, .super_class = superclass};
 		void (*super_class)(struct objc_super*, SEL, id, id, id, id) = (void*)objc_msgSendSuper;
-		super_class(&super, _cmd, session, dataTask, response, detoxSyncCompletionHandler);
+		super_class(&super, cmd, session, dataTask, response, detoxSyncCompletionHandler);
 	}
 	else
 	{
@@ -46,11 +47,12 @@
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(nullable NSError *)error
 {
 	Class superclass = DTXDynamicSubclassSuper(self, __detox_sync_URLSessionDelegateProxy.class);
-	if([superclass instancesRespondToSelector:_cmd])
+	SEL cmd = @selector(URLSession:task:didCompleteWithError:);
+	if([superclass instancesRespondToSelector:cmd])
 	{
 		struct objc_super super = {.receiver = self, .super_class = superclass};
 		void (*super_class)(struct objc_super*, SEL, id, id, id) = (void*)objc_msgSendSuper;
-		super_class(&super, _cmd, session, task, error);
+		super_class(&super, cmd, session, task, error);
 	}
 	
 	[task __detox_sync_untrackTask];
