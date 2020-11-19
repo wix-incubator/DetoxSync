@@ -33,7 +33,7 @@
 		[DTXSyncManager registerSyncResource:self];
 		[self performUpdateBlock:^NSUInteger{
 			return 1;
-		} eventIdentifier:[NSString stringWithFormat:@"%p", self] eventDescription:self.syncResourceGenericDescription objectDescription:self._selectorTargetDescription additionalDescription:nil];
+		} eventIdentifier:[NSString stringWithFormat:@"%p", self] eventDescription:_DTXStringReturningBlock(self.syncResourceGenericDescription) objectDescription:_DTXStringReturningBlock(self._selectorTargetDescription) additionalDescription:nil];
 	}
 	
 	return self;
@@ -48,7 +48,7 @@
 	
 	[self performUpdateBlock:^NSUInteger{
 		return 0;
-	} eventIdentifier:[NSString stringWithFormat:@"%p", self] eventDescription:self.syncResourceGenericDescription objectDescription:self._selectorTargetDescription additionalDescription:nil];
+	} eventIdentifier:[NSString stringWithFormat:@"%p", self] eventDescription:_DTXStringReturningBlock(self.syncResourceGenericDescription) objectDescription:_DTXStringReturningBlock(self._selectorTargetDescription) additionalDescription:nil];
 	
 	[DTXSyncManager unregisterSyncResource:self];
 	

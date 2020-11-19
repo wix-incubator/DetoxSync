@@ -10,6 +10,7 @@
 #import "DTXSingleEventSyncResource.h"
 #import "DTXOrigDispatch.h"
 #import "CAAnimation+DTXSpy.h"
+#import "DTXUISyncResource.h"
 
 @import ObjectiveC;
 
@@ -32,35 +33,23 @@
 
 - (void)__detox_sync_setNeedsLayout
 {
-	DTXSingleEventSyncResource* sr = [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"Layer Layout"];
+	[DTXUISyncResource.sharedInstance trackLayerNeedsLayout:self];
 	
 	[self __detox_sync_setNeedsLayout];
-	
-	__detox_sync_orig_dispatch_async(dispatch_get_main_queue(), ^ {
-		[sr endTracking];
-	});
 }
 
 - (void)__detox_sync_setNeedsDisplay
 {
-	DTXSingleEventSyncResource* sr = [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"Layer Display"];
+	[DTXUISyncResource.sharedInstance trackLayerNeedsDisplay:self];
 	
 	[self __detox_sync_setNeedsDisplay];
-	
-	__detox_sync_orig_dispatch_async(dispatch_get_main_queue(), ^ {
-		[sr endTracking];
-	});
 }
 
 - (void)__detox_sync_setNeedsDisplayInRect:(CGRect)rect
 {
-	DTXSingleEventSyncResource* sr = [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"Layer Display"];
+	[DTXUISyncResource.sharedInstance trackLayerNeedsDisplay:self];
 	
 	[self __detox_sync_setNeedsDisplayInRect:rect];
-	
-	__detox_sync_orig_dispatch_async(dispatch_get_main_queue(), ^ {
-		[sr endTracking];
-	});
 }
 
 - (void)__detox_sync_addAnimation:(CAAnimation *)anim forKey:(NSString *)key

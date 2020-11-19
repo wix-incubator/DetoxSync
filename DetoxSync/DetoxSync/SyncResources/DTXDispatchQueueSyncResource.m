@@ -141,7 +141,7 @@ static NSString* _DTXQueueDescription(dispatch_queue_t queue, NSString* name)
 #endif
 		[_busyBlocks addObject:blockProxy];
 		return _busyCount;
-	} eventIdentifier:[NSString stringWithFormat:@"%p", blockProxy] eventDescription:self.syncResourceGenericDescription objectDescription:[self _descriptionForOperation:operation block:blockProxy] additionalDescription:nil];
+	} eventIdentifier:[NSString stringWithFormat:@"%p", blockProxy] eventDescription:_DTXStringReturningBlock(self.syncResourceGenericDescription) objectDescription:_DTXStringReturningBlock([self _descriptionForOperation:operation block:blockProxy]) additionalDescription:nil];
 }
 
 - (void)removeWorkBlockProxy:(DTXDispatchBlockProxy*)blockProxy operation:(NSString*)operation
@@ -153,7 +153,7 @@ static NSString* _DTXQueueDescription(dispatch_queue_t queue, NSString* name)
 #endif
 		[_busyBlocks removeObject:blockProxy];
 		return _busyCount;
-	} eventIdentifier:[NSString stringWithFormat:@"%p", blockProxy] eventDescription:self.syncResourceGenericDescription objectDescription:[self _descriptionForOperation:operation block:blockProxy] additionalDescription:nil];
+	} eventIdentifier:[NSString stringWithFormat:@"%p", blockProxy] eventDescription:_DTXStringReturningBlock(self.syncResourceGenericDescription) objectDescription:_DTXStringReturningBlock([self _descriptionForOperation:operation block:blockProxy]) additionalDescription:nil];
 }
 
 - (NSString*)_descriptionForOperation:(NSString*)op block:(id)block

@@ -8,6 +8,7 @@
 
 #import "UIViewController+DTXSpy.h"
 #import "DTXSingleEventSyncResource.h"
+#import "DTXUISyncResource.h"
 
 @import ObjectiveC;
 
@@ -26,16 +27,9 @@
 
 - (void)__detox_sync__viewWillAppear:(BOOL)animated
 {
-	[self __detox_sync__viewWillAppear:animated];
+	[DTXUISyncResource.sharedInstance trackViewControllerWillAppear:self];
 	
-	if(self.transitionCoordinator)
-	{
-		DTXSingleEventSyncResource* sr = [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"Controller View Will Appear"];
-		
-		[self.transitionCoordinator animateAlongsideTransition:nil completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
-			[sr endTracking];
-		}];
-	}
+	[self __detox_sync__viewWillAppear:animated];
 }
 
 - (void)__detox_sync__viewDidAppear:(BOOL)animated
@@ -45,16 +39,9 @@
 
 - (void)__detox_sync__viewWillDisappear:(BOOL)animated
 {
-	[self __detox_sync__viewWillDisappear:animated];
+	[DTXUISyncResource.sharedInstance trackViewControllerWillDisappear:self];
 	
-	if(self.transitionCoordinator)
-	{
-		DTXSingleEventSyncResource* sr = [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"Controller View Will Disappear"];
-		
-		[self.transitionCoordinator animateAlongsideTransition:nil completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
-			[sr endTracking];
-		}];
-	}
+	[self __detox_sync__viewWillDisappear:animated];
 }
 
 - (void)__detox_sync__viewDidDisappear:(BOOL)animated

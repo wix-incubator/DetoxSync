@@ -12,6 +12,8 @@
 		392250E423047179008E811D /* RCTNativeAnimatedNodesManager+DTXSpy.m in Sources */ = {isa = PBXBuildFile; fileRef = 392250E323047179008E811D /* RCTNativeAnimatedNodesManager+DTXSpy.m */; };
 		3923B11E23045B1F009D8780 /* DTXJSTimerSyncResource.h in Headers */ = {isa = PBXBuildFile; fileRef = 3923B11C23045B1F009D8780 /* DTXJSTimerSyncResource.h */; };
 		3923B11F23045B1F009D8780 /* DTXJSTimerSyncResource.m in Sources */ = {isa = PBXBuildFile; fileRef = 3923B11D23045B1F009D8780 /* DTXJSTimerSyncResource.m */; };
+		3946CD5A2567145F000A3606 /* DTXUISyncResource.h in Headers */ = {isa = PBXBuildFile; fileRef = 3946CD582567145F000A3606 /* DTXUISyncResource.h */; };
+		3946CD5B2567145F000A3606 /* DTXUISyncResource.m in Sources */ = {isa = PBXBuildFile; fileRef = 3946CD592567145F000A3606 /* DTXUISyncResource.m */; };
 		395AD82424B784BB002B382B /* _DTXTimerTrampoline.h in Headers */ = {isa = PBXBuildFile; fileRef = 395AD82224B784BB002B382B /* _DTXTimerTrampoline.h */; };
 		395AD82524B784BB002B382B /* _DTXTimerTrampoline.m in Sources */ = {isa = PBXBuildFile; fileRef = 395AD82324B784BB002B382B /* _DTXTimerTrampoline.m */; };
 		396C8B1623038CED00979E86 /* CADisplayLink+DTXSpy.h in Headers */ = {isa = PBXBuildFile; fileRef = 396C8B1423038CED00979E86 /* CADisplayLink+DTXSpy.h */; };
@@ -91,6 +93,8 @@
 		392250E323047179008E811D /* RCTNativeAnimatedNodesManager+DTXSpy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "RCTNativeAnimatedNodesManager+DTXSpy.m"; sourceTree = "<group>"; };
 		3923B11C23045B1F009D8780 /* DTXJSTimerSyncResource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DTXJSTimerSyncResource.h; sourceTree = "<group>"; };
 		3923B11D23045B1F009D8780 /* DTXJSTimerSyncResource.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DTXJSTimerSyncResource.m; sourceTree = "<group>"; };
+		3946CD582567145F000A3606 /* DTXUISyncResource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DTXUISyncResource.h; sourceTree = "<group>"; };
+		3946CD592567145F000A3606 /* DTXUISyncResource.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DTXUISyncResource.m; sourceTree = "<group>"; };
 		3957930525253A1200A55B31 /* CADisplayLink+DTXSpy-Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "CADisplayLink+DTXSpy-Private.h"; sourceTree = "<group>"; };
 		395AD82224B784BB002B382B /* _DTXTimerTrampoline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = _DTXTimerTrampoline.h; sourceTree = "<group>"; };
 		395AD82324B784BB002B382B /* _DTXTimerTrampoline.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = _DTXTimerTrampoline.m; sourceTree = "<group>"; };
@@ -254,22 +258,24 @@
 		39DE8F6322F707F400780546 /* SyncResources */ = {
 			isa = PBXGroup;
 			children = (
-				39DE8F6822F707F400780546 /* DTXSyncResource.h */,
-				396C8B112303317900979E86 /* DTXSyncResource-Private.h */,
-				39DE8F6B22F707F400780546 /* DTXSyncResource.m */,
 				39DE8F6E22F707F400780546 /* DTXDelayedPerformSelectorSyncResource.h */,
 				39DE8F6A22F707F400780546 /* DTXDelayedPerformSelectorSyncResource.m */,
-				39DE8F6522F707F400780546 /* DTXDispatchQueueSyncResource.h */,
 				39DE8F6422F707F400780546 /* DTXDispatchQueueSyncResource-Private.h */,
+				39DE8F6522F707F400780546 /* DTXDispatchQueueSyncResource.h */,
 				39DE8F6D22F707F400780546 /* DTXDispatchQueueSyncResource.m */,
-				39DE8F6F22F707F400780546 /* DTXTimerSyncResource.h */,
-				39DE8F6622F707F400780546 /* DTXTimerSyncResource-Private.h */,
-				39DE8F6922F707F400780546 /* DTXTimerSyncResource.m */,
+				39A6C13322F9AFE700187B56 /* DTXRunLoopSyncResource-Private.h */,
+				39A6C12F22F9AF8300187B56 /* DTXRunLoopSyncResource.h */,
+				39A6C13022F9AF8300187B56 /* DTXRunLoopSyncResource.m */,
 				39DE8F6722F707F400780546 /* DTXSingleEventSyncResource.h */,
 				39DE8F6C22F707F400780546 /* DTXSingleEventSyncResource.m */,
-				39A6C12F22F9AF8300187B56 /* DTXRunLoopSyncResource.h */,
-				39A6C13322F9AFE700187B56 /* DTXRunLoopSyncResource-Private.h */,
-				39A6C13022F9AF8300187B56 /* DTXRunLoopSyncResource.m */,
+				396C8B112303317900979E86 /* DTXSyncResource-Private.h */,
+				39DE8F6822F707F400780546 /* DTXSyncResource.h */,
+				39DE8F6B22F707F400780546 /* DTXSyncResource.m */,
+				39DE8F6622F707F400780546 /* DTXTimerSyncResource-Private.h */,
+				39DE8F6F22F707F400780546 /* DTXTimerSyncResource.h */,
+				39DE8F6922F707F400780546 /* DTXTimerSyncResource.m */,
+				3946CD582567145F000A3606 /* DTXUISyncResource.h */,
+				3946CD592567145F000A3606 /* DTXUISyncResource.m */,
 			);
 			path = SyncResources;
 			sourceTree = "<group>";
@@ -393,6 +399,7 @@
 				39DE8FA822F707F400780546 /* UIScrollView+DTXSpy.h in Headers */,
 				39DE8FA422F707F400780546 /* UIAnimation+DTXSpy.h in Headers */,
 				39DE8FB522F707F400780546 /* UIView+DTXSpy.h in Headers */,
+				3946CD5A2567145F000A3606 /* DTXUISyncResource.h in Headers */,
 				39DE8FA622F707F400780546 /* CALayer+DTXSpy.h in Headers */,
 				39DE8FA722F707F400780546 /* UIApplication+DTXSpy.h in Headers */,
 				39DE8FB822F707F400780546 /* UIViewController+DTXSpy.h in Headers */,
@@ -487,6 +494,7 @@
 				39DE8FAF22F707F400780546 /* NSURLSessionTask+DTXSpy.m in Sources */,
 				399AE33923B27B2000BF1318 /* CFRunLoopDescription.m in Sources */,
 				39DE8F9E22F707F400780546 /* DTXSyncManager.m in Sources */,
+				3946CD5B2567145F000A3606 /* DTXUISyncResource.m in Sources */,
 				39DE8FA522F707F400780546 /* UIView+DTXSpy.m in Sources */,
 				39A6C13222F9AF8300187B56 /* DTXRunLoopSyncResource.m in Sources */,
 				3923B11F23045B1F009D8780 /* DTXJSTimerSyncResource.m in Sources */,

@@ -9,6 +9,8 @@
 #import "DTXSyncManager.h"
 @class DTXSyncResource;
 
+#define _DTXStringReturningBlock(...) ^ { return __VA_ARGS__; }
+
 NS_ASSUME_NONNULL_BEGIN
 
 __attribute__((visibility("hidden")))
@@ -22,7 +24,7 @@ void __detox_sync_DTXSyncResourceVerboseLog(NSString* format, ...)  NS_FORMAT_FU
 + (void)registerSyncResource:(DTXSyncResource*)syncResource;
 + (void)unregisterSyncResource:(DTXSyncResource*)syncResource;
 
-+ (void)performUpdateWithEventIdentifier:(NSString*)eventID eventDescription:(NSString*)eventDescription objectDescription:(NSString*)objectDescription additionalDescription:(NSString*)additionalDescription syncResource:(DTXSyncResource*)resource block:(NSUInteger(^)(void))block;
++ (void)performUpdateWithEventIdentifier:(NSString*)eventID eventDescription:(NSString*(^)(void))eventDescription objectDescription:(NSString*(^)(void))objectDescription additionalDescription:(nullable NSString*(^)(void))additionalDescription syncResource:(DTXSyncResource*)resource block:(NSUInteger(^)(void))block;
 
 + (BOOL)isTrackedThread:(NSThread*)thread;
 + (BOOL)isTrackedRunLoop:(CFRunLoopRef)runLoop;

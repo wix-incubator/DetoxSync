@@ -14,7 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, copy) NSString* name;
 
-- (void)performUpdateBlock:(NSUInteger(^)(void))block eventIdentifier:eventID eventDescription:(NSString*)eventDescription objectDescription:(NSString*)objectDescription additionalDescription:(nullable NSString*)additionalDescription;
+- (void)performUpdateBlock:(NSUInteger(^)(void))block eventIdentifier:eventID eventDescription:(NSString*(^)(void))eventDescription objectDescription:(NSString*(^)(void))objectDescription additionalDescription:(nullable NSString*(^)(void))additionalDescription;
 - (NSString*)syncResourceGenericDescription;
 - (NSString*)syncResourceDescription;
 

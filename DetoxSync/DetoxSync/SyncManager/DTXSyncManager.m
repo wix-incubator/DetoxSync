@@ -191,7 +191,7 @@ static atomic_voidptr _URLBlacklist = ATOMIC_VAR_INIT(NULL);
 	});
 }
 
-+ (void)performUpdateWithEventIdentifier:(NSString*)eventID eventDescription:(NSString*)eventDescription objectDescription:(NSString*)objectDescription additionalDescription:(NSString*)additionalDescription syncResource:(DTXSyncResource*)resource block:(NSUInteger(^)(void))block
++ (void)performUpdateWithEventIdentifier:(NSString*)eventID eventDescription:(NSString*(^)(void))eventDescription objectDescription:(NSString*(^)(void))objectDescription additionalDescription:(nullable NSString*(^)(void))additionalDescription syncResource:(DTXSyncResource*)resource block:(NSUInteger(^)(void))block
 {
 	dispatch_block_t outerBlock = ^ {
 		if([_registeredResources containsObject:resource] == NO)
@@ -208,7 +208,10 @@ static atomic_voidptr _URLBlacklist = ATOMIC_VAR_INIT(NULL);
 			
 			if(previousBusyCount < busyCount && dtx_unlikely(_delegate_syncSystemDidStartTrackingEventWithDescription))
 			{
-				[_delegate syncSystemDidStartTrackingEventWithIdentifier:eventID description:eventDescription objectDescription:objectDescription additionalDescription:additionalDescription];
+				[_delegate syncSystemDidStartTrackingEventWithIdentifier:eventID
+															 description:eventDescription ? eventDescription() : nil
+													   objectDescription:objectDescription ? objectDescription() : nil
+												   additionalDescription:additionalDescription ? additionalDescription() : nil];
 			}
 			else if(previousBusyCount > busyCount && dtx_unlikely(_delegate_syncSystemDidEndTrackingEventWithDescription))
 			{

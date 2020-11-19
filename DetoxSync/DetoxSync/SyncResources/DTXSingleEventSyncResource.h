@@ -6,7 +6,7 @@
 //  Copyright © 2019 wix. All rights reserved.
 //
 
-#import "DTXSyncResource.h"
+#import "DTXSyncResource-Private.h"
 #import "DTXSyncManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface DTXSingleEventSyncResource : DTXSyncResource <DTXSingleEvent>
 
-+ (id<DTXSingleEvent>)singleUseSyncResourceWithObjectDescription:(NSString* __nullable)object eventDescription:(NSString*)description;
++ (id<DTXSingleEvent>)singleUseSyncResourceWithObjectDescription:(nullable NSString* )object eventDescription:(NSString*)description;
 
 - (void)suspendTracking;
 - (void)resumeTracking;

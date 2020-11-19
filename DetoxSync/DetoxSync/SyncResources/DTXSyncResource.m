@@ -59,9 +59,14 @@
 	return _historyString;
 }
 
-- (void)performUpdateBlock:(NSUInteger(^)(void))block eventIdentifier:eventID eventDescription:(NSString*)eventDescription objectDescription:(NSString*)objectDescription additionalDescription:(nullable NSString*)additionalDescription
+- (void)performUpdateBlock:(NSUInteger(^)(void))block eventIdentifier:eventID eventDescription:(NSString*(^)(void))eventDescription objectDescription:(NSString*(^)(void))objectDescription additionalDescription:(nullable NSString*(^)(void))additionalDescription
 {
-	[DTXSyncManager performUpdateWithEventIdentifier:eventID eventDescription:eventDescription objectDescription:objectDescription additionalDescription:additionalDescription syncResource:self block:block];
+	[DTXSyncManager performUpdateWithEventIdentifier:eventID
+									eventDescription:eventDescription
+								   objectDescription:objectDescription
+							   additionalDescription:additionalDescription
+										syncResource:self
+											   block:block];
 }
 
 - (NSString*)syncResourceDescription

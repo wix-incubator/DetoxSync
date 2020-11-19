@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface DTXTimerSyncResource ()
 
-+ (instancetype)sharedInstance NS_SWIFT_NAME(shared());
+@property (class, nonatomic, strong, readonly) DTXTimerSyncResource* sharedInstance NS_SWIFT_NAME(shared);
 
 - (void)trackTimerTrampoline:(_DTXTimerTrampoline*)timerTrampoline NS_SWIFT_NAME(track(_:));
 - (void)untrackTimerTrampoline:(_DTXTimerTrampoline*)timerTrampoline NS_SWIFT_NAME(untrack(_:));

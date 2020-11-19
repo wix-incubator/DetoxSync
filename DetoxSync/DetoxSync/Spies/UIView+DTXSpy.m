@@ -9,6 +9,7 @@
 #import "UIView+DTXSpy.h"
 #import "DTXSingleEventSyncResource.h"
 #import "DTXOrigDispatch.h"
+#import "DTXUISyncResource.h"
 
 @import ObjectiveC;
 
@@ -49,11 +50,6 @@ static DTXSingleEventSyncResource* _DTXSRForAnimation(NSTimeInterval duration, N
 + (void)__detox_sync_animateWithDuration:(NSTimeInterval)duration delay:(NSTimeInterval)delay options:(UIViewAnimationOptions)options animations:(void (^)(void))animations completion:(void (^ __nullable)(BOOL finished))completion
 {
 	DTXSingleEventSyncResource* sr = _DTXSRForAnimation(duration, delay);
-//	BOOL isTheOne = [NSThread.callStackSymbols.description containsString:@"_UIRefreshControlModernContentView"];
-//	if(isTheOne)
-//	{
-//		NSLog(@"");
-//	}
 	
 	__block BOOL wasEnded;
 	
@@ -62,12 +58,7 @@ static DTXSingleEventSyncResource* _DTXSRForAnimation(NSTimeInterval duration, N
 		{
 			completion(finished);
 		}
-//
-//		if(isTheOne == YES)
-//		{
-//			NSLog(@"");
-//		}
-		
+
 		[sr endTracking];
 		
 		wasEnded = YES;
@@ -151,46 +142,37 @@ static DTXSingleEventSyncResource* _DTXSRForAnimation(NSTimeInterval duration, N
 
 - (NSString*)__detox_sync_safeDescription
 {
-	if([self isKindOfClass:UISearchBar.class])
-	{
-		//Under iOS 14, UISearchBar gets triggered if -text is called before its initial layout 🤦‍♂️🤦‍♂️🤦‍♂️
-		return [NSString stringWithFormat:@"<%@: %p; frame = (%@ %@; %@ %@); text = <redacted>; gestureRecognizers = <NSArray: %p>; layer = <CALayer: %p>>", NSStringFromClass(self.class), self, @(self.frame.origin.x), @(self.frame.origin.y), @(self.frame.size.width), @(self.frame.size.height), self.gestureRecognizers, self.layer];
-	}
+	return [NSString stringWithFormat:@"<%@: %p>", self.class, self];
 	
-	return [self description];
+//	if([self isKindOfClass:UISearchBar.class])
+//	{
+//		//Under iOS 14, UISearchBar gets triggered if -text is called before its initial layout 🤦‍♂️🤦‍♂️🤦‍♂️
+//		return [NSString stringWithFormat:@"<%@: %p; frame = (%@ %@; %@ %@); text = <redacted>; gestureRecognizers = <NSArray: %p>; layer = <CALayer: %p>>", NSStringFromClass(self.class), self, @(self.frame.origin.x), @(self.frame.origin.y), @(self.frame.size.width), @(self.frame.size.height), self.gestureRecognizers, self.layer];
+//	}
+//
+//	return [self description];
 }
 
 - (void)__detox_sync_setNeedsLayout
 {
-	DTXSingleEventSyncResource* sr = [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:self.__detox_sync_safeDescription eventDescription:@"View Layout"];
+	[DTXUISyncResource.sharedInstance trackViewNeedsLayout:self];
 	
 	[self __detox_sync_setNeedsLayout];
-	
-	__detox_sync_orig_dispatch_async(dispatch_get_main_queue(), ^ {
-		[sr endTracking];
-	});
 }
 
 - (void)__detox_sync_setNeedsDisplay
 {
-	DTXSingleEventSyncResource* sr = [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:self.__detox_sync_safeDescription eventDescription:@"View Display"];
+	[DTXUISyncResource.sharedInstance trackViewNeedsDisplay:self];
 	
 	[self __detox_sync_setNeedsDisplay];
-	
-	__detox_sync_orig_dispatch_async(dispatch_get_main_queue(), ^ {
-		[sr endTracking];
-	});
 }
 
 - (void)__detox_sync_setNeedsDisplayInRect:(CGRect)rect
 {
-	DTXSingleEventSyncResource* sr = [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:self.__detox_sync_safeDescription eventDescription:@"View Display"];
-	
+	[DTXUISyncResource.sharedInstance trackViewNeedsDisplay:self];
+
 	[self __detox_sync_setNeedsDisplayInRect:rect];
-	
-	__detox_sync_orig_dispatch_async(dispatch_get_main_queue(), ^ {
-		[sr endTracking];
-	});
+
 }
 
 @end
