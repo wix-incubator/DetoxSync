@@ -581,7 +581,7 @@ static BOOL DTXIsSystemBusyNow(void)
 
 + (NSString*)idleStatus
 {
-	return [self _syncStatus:NO];
+	return [self _syncStatus:YES];
 }
 
 + (NSString*)syncStatus

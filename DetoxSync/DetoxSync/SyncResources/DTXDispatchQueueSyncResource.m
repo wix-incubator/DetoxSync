@@ -14,8 +14,9 @@
 
 @implementation DTXDispatchBlockProxy
 {
-	NSString* _debugDescription;
 	NSString* _operation;
+	id _block;
+	NSString* _moreInfo;
 }
 
 + (instancetype)proxyWithBlock:(dispatch_block_t)block operation:(NSString*)operation
@@ -30,8 +31,8 @@
 	if(rv)
 	{
 		rv->_operation = operation;
-		
-		rv->_debugDescription = [NSString stringWithFormat:@"%@%@ with %p", operation, moreInfo == nil ? @"" : [NSString stringWithFormat:@"(%@)", moreInfo], block];
+		rv->_block = block;
+		rv->_moreInfo = moreInfo;
 	}
 	
 	return rv;
@@ -39,12 +40,17 @@
 
 - (NSString *)description
 {
-	return _debugDescription;
+	return [NSString stringWithFormat:@"%@%@ with %p", _operation, _moreInfo == nil ? @"" : [NSString stringWithFormat:@"(%@)", _moreInfo], _block];
 }
 
 - (NSString *)debugDescription
 {
-	return _debugDescription;
+	return self.description;
+}
+
+- (void)dealloc
+{
+	
 }
 
 @end
@@ -54,7 +60,6 @@ static const void* DTXQueueDeallocHelperKey = &DTXQueueDeallocHelperKey;
 @implementation DTXDispatchQueueSyncResource
 {
 	NSUInteger _busyCount;
-	NSMutableArray* _busyBlocks;
 	__weak dispatch_queue_t _queue;
 }
 
@@ -107,7 +112,6 @@ static const void* DTXQueueDeallocHelperKey = &DTXQueueDeallocHelperKey;
 	self = [super init];
 	if(self)
 	{
-		_busyBlocks = [NSMutableArray new];
 	}
 	return self;
 }
@@ -119,12 +123,12 @@ static NSString* _DTXQueueDescription(dispatch_queue_t queue, NSString* name)
 
 - (NSString *)description
 {
-	return [NSString stringWithFormat:@"<%@: %p queue: %@%@>", self.class, self, _DTXQueueDescription(_queue, self.name), _busyBlocks.count > 0 ? [NSString stringWithFormat:@" work blocks: %@", _busyBlocks] : @""];
+	return [NSString stringWithFormat:@"<%@: %p queue: %@%@>", self.class, self, _DTXQueueDescription(_queue, self.name), _busyCount > 0 ? [NSString stringWithFormat:@" with %lu work blocks", _busyCount] : @""];
 }
 
 - (NSString*)syncResourceDescription
 {
-	return [NSString stringWithFormat:@"Queue: %@%@", _DTXQueueDescription(_queue, self.name), _busyBlocks.count > 0 ? [NSString stringWithFormat:@" work blocks: %@", _busyBlocks] : @""];
+	return [NSString stringWithFormat:@"Queue: %@%@", _DTXQueueDescription(_queue, self.name), _busyCount > 0 ? [NSString stringWithFormat:@" with %lu work blocks", _busyCount] : @""];
 }
 
 - (NSString*)syncResourceGenericDescription
@@ -136,24 +140,24 @@ static NSString* _DTXQueueDescription(dispatch_queue_t queue, NSString* name)
 {
 	[self performUpdateBlock:^NSUInteger{
 		_busyCount += 1;
-#if DEBUG
-		NSAssert([_busyBlocks containsObject:blockProxy] == NO, @"Tried to add a duplicate block proxy");
-#endif
-		[_busyBlocks addObject:blockProxy];
 		return _busyCount;
-	} eventIdentifier:[NSString stringWithFormat:@"%p", blockProxy] eventDescription:_DTXStringReturningBlock(self.syncResourceGenericDescription) objectDescription:_DTXStringReturningBlock([self _descriptionForOperation:operation block:blockProxy]) additionalDescription:nil];
+	}
+			 eventIdentifier:[NSString stringWithFormat:@"%p", blockProxy]
+			eventDescription:_DTXStringReturningBlock(self.syncResourceGenericDescription)
+		   objectDescription:_DTXStringReturningBlock([self _descriptionForOperation:operation block:blockProxy])
+	   additionalDescription:nil];
 }
 
 - (void)removeWorkBlockProxy:(DTXDispatchBlockProxy*)blockProxy operation:(NSString*)operation
 {
 	[self performUpdateBlock:^NSUInteger{
 		_busyCount -= 1;
-#if DEBUG
-		NSAssert([_busyBlocks containsObject:blockProxy], @"Tried to remove a block proxy that doesn't exist");
-#endif
-		[_busyBlocks removeObject:blockProxy];
 		return _busyCount;
-	} eventIdentifier:[NSString stringWithFormat:@"%p", blockProxy] eventDescription:_DTXStringReturningBlock(self.syncResourceGenericDescription) objectDescription:_DTXStringReturningBlock([self _descriptionForOperation:operation block:blockProxy]) additionalDescription:nil];
+	}
+			 eventIdentifier:[NSString stringWithFormat:@"%p", blockProxy]
+			eventDescription:_DTXStringReturningBlock(self.syncResourceGenericDescription)
+		   objectDescription:_DTXStringReturningBlock([self _descriptionForOperation:operation block:blockProxy])
+	   additionalDescription:nil];
 }
 
 - (NSString*)_descriptionForOperation:(NSString*)op block:(id)block
