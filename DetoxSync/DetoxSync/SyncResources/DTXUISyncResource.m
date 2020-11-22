@@ -11,6 +11,8 @@
 #import "DTXSingleEventSyncResource.h"
 #import "DTXOrigDispatch.h"
 
+static const void* _DTXCAAnimationTrackingIdentifierKey = &_DTXCAAnimationTrackingIdentifierKey;
+
 @interface UIView ()
 
 - (NSString*)__detox_sync_safeDescription;
@@ -23,8 +25,11 @@
 	NSUInteger _viewNeedsDisplayCount;
 	NSUInteger _layerNeedsLayoutCount;
 	NSUInteger _layerNeedsDisplayCount;
+	NSUInteger _layerPendingAnimationCount;
 	NSUInteger _viewControllerWillAppearCount;
 	NSUInteger _viewControllerWillDisappearCount;
+	NSUInteger _viewAnimationCount;
+	NSUInteger _layerAnimationCount;
 }
 
 + (instancetype)sharedInstance
@@ -41,12 +46,7 @@
 
 - (NSUInteger)_totalCount
 {
-	return _viewNeedsLayoutCount + _viewNeedsDisplayCount + _layerNeedsLayoutCount + _layerNeedsDisplayCount + _viewControllerWillAppearCount + _viewControllerWillDisappearCount;
-}
-
-NSString* _DTXPluralIfNeeded(NSString* word, NSUInteger count)
-{
-	return [NSString stringWithFormat:@"%lu %@%@", count, word, count == 1 ? @"" : @"s"];
+	return _viewNeedsLayoutCount + _viewNeedsDisplayCount + _layerNeedsLayoutCount + _layerNeedsDisplayCount + _layerPendingAnimationCount + _viewControllerWillAppearCount + _viewControllerWillDisappearCount + _viewAnimationCount + _layerAnimationCount;
 }
 
 - (NSString *)syncResourceDescription
@@ -73,6 +73,11 @@ NSString* _DTXPluralIfNeeded(NSString* word, NSUInteger count)
 		[rvTexts addObject:[NSString stringWithFormat:@"%@ awaiting display", _DTXPluralIfNeeded(@"layer", _layerNeedsDisplayCount)]];
 	}
 	
+	if(_layerPendingAnimationCount > 0)
+	{
+		[rvTexts addObject:[NSString stringWithFormat:@"%@ pending animation", _DTXPluralIfNeeded(@"layer", _layerPendingAnimationCount)]];
+	}
+	
 	if(_viewControllerWillAppearCount > 0)
 	{
 		[rvTexts addObject:[NSString stringWithFormat:@"%@ awaiting appearance", _DTXPluralIfNeeded(@"view controller", _viewControllerWillAppearCount)]];
@@ -81,6 +86,16 @@ NSString* _DTXPluralIfNeeded(NSString* word, NSUInteger count)
 	if(_viewControllerWillDisappearCount > 0)
 	{
 		[rvTexts addObject:[NSString stringWithFormat:@"%@ awaiting disappearance", _DTXPluralIfNeeded(@"view controller", _viewControllerWillDisappearCount)]];
+	}
+	
+	if(_viewAnimationCount > 0)
+	{
+		[rvTexts addObject:[NSString stringWithFormat:@"%@ pending", _DTXPluralIfNeeded(@"view animation", _viewAnimationCount)]];
+	}
+	
+	if(_layerAnimationCount > 0)
+	{
+		[rvTexts addObject:[NSString stringWithFormat:@"%@ pending", _DTXPluralIfNeeded(@"layer animation", _viewAnimationCount)]];
 	}
 	
 	if(rvTexts.count == 0)
@@ -96,63 +111,71 @@ NSString* _DTXPluralIfNeeded(NSString* word, NSUInteger count)
 	return @"UI Elements";
 }
 
-- (void)_trackForParam:(NSUInteger*)param eventIdentifier:(NSString*)eventIdentifier eventDescription:(NSString*(^)(void))eventDescription objectDescription:(NSString*(^)(void))objectDescription
+- (nullable NSString*)_trackForParam:(NSUInteger*)param eventDescription:(NSString*(NS_NOESCAPE ^)(void))eventDescription objectDescription:(NSString*(NS_NOESCAPE ^)(void))objectDescription
 {
+	__block NSString* identifier = nil;
+	
 	[self performUpdateBlock:^NSUInteger{
 		(*param)++;
 		return self._totalCount;
-	} eventIdentifier:eventIdentifier eventDescription:eventDescription objectDescription:objectDescription additionalDescription:nil];
+	} eventIdentifier:^ {
+		identifier = NSUUID.UUID.UUIDString;
+		return identifier;
+	} eventDescription:eventDescription objectDescription:objectDescription additionalDescription:nil];
+	
+	return identifier;
 }
 
-- (void)_untrackForParam:(NSUInteger*)param eventIdentifier:(NSString*)eventIdentifier eventDescription:(NSString*(^)(void))eventDescription objectDescription:(NSString*(^)(void))objectDescription
+- (void)_untrackForParam:(NSUInteger*)param eventIdentifier:(NSString*(NS_NOESCAPE ^)(void))eventIdentifier
 {
 	[self performUpdateBlock:^NSUInteger{
 		(*param)--;
 		return self._totalCount;
-	} eventIdentifier:eventIdentifier eventDescription:eventDescription objectDescription:objectDescription additionalDescription:nil];
+	} eventIdentifier:eventIdentifier eventDescription:nil objectDescription:nil additionalDescription:nil];
 }
 
 - (void)trackViewNeedsLayout:(UIView *)view
 {
-	NSString* identifier = NSUUID.UUID.UUIDString;
-	
-	[self _trackForParam:&_viewNeedsLayoutCount eventIdentifier:identifier eventDescription:_DTXStringReturningBlock(@"View Layout") objectDescription:_DTXStringReturningBlock(view.__detox_sync_safeDescription)];
+	NSString* identifier = [self _trackForParam:&_viewNeedsLayoutCount eventDescription:_DTXStringReturningBlock(@"View Layout") objectDescription:_DTXStringReturningBlock(view.__detox_sync_safeDescription)];
 	
 	__detox_sync_orig_dispatch_async(dispatch_get_main_queue(), ^ {
-		[self _untrackForParam:&_viewNeedsLayoutCount eventIdentifier:identifier eventDescription:_DTXStringReturningBlock(@"View Layout") objectDescription:_DTXStringReturningBlock(view.__detox_sync_safeDescription)];
+		[self _untrackForParam:&_viewNeedsLayoutCount eventIdentifier:_DTXStringReturningBlock(identifier)];
 	});
 }
 
 - (void)trackViewNeedsDisplay:(UIView *)view
 {
-	NSString* identifier = NSUUID.UUID.UUIDString;
-	
-	[self _trackForParam:&_viewNeedsDisplayCount eventIdentifier:identifier eventDescription:_DTXStringReturningBlock(@"View Display") objectDescription:_DTXStringReturningBlock(view.__detox_sync_safeDescription)];
+	NSString* identifier = [self _trackForParam:&_viewNeedsDisplayCount eventDescription:_DTXStringReturningBlock(@"View Display") objectDescription:_DTXStringReturningBlock(view.__detox_sync_safeDescription)];
 	
 	__detox_sync_orig_dispatch_async(dispatch_get_main_queue(), ^ {
-		[self _untrackForParam:&_viewNeedsDisplayCount eventIdentifier:identifier eventDescription:_DTXStringReturningBlock(@"View Display") objectDescription:_DTXStringReturningBlock(view.__detox_sync_safeDescription)];
+		[self _untrackForParam:&_viewNeedsDisplayCount eventIdentifier:_DTXStringReturningBlock(identifier)];
 	});
 }
 
 - (void)trackLayerNeedsLayout:(CALayer *)layer
 {
-	NSString* identifier = NSUUID.UUID.UUIDString;
-	
-	[self _trackForParam:&_layerNeedsLayoutCount eventIdentifier:identifier eventDescription:_DTXStringReturningBlock(@"Layer Layout") objectDescription:_DTXStringReturningBlock(layer.description)];
+	NSString* identifier = [self _trackForParam:&_layerNeedsLayoutCount eventDescription:_DTXStringReturningBlock(@"Layer Layout") objectDescription:_DTXStringReturningBlock(layer.description)];
 	
 	__detox_sync_orig_dispatch_async(dispatch_get_main_queue(), ^ {
-		[self _untrackForParam:&_layerNeedsLayoutCount eventIdentifier:identifier eventDescription:_DTXStringReturningBlock(@"Layer Layout") objectDescription:_DTXStringReturningBlock(layer.description)];
+		[self _untrackForParam:&_layerNeedsLayoutCount eventIdentifier:_DTXStringReturningBlock(identifier)];
 	});
 }
 
 - (void)trackLayerNeedsDisplay:(CALayer *)layer
 {
-	NSString* identifier = NSUUID.UUID.UUIDString;
-	
-	[self _trackForParam:&_layerNeedsDisplayCount eventIdentifier:identifier eventDescription:_DTXStringReturningBlock(@"Layer Display") objectDescription:_DTXStringReturningBlock(layer.description)];
+	NSString* identifier = [self _trackForParam:&_layerNeedsDisplayCount eventDescription:_DTXStringReturningBlock(@"Layer Display") objectDescription:_DTXStringReturningBlock(layer.description)];
 	
 	__detox_sync_orig_dispatch_async(dispatch_get_main_queue(), ^ {
-		[self _untrackForParam:&_layerNeedsDisplayCount eventIdentifier:identifier eventDescription:_DTXStringReturningBlock(@"Layer Display") objectDescription:_DTXStringReturningBlock(layer.description)];
+		[self _untrackForParam:&_layerNeedsDisplayCount eventIdentifier:_DTXStringReturningBlock(identifier)];
+	});
+}
+
+- (void)trackLayerPendingAnimation:(CALayer*)layer
+{
+	NSString* identifier = [self _trackForParam:&_layerPendingAnimationCount eventDescription:_DTXStringReturningBlock(@"Layer Pending Animation") objectDescription:_DTXStringReturningBlock(layer.description)];
+	
+	__detox_sync_orig_dispatch_async(dispatch_get_main_queue(), ^ {
+		[self _untrackForParam:&_layerPendingAnimationCount eventIdentifier:_DTXStringReturningBlock(identifier)];
 	});
 }
 
@@ -160,12 +183,10 @@ NSString* _DTXPluralIfNeeded(NSString* word, NSUInteger count)
 {
 	if(vc.transitionCoordinator)
 	{
-		NSString* identifier = NSUUID.UUID.UUIDString;
-		
-		[self _trackForParam:&_viewControllerWillAppearCount eventIdentifier:identifier eventDescription:_DTXStringReturningBlock(@"View Layout") objectDescription:_DTXStringReturningBlock(vc.description)];
+		NSString* identifier = [self _trackForParam:&_viewControllerWillAppearCount eventDescription:_DTXStringReturningBlock(@"View Layout") objectDescription:_DTXStringReturningBlock(vc.description)];
 		
 		[vc.transitionCoordinator animateAlongsideTransition:nil completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
-			[self _untrackForParam:&_viewControllerWillAppearCount eventIdentifier:identifier eventDescription:_DTXStringReturningBlock(@"Controller View Will Appear") objectDescription:_DTXStringReturningBlock(vc.description)];
+			[self _untrackForParam:&_viewControllerWillAppearCount eventIdentifier:_DTXStringReturningBlock(identifier)];
 		}];
 	}
 }
@@ -174,14 +195,37 @@ NSString* _DTXPluralIfNeeded(NSString* word, NSUInteger count)
 {
 	if(vc.transitionCoordinator)
 	{
-		NSString* identifier = NSUUID.UUID.UUIDString;
-		
-		[self _trackForParam:&_viewControllerWillDisappearCount eventIdentifier:identifier eventDescription:_DTXStringReturningBlock(@"View Layout") objectDescription:_DTXStringReturningBlock(vc.description)];
+		NSString* identifier = [self _trackForParam:&_viewControllerWillDisappearCount eventDescription:_DTXStringReturningBlock(@"View Layout") objectDescription:_DTXStringReturningBlock(vc.description)];
 		
 		[vc.transitionCoordinator animateAlongsideTransition:nil completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
-			[self _untrackForParam:&_viewControllerWillDisappearCount eventIdentifier:identifier eventDescription:_DTXStringReturningBlock(@"Controller View Will Disappear") objectDescription:_DTXStringReturningBlock(vc.description)];
+			[self _untrackForParam:&_viewControllerWillDisappearCount eventIdentifier:_DTXStringReturningBlock(identifier)];
 		}];
 	}
+}
+
+- (nullable NSString*)trackViewAnimationWithDuration:(NSTimeInterval)duration delay:(NSTimeInterval)delay
+{
+	return [self _trackForParam:&_viewAnimationCount eventDescription:_DTXStringReturningBlock(@"Animation") objectDescription:_DTXStringReturningBlock([NSString stringWithFormat:@"UIView animation with duration: “%@” delay: “%@”", @(duration), @(delay)])];
+}
+
+- (void)untrackViewAnimation:(NSString*)identifier
+{
+	[self _untrackForParam:&_viewAnimationCount eventIdentifier:_DTXStringReturningBlock(identifier)];
+}
+
+- (void)trackCAAnimation:(CAAnimation*)animation
+{
+	NSString* identifier = [self _trackForParam:&_layerAnimationCount eventDescription:_DTXStringReturningBlock(@"Animation") objectDescription:_DTXStringReturningBlock([NSString stringWithFormat:@"%@ with duration: “%@” delay: “%@”", animation.class, @(animation.duration), @(animation.beginTime)])];
+	
+	objc_setAssociatedObject(animation, _DTXCAAnimationTrackingIdentifierKey, identifier, OBJC_ASSOCIATION_RETAIN);
+}
+
+- (void)untrackCAAnimation:(CAAnimation *)animation
+{
+	NSString* identifier = objc_getAssociatedObject(animation, _DTXCAAnimationTrackingIdentifierKey);
+	[self _untrackForParam:&_layerAnimationCount eventIdentifier:_DTXStringReturningBlock(identifier)];
+	
+	objc_setAssociatedObject(animation, _DTXCAAnimationTrackingIdentifierKey, nil, OBJC_ASSOCIATION_RETAIN);
 }
 
 @end

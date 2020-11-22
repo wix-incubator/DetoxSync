@@ -20,9 +20,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)trackLayerNeedsDisplay:(CALayer*)layer;
 - (void)trackLayerNeedsLayout:(CALayer*)layer;
+- (void)trackLayerPendingAnimation:(CALayer*)layer;
 
 - (void)trackViewControllerWillAppear:(UIViewController*)vc;
 - (void)trackViewControllerWillDisappear:(UIViewController*)vc;
+
+- (nullable NSString*)trackViewAnimationWithDuration:(NSTimeInterval)duration delay:(NSTimeInterval)delay;
+- (void)untrackViewAnimation:(NSString*)identifier;
+
+- (void)trackCAAnimation:(CAAnimation*)animation;
+- (void)untrackCAAnimation:(CAAnimation*)animation;
 
 @end
 

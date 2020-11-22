@@ -191,7 +191,7 @@ static atomic_voidptr _URLBlacklist = ATOMIC_VAR_INIT(NULL);
 	});
 }
 
-+ (void)performUpdateWithEventIdentifier:(NSString*)eventID eventDescription:(NSString*(^)(void))eventDescription objectDescription:(NSString*(^)(void))objectDescription additionalDescription:(nullable NSString*(^)(void))additionalDescription syncResource:(DTXSyncResource*)resource block:(NSUInteger(^)(void))block
++ (void)performUpdateWithEventIdentifier:(NSString*(NS_NOESCAPE ^)(void))eventID eventDescription:(NSString*(NS_NOESCAPE ^)(void))eventDescription objectDescription:(NSString*(NS_NOESCAPE ^)(void))objectDescription additionalDescription:(nullable NSString*(NS_NOESCAPE ^)(void))additionalDescription syncResource:(DTXSyncResource*)resource block:(NSUInteger(NS_NOESCAPE ^)(void))block
 {
 	dispatch_block_t outerBlock = ^ {
 		if([_registeredResources containsObject:resource] == NO)
@@ -208,14 +208,15 @@ static atomic_voidptr _URLBlacklist = ATOMIC_VAR_INIT(NULL);
 			
 			if(previousBusyCount < busyCount && dtx_unlikely(_delegate_syncSystemDidStartTrackingEventWithDescription))
 			{
-				[_delegate syncSystemDidStartTrackingEventWithIdentifier:eventID
+				NSString* identifier = eventID();
+				[_delegate syncSystemDidStartTrackingEventWithIdentifier:identifier
 															 description:eventDescription ? eventDescription() : nil
 													   objectDescription:objectDescription ? objectDescription() : nil
 												   additionalDescription:additionalDescription ? additionalDescription() : nil];
 			}
 			else if(previousBusyCount > busyCount && dtx_unlikely(_delegate_syncSystemDidEndTrackingEventWithDescription))
 			{
-				[_delegate syncSystemDidEndTrackingEventWithIdentifier:eventID];
+				[_delegate syncSystemDidEndTrackingEventWithIdentifier:eventID()];
 			}
 		}
 		

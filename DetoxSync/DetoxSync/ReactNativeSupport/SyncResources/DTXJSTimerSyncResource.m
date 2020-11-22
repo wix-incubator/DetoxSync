@@ -81,7 +81,7 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
 		}
 		
 		return [_syncResource _busyCount];
-	} eventIdentifier:aKey.stringValue eventDescription:_DTXStringReturningBlock(_syncResource.syncResourceGenericDescription) objectDescription:_DTXStringReturningBlock(_prettyTimerDescription(aKey)) additionalDescription:nil];
+	} eventIdentifier:_DTXStringReturningBlock(aKey.stringValue) eventDescription:_DTXStringReturningBlock(_syncResource.syncResourceGenericDescription) objectDescription:_DTXStringReturningBlock(_prettyTimerDescription(aKey)) additionalDescription:nil];
 	
 	[_timers removeObjectForKey:aKey];
 }
@@ -196,7 +196,7 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
 		}
 
 		return [self _busyCount];
-	} eventIdentifier:timerID.stringValue eventDescription:_DTXStringReturningBlock(self.syncResourceGenericDescription) objectDescription:_DTXStringReturningBlock(_prettyTimerDescription(timerID)) additionalDescription:nil];
+	} eventIdentifier:_DTXStringReturningBlock(timerID.stringValue) eventDescription:_DTXStringReturningBlock(self.syncResourceGenericDescription) objectDescription:_DTXStringReturningBlock(_prettyTimerDescription(timerID)) additionalDescription:nil];
 }
 
 - (NSString*)syncResourceDescription

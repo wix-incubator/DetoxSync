@@ -12,49 +12,6 @@
 
 @import ObjectiveC;
 
-@implementation DTXDispatchBlockProxy
-{
-	NSString* _operation;
-	id _block;
-	NSString* _moreInfo;
-}
-
-+ (instancetype)proxyWithBlock:(dispatch_block_t)block operation:(NSString*)operation
-{
-	return [self proxyWithBlock:block operation:operation moreInfo:nil];
-}
-
-+ (instancetype)proxyWithBlock:(dispatch_block_t)block operation:(NSString*)operation moreInfo:(NSString*)moreInfo
-{
-	DTXDispatchBlockProxy* rv = [DTXDispatchBlockProxy new];
-	
-	if(rv)
-	{
-		rv->_operation = operation;
-		rv->_block = block;
-		rv->_moreInfo = moreInfo;
-	}
-	
-	return rv;
-}
-
-- (NSString *)description
-{
-	return [NSString stringWithFormat:@"%@%@ with %p", _operation, _moreInfo == nil ? @"" : [NSString stringWithFormat:@"(%@)", _moreInfo], _block];
-}
-
-- (NSString *)debugDescription
-{
-	return self.description;
-}
-
-- (void)dealloc
-{
-	
-}
-
-@end
-
 static const void* DTXQueueDeallocHelperKey = &DTXQueueDeallocHelperKey;
 
 @implementation DTXDispatchQueueSyncResource
@@ -136,27 +93,32 @@ static NSString* _DTXQueueDescription(dispatch_queue_t queue, NSString* name)
 	return @"Dispatch Queue";
 }
 
-- (void)addWorkBlockProxy:(DTXDispatchBlockProxy*)blockProxy operation:(NSString*)operation
+- (nullable NSString*)addWorkBlock:(id)block operation:(NSString*)operation moreInfo:(nullable NSString*)moreInfo
 {
+	__block NSString* identifier = nil;
+	
 	[self performUpdateBlock:^NSUInteger{
 		_busyCount += 1;
 		return _busyCount;
-	}
-			 eventIdentifier:[NSString stringWithFormat:@"%p", blockProxy]
-			eventDescription:_DTXStringReturningBlock(self.syncResourceGenericDescription)
-		   objectDescription:_DTXStringReturningBlock([self _descriptionForOperation:operation block:blockProxy])
-	   additionalDescription:nil];
+	} eventIdentifier:^ NSString* {
+		identifier = NSUUID.UUID.UUIDString;
+		return identifier;
+	} eventDescription:_DTXStringReturningBlock(self.syncResourceGenericDescription)
+	  objectDescription:_DTXStringReturningBlock([self _descriptionForOperation:operation block:block])
+	  additionalDescription:_DTXStringReturningBlock(moreInfo)];
+	
+	return identifier;
 }
 
-- (void)removeWorkBlockProxy:(DTXDispatchBlockProxy*)blockProxy operation:(NSString*)operation
+- (void)removeWorkBlock:(id)block operation:(NSString*)operation identifier:(NSString*)identifier
 {
 	[self performUpdateBlock:^NSUInteger{
 		_busyCount -= 1;
 		return _busyCount;
 	}
-			 eventIdentifier:[NSString stringWithFormat:@"%p", blockProxy]
+			 eventIdentifier:_DTXStringReturningBlock(identifier)
 			eventDescription:_DTXStringReturningBlock(self.syncResourceGenericDescription)
-		   objectDescription:_DTXStringReturningBlock([self _descriptionForOperation:operation block:blockProxy])
+		   objectDescription:_DTXStringReturningBlock([self _descriptionForOperation:operation block:block])
 	   additionalDescription:nil];
 }
 

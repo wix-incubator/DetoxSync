@@ -106,7 +106,7 @@ static NSUInteger _DTXCleanTimersAndReturnCount(NSHashTable* _timers)
 	[self performUpdateBlock:^{
 		[_timers addObject:trampoline];
 		return _DTXCleanTimersAndReturnCount(_timers);
-	} eventIdentifier:[NSString stringWithFormat:@"%p", trampoline] eventDescription:_DTXStringReturningBlock(self.syncResourceGenericDescription) objectDescription:_DTXStringReturningBlock(trampoline.syncResourceDescription) additionalDescription:nil];
+	} eventIdentifier:_DTXStringReturningBlock([NSString stringWithFormat:@"%p", trampoline]) eventDescription:_DTXStringReturningBlock(self.syncResourceGenericDescription) objectDescription:_DTXStringReturningBlock(trampoline.syncResourceDescription) additionalDescription:nil];
 }
 
 - (void)untrackTimerTrampoline:(_DTXTimerTrampoline *)trampoline
@@ -114,7 +114,7 @@ static NSUInteger _DTXCleanTimersAndReturnCount(NSHashTable* _timers)
 	[self performUpdateBlock:^{
 		[_timers removeObject:trampoline];
 		return _DTXCleanTimersAndReturnCount(_timers);
-	} eventIdentifier:[NSString stringWithFormat:@"%p", trampoline] eventDescription:_DTXStringReturningBlock(self.syncResourceGenericDescription) objectDescription:_DTXStringReturningBlock(trampoline.syncResourceDescription) additionalDescription:nil];
+	} eventIdentifier:_DTXStringReturningBlock([NSString stringWithFormat:@"%p", trampoline]) eventDescription:_DTXStringReturningBlock(self.syncResourceGenericDescription) objectDescription:_DTXStringReturningBlock(trampoline.syncResourceDescription) additionalDescription:nil];
 }
 
 - (NSString *)description

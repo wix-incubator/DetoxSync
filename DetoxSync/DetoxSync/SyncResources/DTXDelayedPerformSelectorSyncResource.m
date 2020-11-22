@@ -9,18 +9,26 @@
 #import "DTXDelayedPerformSelectorSyncResource.h"
 #import "DTXSyncManager-Private.h"
 
-@interface DTXDelayedPerformSelectorSyncResource () <DTXDelayedPerformSelectorProxy>
+@interface DTXDelayedPerformSelectorSyncResource ()
+
+@property (class, nonatomic, strong, readonly) DTXDelayedPerformSelectorSyncResource* sharedInstance;
+
+- (nullable NSString*)trackPerformSelectorWithTarget:(id)target selector:(SEL)selector object:(id)obj;
+- (void)untrackPerfromSelectorWithIdentifier:(NSString*)identifier;
 
 @end
 
-@implementation DTXDelayedPerformSelectorSyncResource
+@interface DTXDelayedPerformSelectorProxy : NSObject <DTXDelayedPerformSelectorProxy> @end
+
+@implementation DTXDelayedPerformSelectorProxy
 {
 	id _target;
 	id _obj;
 	SEL _selector;
+	NSString* _identifier;
 }
 
-- (instancetype)initWithTarget:(id)target selector:(SEL)selector object:(id)obj
+- (instancetype)initWithTarget:(id)target selector:(SEL)selector object:(id)obj identifier:(NSString*)identifier
 {
 	self = [super init];
 	
@@ -29,11 +37,7 @@
 		_target = target;
 		_obj = obj;
 		_selector = selector;
-		
-		[DTXSyncManager registerSyncResource:self];
-		[self performUpdateBlock:^NSUInteger{
-			return 1;
-		} eventIdentifier:[NSString stringWithFormat:@"%p", self] eventDescription:_DTXStringReturningBlock(self.syncResourceGenericDescription) objectDescription:_DTXStringReturningBlock(self._selectorTargetDescription) additionalDescription:nil];
+		_identifier = identifier;
 	}
 	
 	return self;
@@ -46,15 +50,53 @@
 	[_target performSelector:_selector withObject:_obj];
 #pragma clang diagnostic pop
 	
-	[self performUpdateBlock:^NSUInteger{
-		return 0;
-	} eventIdentifier:[NSString stringWithFormat:@"%p", self] eventDescription:_DTXStringReturningBlock(self.syncResourceGenericDescription) objectDescription:_DTXStringReturningBlock(self._selectorTargetDescription) additionalDescription:nil];
-	
-	[DTXSyncManager unregisterSyncResource:self];
+	[DTXDelayedPerformSelectorSyncResource.sharedInstance untrackPerfromSelectorWithIdentifier:_identifier];
 	
 	_target = nil;
 	_obj = nil;
 	_selector = nil;
+}
+
+@end
+
+@implementation DTXDelayedPerformSelectorSyncResource
+{
+	NSUInteger _busyCount;
+}
+
++ (DTXDelayedPerformSelectorSyncResource *)sharedInstance
+{
+	static DTXDelayedPerformSelectorSyncResource* shared;
+	static dispatch_once_t onceToken;
+	dispatch_once(&onceToken, ^{
+		shared = [DTXDelayedPerformSelectorSyncResource new];
+		[DTXSyncManager registerSyncResource:shared];
+	});
+	
+	return shared;
+}
+
+- (NSString *)trackPerformSelectorWithTarget:(id)target selector:(SEL)selector object:(id)obj
+{
+	__block NSString* identifier = nil;
+	
+	[self performUpdateBlock:^NSUInteger{
+		_busyCount++;
+		return _busyCount;
+	} eventIdentifier:^ {
+		identifier = NSUUID.UUID.UUIDString;
+		return identifier;
+	} eventDescription:_DTXStringReturningBlock(self.syncResourceGenericDescription) objectDescription:_DTXStringReturningBlock([NSString stringWithFormat:@"“%@” on “<%@: %p>”", NSStringFromSelector(selector), [target class], target]) additionalDescription:nil];
+	
+	return identifier;
+}
+
+- (void)untrackPerfromSelectorWithIdentifier:(NSString *)identifier
+{
+	[self performUpdateBlock:^NSUInteger{
+		_busyCount--;
+		return _busyCount;
+	} eventIdentifier:_DTXStringReturningBlock(identifier) eventDescription:nil objectDescription:nil additionalDescription:nil];
 }
 
 - (NSString *)description
@@ -74,12 +116,14 @@
 
 - (NSString*)_selectorTargetDescription
 {
-	return [NSString stringWithFormat:@"“%@” on “<%@: %p>”", NSStringFromSelector(_selector), [_target class], _target];
+	return _DTXPluralIfNeeded(@"pending selector", _busyCount);
 }
 
 + (id<DTXDelayedPerformSelectorProxy>)delayedPerformSelectorProxyWithTarget:(id)target selector:(SEL)selector object:(id)obj;
 {
-	return [[DTXDelayedPerformSelectorSyncResource alloc] initWithTarget:target selector:selector object:obj];
+	NSString* identifier = [DTXDelayedPerformSelectorSyncResource.sharedInstance trackPerformSelectorWithTarget:target selector:selector object:obj];
+	
+	return [[DTXDelayedPerformSelectorProxy alloc] initWithTarget:target selector:selector object:obj identifier:identifier];
 }
 
 @end

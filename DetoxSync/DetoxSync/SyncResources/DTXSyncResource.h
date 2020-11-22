@@ -10,11 +10,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+NSString* _DTXPluralIfNeeded(NSString* word, NSUInteger count);
+
 @interface DTXSyncResource : NSObject
 
 @property (nonatomic, copy) NSString* name;
 
-- (void)performUpdateBlock:(NSUInteger(^)(void))block eventIdentifier:eventID eventDescription:(NSString*(^)(void))eventDescription objectDescription:(NSString*(^)(void))objectDescription additionalDescription:(nullable NSString*(^)(void))additionalDescription;
+- (void)performUpdateBlock:(NSUInteger(NS_NOESCAPE ^)(void))block eventIdentifier:(NSString*(NS_NOESCAPE ^)(void))eventID eventDescription:(nullable NSString*(NS_NOESCAPE ^)(void))eventDescription objectDescription:(nullable NSString*(NS_NOESCAPE ^)(void))objectDescription additionalDescription:(nullable NSString*(NS_NOESCAPE ^)(void))additionalDescription;
 - (NSString*)syncResourceGenericDescription;
 - (NSString*)syncResourceDescription;
 

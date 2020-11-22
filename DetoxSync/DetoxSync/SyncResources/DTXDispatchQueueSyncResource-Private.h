@@ -10,20 +10,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface DTXDispatchBlockProxy : NSObject
-
-+ (instancetype)proxyWithBlock:(dispatch_block_t)block operation:(NSString*)operation;
-+ (instancetype)proxyWithBlock:(dispatch_block_t)block operation:(NSString*)operation moreInfo:(nullable NSString*)moreInfo;
-
-@end
-
 @interface DTXDispatchQueueSyncResource ()
 
 + (nullable instancetype)_existingSyncResourceWithQueue:(dispatch_queue_t)queue;
 + (nullable instancetype)_existingSyncResourceWithQueue:(dispatch_queue_t)queue cleanup:(BOOL)cleanup;
 
-- (void)addWorkBlockProxy:(DTXDispatchBlockProxy*)blockProxy operation:(NSString*)operation;
-- (void)removeWorkBlockProxy:(DTXDispatchBlockProxy*)blockProxy operation:(NSString*)operation;
+- (nullable NSString*)addWorkBlock:(id)block operation:(NSString*)operation moreInfo:(nullable NSString*)moreInfo;
+- (void)removeWorkBlock:(id)block operation:(NSString*)operation identifier:(NSString*)identifier;
 
 @end
 

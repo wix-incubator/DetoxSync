@@ -7,7 +7,6 @@
 //
 
 #import "UIView+DTXSpy.h"
-#import "DTXSingleEventSyncResource.h"
 #import "DTXOrigDispatch.h"
 #import "DTXUISyncResource.h"
 
@@ -41,17 +40,18 @@
 	}
 }
 
-DTX_ALWAYS_INLINE
-static DTXSingleEventSyncResource* _DTXSRForAnimation(NSTimeInterval duration, NSTimeInterval delay)
-{
-	return [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:[NSString stringWithFormat:@"UIView animation with duration: “%@” delay: “%@”", @(duration), @(delay)] eventDescription:@"Animation"];
-}
-
 + (void)__detox_sync_animateWithDuration:(NSTimeInterval)duration delay:(NSTimeInterval)delay options:(UIViewAnimationOptions)options animations:(void (^)(void))animations completion:(void (^ __nullable)(BOOL finished))completion
 {
-	DTXSingleEventSyncResource* sr = _DTXSRForAnimation(duration, delay);
+	NSString* identifier = [DTXUISyncResource.sharedInstance trackViewAnimationWithDuration:duration delay:delay];
 	
-	__block BOOL wasEnded;
+	__block BOOL alreadyUntracked = NO;
+	dispatch_block_t failSafeUntrack = ^ {
+		if(alreadyUntracked == NO)
+		{
+			[DTXUISyncResource.sharedInstance untrackViewAnimation:identifier];
+			alreadyUntracked = YES;
+		}
+	};
 	
 	[self __detox_sync_animateWithDuration:duration delay:delay options:options animations:animations completion:^(BOOL finished) {
 		if(completion)
@@ -59,14 +59,12 @@ static DTXSingleEventSyncResource* _DTXSRForAnimation(NSTimeInterval duration, N
 			completion(finished);
 		}
 
-		[sr endTracking];
-		
-		wasEnded = YES;
+		failSafeUntrack();
 	}];
 	
 	//Failsafe, just in case.
 	__detox_sync_orig_dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((delay + duration + 0.1) * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-		[sr endTracking];
+		failSafeUntrack();
 	});
 }
 
@@ -82,7 +80,7 @@ static DTXSingleEventSyncResource* _DTXSRForAnimation(NSTimeInterval duration, N
 
 + (void)__detox_sync_animateWithDuration:(NSTimeInterval)duration delay:(NSTimeInterval)delay usingSpringWithDamping:(CGFloat)dampingRatio initialSpringVelocity:(CGFloat)velocity options:(UIViewAnimationOptions)options animations:(void (^)(void))animations completion:(void (^ __nullable)(BOOL finished))completion
 {
-	DTXSingleEventSyncResource* sr = _DTXSRForAnimation(duration, delay);
+	NSString* identifier = [DTXUISyncResource.sharedInstance trackViewAnimationWithDuration:duration delay:delay];
 	
 	[self __detox_sync_animateWithDuration:duration delay:delay usingSpringWithDamping:dampingRatio initialSpringVelocity:velocity options:options animations:animations completion:^(BOOL finished) {
 		if(completion)
@@ -90,13 +88,13 @@ static DTXSingleEventSyncResource* _DTXSRForAnimation(NSTimeInterval duration, N
 			completion(finished);
 		}
 		
-		[sr endTracking];
+		[DTXUISyncResource.sharedInstance untrackViewAnimation:identifier];
 	}];
 }
 
 + (void)__detox_sync_transitionFromView:(UIView *)fromView toView:(UIView *)toView duration:(NSTimeInterval)duration options:(UIViewAnimationOptions)options completion:(void (^ __nullable)(BOOL finished))completion
 {
-	DTXSingleEventSyncResource* sr = _DTXSRForAnimation(duration, 0.0);
+	NSString* identifier = [DTXUISyncResource.sharedInstance trackViewAnimationWithDuration:duration delay:0.0];
 	
 	[self __detox_sync_transitionFromView:fromView toView:toView duration:duration options:options completion:^(BOOL finished) {
 		if(completion)
@@ -104,13 +102,13 @@ static DTXSingleEventSyncResource* _DTXSRForAnimation(NSTimeInterval duration, N
 			completion(finished);
 		}
 		
-		[sr endTracking];
+		[DTXUISyncResource.sharedInstance untrackViewAnimation:identifier];
 	}];
 }
 
 + (void)__detox_sync_transitionWithView:(UIView *)view duration:(NSTimeInterval)duration options:(UIViewAnimationOptions)options animations:(void (^ __nullable)(void))animations completion:(void (^ __nullable)(BOOL finished))completion
 {
-	DTXSingleEventSyncResource* sr = _DTXSRForAnimation(duration, 0.0);
+	NSString* identifier = [DTXUISyncResource.sharedInstance trackViewAnimationWithDuration:duration delay:0.0];
 	
 	[self __detox_sync_transitionWithView:view duration:duration options:options animations:animations completion:^(BOOL finished) {
 		if(completion)
@@ -118,13 +116,13 @@ static DTXSingleEventSyncResource* _DTXSRForAnimation(NSTimeInterval duration, N
 			completion(finished);
 		}
 		
-		[sr endTracking];
+		[DTXUISyncResource.sharedInstance untrackViewAnimation:identifier];
 	}];
 }
 
 + (void)__detox_sync_animateKeyframesWithDuration:(NSTimeInterval)duration delay:(NSTimeInterval)delay options:(UIViewKeyframeAnimationOptions)options animations:(void (^)(void))animations completion:(void (^ __nullable)(BOOL finished))completion
 {
-	DTXSingleEventSyncResource* sr = _DTXSRForAnimation(duration, delay);
+	NSString* identifier = [DTXUISyncResource.sharedInstance trackViewAnimationWithDuration:duration delay:delay];
 	
 	[self __detox_sync_animateKeyframesWithDuration:duration delay:delay options:options animations:animations completion:^(BOOL finished) {
 		if(completion)
@@ -132,7 +130,7 @@ static DTXSingleEventSyncResource* _DTXSRForAnimation(NSTimeInterval duration, N
 			completion(finished);
 		}
 		
-		[sr endTracking];
+		[DTXUISyncResource.sharedInstance untrackViewAnimation:identifier];
 	}];
 }
 
@@ -142,15 +140,13 @@ static DTXSingleEventSyncResource* _DTXSRForAnimation(NSTimeInterval duration, N
 
 - (NSString*)__detox_sync_safeDescription
 {
-	return [NSString stringWithFormat:@"<%@: %p>", self.class, self];
-	
-//	if([self isKindOfClass:UISearchBar.class])
-//	{
-//		//Under iOS 14, UISearchBar gets triggered if -text is called before its initial layout 🤦‍♂️🤦‍♂️🤦‍♂️
-//		return [NSString stringWithFormat:@"<%@: %p; frame = (%@ %@; %@ %@); text = <redacted>; gestureRecognizers = <NSArray: %p>; layer = <CALayer: %p>>", NSStringFromClass(self.class), self, @(self.frame.origin.x), @(self.frame.origin.y), @(self.frame.size.width), @(self.frame.size.height), self.gestureRecognizers, self.layer];
-//	}
-//
-//	return [self description];
+	if([self isKindOfClass:UISearchBar.class])
+	{
+		//Under iOS 14, UISearchBar gets triggered if -text is called before its initial layout 🤦‍♂️🤦‍♂️🤦‍♂️
+		return [NSString stringWithFormat:@"<%@: %p; frame = (%@ %@; %@ %@); text = <redacted>; gestureRecognizers = <NSArray: %p>; layer = <CALayer: %p>>", NSStringFromClass(self.class), self, @(self.frame.origin.x), @(self.frame.origin.y), @(self.frame.size.width), @(self.frame.size.height), self.gestureRecognizers, self.layer];
+	}
+
+	return [self description];
 }
 
 - (void)__detox_sync_setNeedsLayout

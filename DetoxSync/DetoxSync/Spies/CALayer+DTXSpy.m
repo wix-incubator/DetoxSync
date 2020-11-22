@@ -7,7 +7,6 @@
 //
 
 #import "CALayer+DTXSpy.h"
-#import "DTXSingleEventSyncResource.h"
 #import "DTXOrigDispatch.h"
 #import "CAAnimation+DTXSpy.h"
 #import "DTXUISyncResource.h"
@@ -54,13 +53,9 @@
 
 - (void)__detox_sync_addAnimation:(CAAnimation *)anim forKey:(NSString *)key
 {
-	DTXSingleEventSyncResource* sr = [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"Layer Pending Animation"];
+	[DTXUISyncResource.sharedInstance trackLayerPendingAnimation:self];
 	
 	[self __detox_sync_addAnimation:anim forKey:key];
-	
-	__detox_sync_orig_dispatch_async(dispatch_get_main_queue(), ^ {
-		[sr endTracking];
-	});
 }
 
 - (void)__detox_sync_removeAnimationForKey:(NSString *)key

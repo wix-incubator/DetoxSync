@@ -86,7 +86,7 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 	[self performUpdateBlock:^ NSUInteger {
 		self._wasPreviouslyBusy = isBusyNow;
 		return isBusyNow;
-	} eventIdentifier:[NSString stringWithFormat:@"%p", self] eventDescription:_DTXStringReturningBlock(self.syncResourceGenericDescription) objectDescription:_DTXStringReturningBlock(_DTXCFRunLoopDescription(_runLoop, self.name)) additionalDescription:nil];
+	} eventIdentifier:_DTXStringReturningBlock([NSString stringWithFormat:@"%p", self]) eventDescription:_DTXStringReturningBlock(self.syncResourceGenericDescription) objectDescription:_DTXStringReturningBlock(_DTXCFRunLoopDescription(_runLoop, self.name)) additionalDescription:nil];
 }
 
 - (void)_startTracking
@@ -131,7 +131,7 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 		self._wasPreviouslyBusy = YES;
 		[self performUpdateBlock:^ NSUInteger {
 			return 1;
-		} eventIdentifier:[NSString stringWithFormat:@"%p", self] eventDescription:_DTXStringReturningBlock(self.syncResourceGenericDescription) objectDescription:_DTXStringReturningBlock(_DTXCFRunLoopDescription(_runLoop, self.name)) additionalDescription:nil];
+		} eventIdentifier:_DTXStringReturningBlock([NSString stringWithFormat:@"%p", self]) eventDescription:_DTXStringReturningBlock(self.syncResourceGenericDescription) objectDescription:_DTXStringReturningBlock(_DTXCFRunLoopDescription(_runLoop, self.name)) additionalDescription:nil];
 	}
 }
 
@@ -150,7 +150,7 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 	
 	[self performUpdateBlock:^ NSUInteger {
 		return 0;
-	} eventIdentifier:[NSString stringWithFormat:@"%p", self] eventDescription:_DTXStringReturningBlock(self.syncResourceGenericDescription) objectDescription:_DTXStringReturningBlock(_DTXCFRunLoopDescription(_runLoop, self.name)) additionalDescription:nil];
+	} eventIdentifier:_DTXStringReturningBlock([NSString stringWithFormat:@"%p", self]) eventDescription:_DTXStringReturningBlock(self.syncResourceGenericDescription) objectDescription:_DTXStringReturningBlock(_DTXCFRunLoopDescription(_runLoop, self.name)) additionalDescription:nil];
 	
 	_isTracking = NO;
 }

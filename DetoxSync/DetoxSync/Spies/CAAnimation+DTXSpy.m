@@ -7,10 +7,11 @@
 //
 
 #import "CAAnimation+DTXSpy.h"
-#import "DTXSingleEventSyncResource.h"
+//#import "DTXSingleEventSyncResource.h"
+#import "DTXUISyncResource.h"
 @import ObjectiveC;
 
-static const void* _DTXCAAnimationDelegateProxySRKey = &_DTXCAAnimationDelegateProxySRKey;
+static const void* _DTXCAAnimationIsTrackingKey = &_DTXCAAnimationIsTrackingKey;
 
 @interface _DTXCAAnimationDelegateHelper : NSObject @end
 @implementation _DTXCAAnimationDelegateHelper
@@ -39,25 +40,31 @@ static const void* _DTXCAAnimationDelegateProxySRKey = &_DTXCAAnimationDelegateP
 
 @implementation CAAnimation (DTXSpy)
 
+- (BOOL)__detox_sync_isTracking
+{
+	return [objc_getAssociatedObject(self, _DTXCAAnimationIsTrackingKey) boolValue];
+}
+
+- (void)__detox_sync_setTracking:(BOOL)tracking
+{
+	objc_setAssociatedObject(self, _DTXCAAnimationIsTrackingKey, @(tracking), OBJC_ASSOCIATION_RETAIN);
+}
+
 - (void)__detox_sync_trackAnimation
 {
-	id<DTXSingleEvent> newSr = [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:[NSString stringWithFormat:@"%@ with duration: “%@” delay: “%@”", self.class, @(self.duration), @(self.beginTime)] eventDescription:@"Animation"];
-	
 	[self __detox_sync_untrackAnimation];
 	
-	objc_setAssociatedObject(self, _DTXCAAnimationDelegateProxySRKey, newSr, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	[DTXUISyncResource.sharedInstance trackCAAnimation:self];
+	[self __detox_sync_setTracking:YES];
 }
 
 - (void)__detox_sync_untrackAnimation
 {
-	DTXSingleEventSyncResource* sr = objc_getAssociatedObject(self, _DTXCAAnimationDelegateProxySRKey);
-	if(sr == nil)
+	if(self.__detox_sync_isTracking == YES)
 	{
-		return;
+		[DTXUISyncResource.sharedInstance untrackCAAnimation:self];
+		[self __detox_sync_setTracking:NO];
 	}
-	
-	[sr endTracking];
-	objc_setAssociatedObject(self, _DTXCAAnimationDelegateProxySRKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 + (void)load

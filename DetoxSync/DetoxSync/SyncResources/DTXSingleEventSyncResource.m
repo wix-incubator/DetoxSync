@@ -78,14 +78,14 @@
 {
 	[self performUpdateBlock:^ NSUInteger {
 		return 0;
-	} eventIdentifier:[NSString stringWithFormat:@"%p", self] eventDescription:_DTXStringReturningBlock(_description) objectDescription:_DTXStringReturningBlock([NSString stringWithFormat:@"%@", _object]) additionalDescription:nil];
+	} eventIdentifier:_DTXStringReturningBlock([NSString stringWithFormat:@"%p", self]) eventDescription:_DTXStringReturningBlock(_description) objectDescription:_DTXStringReturningBlock([NSString stringWithFormat:@"%@", _object]) additionalDescription:nil];
 }
 
 - (void)resumeTracking
 {
 	[self performUpdateBlock:^ NSUInteger {
 		return 1;
-	} eventIdentifier:[NSString stringWithFormat:@"%p", self] eventDescription:_DTXStringReturningBlock(_description) objectDescription:_DTXStringReturningBlock([NSString stringWithFormat:@"%@", _object]) additionalDescription:nil];
+	} eventIdentifier:_DTXStringReturningBlock([NSString stringWithFormat:@"%p", self]) eventDescription:_DTXStringReturningBlock(_description) objectDescription:_DTXStringReturningBlock([NSString stringWithFormat:@"%@", _object]) additionalDescription:nil];
 }
 
 - (void)endTracking;

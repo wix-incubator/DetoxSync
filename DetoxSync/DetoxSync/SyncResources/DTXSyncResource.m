@@ -15,6 +15,11 @@
 
 @import ObjectiveC;
 
+NSString* _DTXPluralIfNeeded(NSString* word, NSUInteger count)
+{
+	return [NSString stringWithFormat:@"%lu %@%@", count, word, count == 1 ? @"" : @"s"];
+}
+
 @implementation DTXSyncResource
 {
 	void** _symbols;
@@ -59,7 +64,7 @@
 	return _historyString;
 }
 
-- (void)performUpdateBlock:(NSUInteger(^)(void))block eventIdentifier:eventID eventDescription:(NSString*(^)(void))eventDescription objectDescription:(NSString*(^)(void))objectDescription additionalDescription:(nullable NSString*(^)(void))additionalDescription
+- (void)performUpdateBlock:(NSUInteger(NS_NOESCAPE ^)(void))block eventIdentifier:(NSString*(NS_NOESCAPE ^)(void))eventID eventDescription:(nullable NSString*(NS_NOESCAPE ^)(void))eventDescription objectDescription:(nullable NSString*(NS_NOESCAPE ^)(void))objectDescription additionalDescription:(nullable NSString*(NS_NOESCAPE ^)(void))additionalDescription
 {
 	[DTXSyncManager performUpdateWithEventIdentifier:eventID
 									eventDescription:eventDescription

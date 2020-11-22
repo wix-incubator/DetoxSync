@@ -21,24 +21,20 @@ DTX_ALWAYS_INLINE
 void __dispatch_wrapper_func_2param(void (*func)(id, id), NSString* name, dispatch_queue_t param1, dispatch_block_t param2)
 {
 	DTXDispatchQueueSyncResource* sr = [DTXDispatchQueueSyncResource _existingSyncResourceWithQueue:param1];
-	DTXDispatchBlockProxy* proxy = nil;
-	if(sr) { proxy = [DTXDispatchBlockProxy proxyWithBlock:param2 operation:name]; }
-	[sr addWorkBlockProxy:proxy operation:name];
+	NSString* identifier = [sr addWorkBlock:param2 operation:name moreInfo:nil];
 	func(param1, ^ {
 		param2();
-		[sr removeWorkBlockProxy:proxy operation:name];
+		[sr removeWorkBlock:param2 operation:name identifier:identifier];
 	});
 }
 
 void __dispatch_wrapper_func_3param(void (*func)(id, id, id), NSString* name, id param1, dispatch_queue_t param2, dispatch_block_t param3)
 {
 	DTXDispatchQueueSyncResource* sr = [DTXDispatchQueueSyncResource _existingSyncResourceWithQueue:param2];
-	DTXDispatchBlockProxy* proxy = nil;
-	if(sr) { proxy = [DTXDispatchBlockProxy proxyWithBlock:param3 operation:name]; }
-	[sr addWorkBlockProxy:proxy operation:name];
+	NSString* identifier = [sr addWorkBlock:param2 operation:name moreInfo:nil];
 	func(param1, param2, ^ {
 		param3();
-		[sr removeWorkBlockProxy:proxy operation:name];
+		[sr removeWorkBlock:param3 operation:name identifier:identifier];
 	});
 }
 
@@ -81,11 +77,10 @@ static void __detox_sync_dispatch_after(dispatch_time_t when, dispatch_queue_t q
 		}
 	}
 	
-	DTXDispatchBlockProxy* proxy = nil;
+	NSString* identifier = nil;
 	if(shouldTrack)
 	{
-		proxy = [DTXDispatchBlockProxy proxyWithBlock:block operation:@"dispatch_after" moreInfo:@(DTXDoubleWithMaxFractionLength(timeFromNow, 3)).description];
-		[sr addWorkBlockProxy:proxy operation:@"dispatch_after"];
+		identifier = [sr addWorkBlock:block operation:@"dispatch_after" moreInfo:@(DTXDoubleWithMaxFractionLength(timeFromNow, 3)).description];
 	}
 	
 	__orig_dispatch_after(when, queue, ^{
@@ -93,7 +88,7 @@ static void __detox_sync_dispatch_after(dispatch_time_t when, dispatch_queue_t q
 		
 		if(shouldTrack)
 		{
-			[sr removeWorkBlockProxy:proxy operation:@"dispatch_after"];
+			[sr removeWorkBlock:block operation:@"dispatch_after" identifier:identifier];
 		}
 	});
 }
