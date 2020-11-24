@@ -9,6 +9,7 @@
 #import "DTXRunLoopSyncResource-Private.h"
 #import "DTXSyncResource-Private.h"
 #import "_DTXObjectDeallocHelper.h"
+#import "DTXTimerSyncResource-Private.h"
 
 @import ObjectiveC;
 
@@ -24,7 +25,7 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 
 + (instancetype)runLoopSyncResourceWithRunLoop:(CFRunLoopRef)runLoop
 {
-	DTXRunLoopSyncResource* rv = [self _existingSyncResourceWithRunLoop:runLoop];
+	DTXRunLoopSyncResource* rv = [self _existingSyncResourceWithRunLoop:runLoop clear:NO];
 	
 	if(rv != nil)
 	{
@@ -34,14 +35,23 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 	rv = [DTXRunLoopSyncResource new];
 	rv->_runLoop = runLoop;
 	_DTXObjectDeallocHelper* dh = [[_DTXObjectDeallocHelper alloc] initWithSyncResource:rv];
+	dh.performOnDealloc = ^{
+		[DTXTimerSyncResource clearTimersForCFRunLoop:runLoop];
+	};
+	
 	objc_setAssociatedObject((__bridge id)runLoop, DTXRunLoopDeallocHelperKey, dh, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	
 	return rv;
 }
 
-+ (instancetype)_existingSyncResourceWithRunLoop:(CFRunLoopRef)runLoop
++ (instancetype)_existingSyncResourceWithRunLoop:(CFRunLoopRef)runLoop clear:(BOOL)clear
 {
-	return (id)[((_DTXObjectDeallocHelper*)objc_getAssociatedObject((__bridge id)runLoop, DTXRunLoopDeallocHelperKey)) syncResource];
+	id rv = (id)[((_DTXObjectDeallocHelper*)objc_getAssociatedObject((__bridge id)runLoop, DTXRunLoopDeallocHelperKey)) syncResource];
+	if(clear == YES)
+	{
+		objc_setAssociatedObject((__bridge id)runLoop, DTXRunLoopDeallocHelperKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	}
+	return rv;
 }
 
 + (NSString*)translateRunLoopActivity:(CFRunLoopActivity)act

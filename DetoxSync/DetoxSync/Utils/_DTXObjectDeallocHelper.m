@@ -21,15 +21,16 @@
 
 - (void)dealloc
 {
-	if(self.performOnDealloc != nil)
-	{
-		self.performOnDealloc();
-	}
-	
 	if(_syncResource != nil)
 	{
 		[DTXSyncManager unregisterSyncResource:_syncResource];
 		_syncResource = nil;
+	}
+	
+	if(self.performOnDealloc != nil)
+	{
+		self.performOnDealloc();
+		self.performOnDealloc = nil;
 	}
 }
 

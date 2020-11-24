@@ -15,9 +15,9 @@
 static void (*__orig_CFRunLoopPerformBlock)(CFRunLoopRef rl, CFTypeRef mode, void(^block)(void));
 static void __detox_sync_CFRunLoopPerformBlock(CFRunLoopRef rl, CFTypeRef mode, void(^block)(void))
 {
-	[[DTXRunLoopSyncResource _existingSyncResourceWithRunLoop:rl] _setBusy:YES];
+	[[DTXRunLoopSyncResource _existingSyncResourceWithRunLoop:rl clear:NO] _setBusy:YES];
 	
-	if([DTXSyncManager isTrackedRunLoop:rl] == NO)
+	if([DTXSyncManager isRunLoopTracked:rl] == NO)
 	{
 		__orig_CFRunLoopPerformBlock(rl, mode, block);
 		return;
@@ -35,7 +35,7 @@ static void __detox_sync_CFRunLoopPerformBlock(CFRunLoopRef rl, CFTypeRef mode, 
 static void (*__orig_CFRunLoopWakeUp)(CFRunLoopRef rl);
 static void __detox_sync_CFRunLoopWakeUp(CFRunLoopRef rl)
 {
-	[[DTXRunLoopSyncResource _existingSyncResourceWithRunLoop:rl] _setBusy:YES];
+	[[DTXRunLoopSyncResource _existingSyncResourceWithRunLoop:rl clear:NO] _setBusy:YES];
 	
 	__orig_CFRunLoopWakeUp(rl);
 }

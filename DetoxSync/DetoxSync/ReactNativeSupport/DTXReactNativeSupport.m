@@ -33,18 +33,18 @@ static void (*orig_runRunLoopThread)(id, SEL) = NULL;
 static void swz_runRunLoopThread(id self, SEL _cmd)
 {
 	CFRunLoopRef oldRunloop = atomic_load(&__RNRunLoop);
+	NSThread* oldThread = CFBridgingRelease(atomic_load(&__RNThread));
+	[DTXSyncManager untrackThread:oldThread];
+	[DTXSyncManager untrackCFRunLoop:oldRunloop];
 	
 	CFRunLoopRef current = CFRunLoopGetCurrent();
 	atomic_store(&__RNRunLoop, current);
 	
-	NSThread* oldThread = CFBridgingRelease(atomic_load(&__RNThread));
-	
 	atomic_store(&__RNThread, CFBridgingRetain([NSThread currentThread]));
 
 	[DTXSyncManager trackThread:[NSThread currentThread] name:@"JavaScript Thread"];
-	[DTXSyncManager untrackThread:oldThread];
 	[DTXSyncManager trackCFRunLoop:current name:@"JavaScript RunLoop"];
-	[DTXSyncManager untrackCFRunLoop:oldRunloop];
+	
 	
 	oldThread = nil;
 	

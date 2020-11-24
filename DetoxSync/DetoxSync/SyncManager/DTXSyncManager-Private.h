@@ -26,8 +26,8 @@ void __detox_sync_DTXSyncResourceVerboseLog(NSString* format, ...)  NS_FORMAT_FU
 
 + (void)performUpdateWithEventIdentifier:(NSString*(NS_NOESCAPE ^)(void))eventID eventDescription:(NSString*(NS_NOESCAPE ^)(void))eventDescription objectDescription:(NSString*(NS_NOESCAPE ^)(void))objectDescription additionalDescription:(nullable NSString*(NS_NOESCAPE ^)(void))additionalDescription syncResource:(DTXSyncResource*)resource block:(NSUInteger(NS_NOESCAPE ^)(void))block;
 
-+ (BOOL)isTrackedThread:(NSThread*)thread;
-+ (BOOL)isTrackedRunLoop:(CFRunLoopRef)runLoop;
++ (BOOL)isThreadTracked:(NSThread*)thread;
++ (BOOL)isRunLoopTracked:(CFRunLoopRef)runLoop;
 
 + (NSString*)idleStatus;
 + (NSString*)syncStatus;

@@ -31,6 +31,7 @@ const void* __DTXTimerTrampolineKey = &__DTXTimerTrampolineKey;
 	//NSTimer
 	__weak NSTimer* _timer;
 	CFRunLoopTimerCallBack _callback;
+	CFRunLoopRef _runLoop;
 	NSString* _timerDescription;
 	NSTimeInterval _deltaSinceNow;
 	
@@ -50,6 +51,7 @@ const void* __DTXTimerTrampolineKey = &__DTXTimerTrampolineKey;
 @synthesize repeats=_repeats;
 @synthesize timer=_timer;
 @synthesize displayLink=_displayLink;
+@synthesize runLoop=_runLoop;
 
 - (instancetype)initWithTarget:(id)target selector:(SEL)selector fireDate:(NSDate*)fireDate interval:(NSTimeInterval)ti repeats:(BOOL)rep
 {

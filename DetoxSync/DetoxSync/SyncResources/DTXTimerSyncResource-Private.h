@@ -18,6 +18,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)trackTimerTrampoline:(_DTXTimerTrampoline*)timerTrampoline NS_SWIFT_NAME(track(_:));
 - (void)untrackTimerTrampoline:(_DTXTimerTrampoline*)timerTrampoline NS_SWIFT_NAME(untrack(_:));
 
++ (void)clearTimersForCFRunLoop:(CFRunLoopRef)cfRunLoop;
+
 @end
 
 NS_ASSUME_NONNULL_END

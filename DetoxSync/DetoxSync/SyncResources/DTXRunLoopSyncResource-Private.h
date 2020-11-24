@@ -12,7 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface DTXRunLoopSyncResource ()
 
-+ (nullable instancetype)_existingSyncResourceWithRunLoop:(CFRunLoopRef)runLoop;
++ (nullable instancetype)_existingSyncResourceWithRunLoop:(CFRunLoopRef)runLoop clear:(BOOL)clear;
 - (void)_startTracking;
 - (void)_stopTracking;
 

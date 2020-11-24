@@ -66,7 +66,7 @@ extern atomic_cfrunloop __RNRunLoop;
 {
 	CFRunLoopRef cfRunLoop = runLoop.getCFRunLoop;
 	
-	if([DTXSyncManager isTrackedRunLoop:cfRunLoop])
+	if([DTXSyncManager isRunLoopTracked:cfRunLoop])
 	{
 		NSString* str = [NSString stringWithFormat:@"%p_%@", runLoop.getCFRunLoop, mode];
 		pthread_mutex_lock(&runLoopMappingMutex);

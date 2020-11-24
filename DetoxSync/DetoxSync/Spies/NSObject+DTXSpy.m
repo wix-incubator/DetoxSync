@@ -28,7 +28,7 @@
 
 - (void)__detox_sync_performSelector:(SEL)aSelector withObject:(id)anArgument afterDelay:(NSTimeInterval)delay inModes:(NSArray<NSRunLoopMode> *)modes
 {
-	if([DTXSyncManager isTrackedThread:NSThread.currentThread] == NO || delay > DTXSyncManager.maximumAllowedDelayedActionTrackingDuration)
+	if([DTXSyncManager isThreadTracked:NSThread.currentThread] == NO || delay > DTXSyncManager.maximumAllowedDelayedActionTrackingDuration)
 	{
 		[self __detox_sync_performSelector:aSelector withObject:anArgument afterDelay:delay inModes:modes];
 		return;
@@ -40,7 +40,7 @@
 
 - (void)__detox_sync_performSelector:(SEL)aSelector onThread:(NSThread *)thr withObject:(id)arg waitUntilDone:(BOOL)wait modes:(NSArray<NSString *> *)array
 {
-	if([DTXSyncManager isTrackedThread:thr] == NO)
+	if([DTXSyncManager isThreadTracked:thr] == NO)
 	{
 		[self __detox_sync_performSelector:aSelector onThread:thr withObject:arg waitUntilDone:wait modes:array];
 		return;

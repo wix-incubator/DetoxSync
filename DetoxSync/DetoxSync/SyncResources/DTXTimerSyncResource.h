@@ -23,6 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 //NSTimer
 @property (nonatomic, weak) NSTimer* timer;
 - (void)fire:(NSTimer*)timer;
+@property (nonatomic) CFRunLoopRef runLoop;
 
 //CADisplayLink
 @property (nonatomic, weak) CADisplayLink* displayLink;

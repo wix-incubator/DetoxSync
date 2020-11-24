@@ -11,7 +11,7 @@
 #import "DTXOrigDispatch.h"
 #import "DTXDispatchQueueSyncResource-Private.h"
 #import "DTXRunLoopSyncResource-Private.h"
-#import "DTXTimerSyncResource.h"
+#import "DTXTimerSyncResource-Private.h"
 #import "DTXSingleEventSyncResource.h"
 #import "_DTXObjectDeallocHelper.h"
 #import "CADisplayLink+DTXSpy-Private.h"
@@ -91,7 +91,7 @@ static atomic_voidptr _URLBlacklist = ATOMIC_VAR_INIT(NULL);
 
 + (NSTimeInterval)maximumTimerIntervalTrackingDuration
 {
-	return atomic_load(&_maximumAllowedDelayedActionTrackingDuration);
+	return atomic_load(&_maximumTimerIntervalTrackingDuration);
 }
 
 + (void)setMaximumTimerIntervalTrackingDuration:(NSTimeInterval)maximumTimerIntervalTrackingDuration
@@ -437,7 +437,7 @@ static BOOL DTXIsSystemBusyNow(void)
 
 + (void)_trackCFRunLoop:(CFRunLoopRef)runLoop name:(nullable NSString*)name
 {
-	DTXRunLoopSyncResource* sr = [DTXRunLoopSyncResource _existingSyncResourceWithRunLoop:runLoop];
+	DTXRunLoopSyncResource* sr = [DTXRunLoopSyncResource _existingSyncResourceWithRunLoop:runLoop clear:NO];
 	if(sr != nil)
 	{
 		return;
@@ -451,17 +451,19 @@ static BOOL DTXIsSystemBusyNow(void)
 
 + (void)untrackCFRunLoop:(CFRunLoopRef)runLoop
 {
-	if(runLoop == CFRunLoopGetMain())
+	if(runLoop == CFRunLoopGetMain() || runLoop == NULL)
 	{
 		return;
 	}
 	
 	[self _untrackCFRunLoop:runLoop];
+	
+	[DTXTimerSyncResource clearTimersForCFRunLoop:runLoop];
 }
 
 + (void)_untrackCFRunLoop:(CFRunLoopRef)runLoop
 {
-	id sr = [DTXRunLoopSyncResource _existingSyncResourceWithRunLoop:runLoop];
+	id sr = [DTXRunLoopSyncResource _existingSyncResourceWithRunLoop:runLoop clear:YES];
 	if(sr == nil)
 	{
 		return;
@@ -471,9 +473,9 @@ static BOOL DTXIsSystemBusyNow(void)
 	[self unregisterSyncResource:sr];
 }
 
-+ (BOOL)isTrackedRunLoop:(CFRunLoopRef)runLoop
++ (BOOL)isRunLoopTracked:(CFRunLoopRef)runLoop
 {
-	id sr = [DTXRunLoopSyncResource _existingSyncResourceWithRunLoop:runLoop];
+	id sr = [DTXRunLoopSyncResource _existingSyncResourceWithRunLoop:runLoop clear:NO];
 	return sr != nil;
 }
 
@@ -502,7 +504,7 @@ static BOOL DTXIsSystemBusyNow(void)
 	});
 }
 
-+ (BOOL)isTrackedThread:(NSThread*)thread
++ (BOOL)isThreadTracked:(NSThread*)thread
 {
 	if(thread.isMainThread == YES)
 	{

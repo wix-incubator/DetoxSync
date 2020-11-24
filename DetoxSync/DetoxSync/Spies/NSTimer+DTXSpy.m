@@ -17,7 +17,7 @@
 
 static NSString* failuireReasonForTrampoline(id<DTXTimerProxy> trampoline, CFRunLoopRef rl)
 {
-	if([DTXSyncManager isTrackedRunLoop:rl] == NO)
+	if([DTXSyncManager isRunLoopTracked:rl] == NO)
 	{
 		return @"untracked runloop";
 	}
@@ -33,16 +33,18 @@ static NSString* failuireReasonForTrampoline(id<DTXTimerProxy> trampoline, CFRun
 	return @"";
 }
 
-static void _DTXTrackTimerTrampolineIfNeeded(id<DTXTimerProxy> trampoline, CFRunLoopRef rl)
+static BOOL _DTXTrackTimerTrampolineIfNeeded(id<DTXTimerProxy> trampoline, CFRunLoopRef rl)
 {
-	if(trampoline != nil && [DTXSyncManager isTrackedRunLoop:rl] && trampoline.repeats != YES && [trampoline.fireDate timeIntervalSinceNow] <= DTXSyncManager.maximumTimerIntervalTrackingDuration)
+	if(trampoline != nil && [DTXSyncManager isRunLoopTracked:rl] && trampoline.repeats != YES && [trampoline.fireDate timeIntervalSinceNow] <= DTXSyncManager.maximumTimerIntervalTrackingDuration)
 	{
 		[trampoline track];
+		return YES;
 	}
-	else
-	{
-		DTXSyncResourceVerboseLog(@"⏲ Ignoring timer “%@”; failure reason: \"%@\"", trampoline.timer, failuireReasonForTrampoline(trampoline, rl));
-	}
+	
+	
+	DTXSyncResourceVerboseLog(@"⏲ Ignoring timer “%@”; failure reason: \"%@\"", trampoline.timer, failuireReasonForTrampoline(trampoline, rl));
+	
+	return NO;
 }
 
 static void _DTXCFTimerTrampoline(CFRunLoopTimerRef timer, void *info)
@@ -79,6 +81,8 @@ void __detox_sync_CFRunLoopAddTimer(CFRunLoopRef rl, CFRunLoopTimerRef timer, CF
 //	NSLog(@"🤦‍♂️ addTimer: %@", NS(timer));
 	
 	id<DTXTimerProxy> trampoline = [DTXTimerSyncResource existingTimerProxyWithTimer:NS(timer)];
+	trampoline.runLoop = rl;
+	
 	_DTXTrackTimerTrampolineIfNeeded(trampoline, rl);
 	
 	__orig_CFRunLoopAddTimer(rl, timer, mode);

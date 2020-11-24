@@ -92,13 +92,20 @@
 static NSUInteger _DTXCleanTimersAndReturnCount(NSHashTable* _timers)
 {	
 	for (_DTXTimerTrampoline* trampoline in _timers.copy) {
-		if(trampoline.timer == nil && trampoline.displayLink == nil)
+		if((trampoline.timer == nil && trampoline.displayLink == nil) || [DTXSyncManager isRunLoopTracked:trampoline.runLoop] == NO)
 		{
 			[_timers removeObject:trampoline];
 		}
 	}
 	
 	return _timers.count;
+}
+
+- (void)clearTimerTrampolinesForCFRunLoop:(CFRunLoopRef)cfRunLoop
+{
+	[self performUpdateBlock:^{
+		return _DTXCleanTimersAndReturnCount(_timers);
+	} eventIdentifier:_DTXStringReturningBlock(@"") eventDescription:nil objectDescription:nil additionalDescription:nil];
 }
 
 - (void)trackTimerTrampoline:(_DTXTimerTrampoline *)trampoline
@@ -138,6 +145,11 @@ static NSUInteger _DTXCleanTimersAndReturnCount(NSHashTable* _timers)
 - (NSString*)syncResourceGenericDescription
 {
 	return @"Timer";
+}
+
++ (void)clearTimersForCFRunLoop:(CFRunLoopRef)cfRunLoop
+{
+	[DTXTimerSyncResource.sharedInstance clearTimerTrampolinesForCFRunLoop:cfRunLoop];
 }
 
 @end
