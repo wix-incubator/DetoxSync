@@ -24,7 +24,19 @@ void __detox_sync_DTXSyncResourceVerboseLog(NSString* format, ...)  NS_FORMAT_FU
 + (void)registerSyncResource:(DTXSyncResource*)syncResource;
 + (void)unregisterSyncResource:(DTXSyncResource*)syncResource;
 
-+ (void)performUpdateWithEventIdentifier:(NSString*(NS_NOESCAPE ^)(void))eventID eventDescription:(NSString*(NS_NOESCAPE ^)(void))eventDescription objectDescription:(NSString*(NS_NOESCAPE ^)(void))objectDescription additionalDescription:(nullable NSString*(NS_NOESCAPE ^)(void))additionalDescription syncResource:(DTXSyncResource*)resource block:(NSUInteger(NS_NOESCAPE ^)(void))block;
++ (void)performUpdateWithEventIdentifier:(NSString*(NS_NOESCAPE ^)(void))eventID
+						eventDescription:(NSString*(NS_NOESCAPE ^)(void))eventDescription
+					   objectDescription:(NSString*(NS_NOESCAPE ^)(void))objectDescription
+				   additionalDescription:(nullable NSString*(NS_NOESCAPE ^)(void))additionalDescription
+							syncResource:(DTXSyncResource*)resource
+								   block:(NSUInteger(NS_NOESCAPE ^)(void))block;
+
++ (void)performMultipleUpdatesWithEventIdentifiers:(NSArray<NSString*(^)(void)>*(NS_NOESCAPE ^)(void))eventIDs
+								 eventDescriptions:(NSArray<NSString*(^)(void)>*(NS_NOESCAPE ^)(void))_eventDescriptions
+								objectDescriptions:(NSArray<NSString*(^)(void)>*(NS_NOESCAPE ^)(void))_objectDescriptions
+							additionalDescriptions:(NSArray<NSString*(^)(void)>*(NS_NOESCAPE ^)(void))_additionalDescriptions
+									  syncResource:(DTXSyncResource*)resource
+											 block:(NSUInteger(NS_NOESCAPE ^)(void))block;
 
 + (BOOL)isThreadTracked:(NSThread*)thread;
 + (BOOL)isRunLoopTracked:(CFRunLoopRef)runLoop;

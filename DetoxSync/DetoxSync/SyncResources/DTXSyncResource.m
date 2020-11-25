@@ -64,7 +64,11 @@ NSString* _DTXPluralIfNeeded(NSString* word, NSUInteger count)
 	return _historyString;
 }
 
-- (void)performUpdateBlock:(NSUInteger(NS_NOESCAPE ^)(void))block eventIdentifier:(NSString*(NS_NOESCAPE ^)(void))eventID eventDescription:(nullable NSString*(NS_NOESCAPE ^)(void))eventDescription objectDescription:(nullable NSString*(NS_NOESCAPE ^)(void))objectDescription additionalDescription:(nullable NSString*(NS_NOESCAPE ^)(void))additionalDescription
+- (void)performUpdateBlock:(NSUInteger(NS_NOESCAPE ^)(void))block
+		   eventIdentifier:(NSString*(NS_NOESCAPE ^)(void))eventID
+		  eventDescription:(nullable NSString*(NS_NOESCAPE ^)(void))eventDescription
+		 objectDescription:(nullable NSString*(NS_NOESCAPE ^)(void))objectDescription
+	 additionalDescription:(nullable NSString*(NS_NOESCAPE ^)(void))additionalDescription
 {
 	[DTXSyncManager performUpdateWithEventIdentifier:eventID
 									eventDescription:eventDescription
@@ -72,6 +76,20 @@ NSString* _DTXPluralIfNeeded(NSString* word, NSUInteger count)
 							   additionalDescription:additionalDescription
 										syncResource:self
 											   block:block];
+}
+
+- (void)performMultipleUpdateBlock:(NSUInteger(NS_NOESCAPE ^)(void))block
+				  eventIdentifiers:(NSArray<NSString*(^)(void)>*(NS_NOESCAPE ^)(void))eventIDs
+				 eventDescriptions:(nullable NSArray<NSString*(^)(void)>*(NS_NOESCAPE ^)(void))eventDescriptions
+				objectDescriptions:(nullable NSArray<NSString*(^)(void)>*(NS_NOESCAPE ^)(void))objectDescriptions
+			additionalDescriptions:(nullable NSArray<NSString*(^)(void)>*(NS_NOESCAPE ^)(void))additionalDescriptions
+{
+	[DTXSyncManager performMultipleUpdatesWithEventIdentifiers:eventIDs
+											 eventDescriptions:eventDescriptions
+											objectDescriptions:objectDescriptions
+										additionalDescriptions:additionalDescriptions
+												  syncResource:self
+														 block:block];
 }
 
 - (NSString*)syncResourceDescription

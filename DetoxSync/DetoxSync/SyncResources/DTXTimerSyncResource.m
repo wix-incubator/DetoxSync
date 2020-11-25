@@ -89,11 +89,12 @@
 }
 
 /// Ugly hack for rare occasions where NSTimer gets released, but its associated objects are not released.
-static NSUInteger _DTXCleanTimersAndReturnCount(NSHashTable* _timers)
+static NSUInteger _DTXCleanTimersAndReturnCount(NSHashTable* _timers, NSMutableArray<NSString*(^)(void)>* eventIdentifiers)
 {	
-	for (_DTXTimerTrampoline* trampoline in _timers.copy) {
+	for (_DTXTimerTrampoline* trampoline in _timers) {
 		if((trampoline.timer == nil && trampoline.displayLink == nil) || [DTXSyncManager isRunLoopTracked:trampoline.runLoop] == NO)
 		{
+			[eventIdentifiers addObject:_DTXStringReturningBlock([NSString stringWithFormat:@"%p", trampoline])];
 			[_timers removeObject:trampoline];
 		}
 	}
@@ -103,43 +104,72 @@ static NSUInteger _DTXCleanTimersAndReturnCount(NSHashTable* _timers)
 
 - (void)clearTimerTrampolinesForCFRunLoop:(CFRunLoopRef)cfRunLoop
 {
-	[self performUpdateBlock:^{
-		return _DTXCleanTimersAndReturnCount(_timers);
-	} eventIdentifier:_DTXStringReturningBlock(@"") eventDescription:nil objectDescription:nil additionalDescription:nil];
+	__block NSMutableArray<NSString*(^)(void)>* eventIdentifiers = [NSMutableArray new];
+	
+	[self performMultipleUpdateBlock:^{
+		return _DTXCleanTimersAndReturnCount(_timers, eventIdentifiers);
+	} eventIdentifiers:_DTXObjectReturningBlock(eventIdentifiers)
+				   eventDescriptions:nil
+				  objectDescriptions:nil
+			  additionalDescriptions:nil];
 }
 
 - (void)trackTimerTrampoline:(_DTXTimerTrampoline *)trampoline
 {
-	[self performUpdateBlock:^{
+	__block NSMutableArray<NSString*(^)(void)>* eventIdentifiers = [NSMutableArray new];
+	__block NSMutableArray<NSString*(^)(void)>* eventDescriptions = [NSMutableArray new];
+	__block NSMutableArray<NSString*(^)(void)>* objectDescriptions = [NSMutableArray new];
+	
+	[self performMultipleUpdateBlock:^{
+		[eventIdentifiers addObject:_DTXStringReturningBlock([NSString stringWithFormat:@"%p", trampoline])];
+		[eventDescriptions addObject:_DTXStringReturningBlock(self.syncResourceGenericDescription)];
+		[objectDescriptions addObject:_DTXStringReturningBlock(trampoline.syncResourceDescription)];
 		[_timers addObject:trampoline];
-		return _DTXCleanTimersAndReturnCount(_timers);
-	} eventIdentifier:_DTXStringReturningBlock([NSString stringWithFormat:@"%p", trampoline]) eventDescription:_DTXStringReturningBlock(self.syncResourceGenericDescription) objectDescription:_DTXStringReturningBlock(trampoline.syncResourceDescription) additionalDescription:nil];
+		return _DTXCleanTimersAndReturnCount(_timers, eventIdentifiers);
+	} eventIdentifiers:_DTXObjectReturningBlock(eventIdentifiers)
+				   eventDescriptions:_DTXObjectReturningBlock(eventDescriptions)
+				  objectDescriptions:_DTXObjectReturningBlock(objectDescriptions)
+			  additionalDescriptions:nil];
 }
 
 - (void)untrackTimerTrampoline:(_DTXTimerTrampoline *)trampoline
 {
-	[self performUpdateBlock:^{
+	__block NSMutableArray<NSString*(^)(void)>* eventIdentifiers = [NSMutableArray new];
+	
+	[self performMultipleUpdateBlock:^{
+		[eventIdentifiers addObject:_DTXStringReturningBlock([NSString stringWithFormat:@"%p", trampoline])];
 		[_timers removeObject:trampoline];
-		return _DTXCleanTimersAndReturnCount(_timers);
-	} eventIdentifier:_DTXStringReturningBlock([NSString stringWithFormat:@"%p", trampoline]) eventDescription:_DTXStringReturningBlock(self.syncResourceGenericDescription) objectDescription:_DTXStringReturningBlock(trampoline.syncResourceDescription) additionalDescription:nil];
+		return _DTXCleanTimersAndReturnCount(_timers, eventIdentifiers);
+	} eventIdentifiers:_DTXObjectReturningBlock(eventIdentifiers)
+				   eventDescriptions:nil
+				  objectDescriptions:nil
+			  additionalDescriptions:nil];
 }
 
 - (NSString *)description
 {
-	id x = nil;
+	id rv = nil;
 	
 	@try {
-		x = [NSString stringWithFormat:@"<%@: %p%@>", self.class, self, _timers.count > 0 ? [NSString stringWithFormat:@"  timers: %@", [_timers.allObjects valueForKey:@"description"]] : @""];
+		rv = [NSString stringWithFormat:@"<%@: %p%@>", self.class, self, _timers.count > 0 ? [NSString stringWithFormat:@"  timers: %@", [_timers.allObjects valueForKey:@"description"]] : @""];
 	} @catch (NSException *exception) {
-		return [super description];
+		rv = [super description];
 	}
 	
-	return x;
+	return rv;
 }
 
 - (NSString*)syncResourceDescription
 {
-	return [NSString stringWithFormat:@"Timers: %@", _timers.count > 0 ? [_timers.allObjects valueForKey:@"syncResourceDescription"] : @"-"];
+	id rv = nil;
+	
+	@try {
+		rv = [NSString stringWithFormat:@"Timers: %@", _timers.count > 0 ? [_timers.allObjects valueForKey:@"syncResourceDescription"] : @"-"];
+	} @catch (NSException *exception) {
+		rv = [super description];
+	}
+	
+	return rv;
 }
 
 - (NSString*)syncResourceGenericDescription

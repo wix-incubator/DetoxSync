@@ -8,8 +8,6 @@
 
 #import "DTXSyncResource.h"
 
-#define _DTXStringReturningBlock(...) ^ { return __VA_ARGS__; }
-
 @interface DTXSyncResource ()
 
 @end

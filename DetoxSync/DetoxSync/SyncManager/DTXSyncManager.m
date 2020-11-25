@@ -191,7 +191,12 @@ static atomic_voidptr _URLBlacklist = ATOMIC_VAR_INIT(NULL);
 	});
 }
 
-+ (void)performUpdateWithEventIdentifier:(NSString*(NS_NOESCAPE ^)(void))eventID eventDescription:(NSString*(NS_NOESCAPE ^)(void))eventDescription objectDescription:(NSString*(NS_NOESCAPE ^)(void))objectDescription additionalDescription:(nullable NSString*(NS_NOESCAPE ^)(void))additionalDescription syncResource:(DTXSyncResource*)resource block:(NSUInteger(NS_NOESCAPE ^)(void))block
++ (void)performUpdateWithEventIdentifier:(NSString*(NS_NOESCAPE ^)(void))eventID
+						eventDescription:(NSString*(NS_NOESCAPE ^)(void))eventDescription
+					   objectDescription:(NSString*(NS_NOESCAPE ^)(void))objectDescription
+				   additionalDescription:(nullable NSString*(NS_NOESCAPE ^)(void))additionalDescription
+							syncResource:(DTXSyncResource*)resource
+								   block:(NSUInteger(NS_NOESCAPE ^)(void))block
 {
 	dispatch_block_t outerBlock = ^ {
 		if([_registeredResources containsObject:resource] == NO)
@@ -206,17 +211,87 @@ static atomic_voidptr _URLBlacklist = ATOMIC_VAR_INIT(NULL);
 		{
 			DTXSyncResourceVerboseLog(@"%@ %@ (count: %lu)", busyCount > 0 ? @"👎" : @"👍", resource.syncResourceDescription, (unsigned long)busyCount);
 			
-			if(previousBusyCount < busyCount && dtx_unlikely(_delegate_syncSystemDidStartTrackingEventWithDescription))
+			if(dtx_unlikely(_delegate != nil))
 			{
-				NSString* identifier = eventID();
-				[_delegate syncSystemDidStartTrackingEventWithIdentifier:identifier
-															 description:eventDescription ? eventDescription() : nil
-													   objectDescription:objectDescription ? objectDescription() : nil
-												   additionalDescription:additionalDescription ? additionalDescription() : nil];
+				if(previousBusyCount < busyCount && dtx_unlikely(_delegate_syncSystemDidStartTrackingEventWithDescription))
+				{
+					NSString* identifier = eventID();
+					[_delegate syncSystemDidStartTrackingEventWithIdentifier:identifier
+																 description:eventDescription ? eventDescription() : nil
+														   objectDescription:objectDescription ? objectDescription() : nil
+													   additionalDescription:additionalDescription ? additionalDescription() : nil];
+				}
+				else if(previousBusyCount > busyCount && dtx_unlikely(_delegate_syncSystemDidEndTrackingEventWithDescription))
+				{
+					[_delegate syncSystemDidEndTrackingEventWithIdentifier:eventID()];
+				}
 			}
-			else if(previousBusyCount > busyCount && dtx_unlikely(_delegate_syncSystemDidEndTrackingEventWithDescription))
+		}
+		
+		[_resourceMapping setObject:@(busyCount) forKey:resource];
+		
+		TRY_IDLE_BLOCKS();
+	};
+	
+	if(dispatch_get_specific(_queueSpecific) == _queueSpecific)
+	{
+		outerBlock();
+		return;
+	}
+	
+	__detox_sync_orig_dispatch_sync(_queue, outerBlock);
+}
+
++ (void)performMultipleUpdatesWithEventIdentifiers:(NSArray<NSString*(^)(void)>*(NS_NOESCAPE ^)(void))eventIDs
+								 eventDescriptions:(NSArray<NSString*(^)(void)>*(NS_NOESCAPE ^)(void))_eventDescriptions
+								objectDescriptions:(NSArray<NSString*(^)(void)>*(NS_NOESCAPE ^)(void))_objectDescriptions
+							additionalDescriptions:(NSArray<NSString*(^)(void)>*(NS_NOESCAPE ^)(void))_additionalDescriptions
+									  syncResource:(DTXSyncResource*)resource
+											 block:(NSUInteger(NS_NOESCAPE ^)(void))block
+{
+	dispatch_block_t outerBlock = ^ {
+		if([_registeredResources containsObject:resource] == NO)
+		{
+			DTXSyncResourceVerboseLog(@"Provided resource %@ is not registered, ignoring.", resource);
+			return;
+		}
+		
+		NSUInteger previousBusyCount = [[_resourceMapping objectForKey:resource] unsignedIntegerValue];
+		NSUInteger busyCount = block();
+		if(previousBusyCount != busyCount)
+		{
+			DTXSyncResourceVerboseLog(@"%@ %@ (count: %lu)", busyCount > 0 ? @"👎" : @"👍", resource.syncResourceDescription, (unsigned long)busyCount);
+			
+			if(dtx_unlikely(_delegate != nil))
 			{
-				[_delegate syncSystemDidEndTrackingEventWithIdentifier:eventID()];
+				if(previousBusyCount < busyCount && dtx_unlikely(_delegate_syncSystemDidStartTrackingEventWithDescription))
+				{
+					NSArray<NSString*(^)(void)>* identifiers = eventIDs();
+					NSArray<NSString*(^)(void)>* eventDescriptions = _eventDescriptions ? _eventDescriptions() : nil;
+					NSArray<NSString*(^)(void)>* objectDescriptions = _objectDescriptions ? _objectDescriptions() : nil;
+					NSArray<NSString*(^)(void)>* additionalDescriptions = _additionalDescriptions ? _additionalDescriptions() : nil;
+					
+					[identifiers enumerateObjectsUsingBlock:^(NSString*(^_Nonnull identifierBlock)(void), NSUInteger idx, BOOL * _Nonnull stop) {
+						NSString* identifier = identifierBlock();
+						
+						NSString* eventDescription = eventDescriptions.count > idx ? eventDescriptions[idx]() : nil;
+						NSString* objectDescription = objectDescriptions.count > idx ? objectDescriptions[idx]() : nil;
+						NSString* additionalDescription = additionalDescriptions.count > idx ? additionalDescriptions[idx]() : nil;
+						
+						[_delegate syncSystemDidStartTrackingEventWithIdentifier:identifier
+																	 description:eventDescription
+															   objectDescription:objectDescription
+														   additionalDescription:additionalDescription];
+					}];
+				}
+				else if(previousBusyCount > busyCount && dtx_unlikely(_delegate_syncSystemDidEndTrackingEventWithDescription))
+				{
+					NSArray<NSString*(^)(void)>* identifiers = eventIDs();
+					
+					for (NSString*(^identifier)(void) in identifiers) {
+						[_delegate syncSystemDidEndTrackingEventWithIdentifier:identifier()];
+					}
+				}
 			}
 		}
 		
