@@ -11,7 +11,9 @@
 #import "DTXAddressInfo.h"
 #import <execinfo.h>
 
+#if DEBUG
 #define MAX_FRAME_COUNT 50
+#endif
 
 @import ObjectiveC;
 
@@ -22,12 +24,15 @@ NSString* _DTXPluralIfNeeded(NSString* word, NSUInteger count)
 
 @implementation DTXSyncResource
 {
+#if DEBUG
 	void** _symbols;
 	int _symbolCount;
 	
 	NSString* _historyString;
+#endif
 }
 
+#if DEBUG
 - (instancetype)init
 {
 	self = [super init];
@@ -40,7 +45,9 @@ NSString* _DTXPluralIfNeeded(NSString* word, NSUInteger count)
 	
 	return self;
 }
+#endif
 
+#if DEBUG
 - (NSString*)history
 {
 	if(_historyString)
@@ -63,6 +70,7 @@ NSString* _DTXPluralIfNeeded(NSString* word, NSUInteger count)
 	
 	return _historyString;
 }
+#endif
 
 - (void)performUpdateBlock:(NSUInteger(NS_NOESCAPE ^)(void))block
 		   eventIdentifier:(NSString*(NS_NOESCAPE ^)(void))eventID
@@ -108,11 +116,13 @@ NSString* _DTXPluralIfNeeded(NSString* word, NSUInteger count)
 {
 	[DTXSyncManager unregisterSyncResource:self];
 	
+#if DEBUG
 	if(_symbols != NULL)
 	{
 		free(_symbols);
 		_symbols = NULL;
 	}
+#endif
 }
 
 @end

@@ -34,7 +34,9 @@ NSString* _DTXPluralIfNeeded(NSString* word, NSUInteger count);
 - (NSString*)syncResourceGenericDescription;
 - (NSString*)syncResourceDescription;
 
+#if DEBUG
 - (NSString*)history;
+#endif
 
 @end
 

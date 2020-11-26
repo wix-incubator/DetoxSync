@@ -16,7 +16,7 @@
 
 @implementation DTXTimerSyncResource
 {
-	NSHashTable* _timers;
+	NSMutableSet* _timers;
 }
 
 + (id<DTXTimerProxy>)timerProxyWithTarget:(id)target selector:(SEL)selector fireDate:(NSDate*)fireDate interval:(NSTimeInterval)ti repeats:(BOOL)rep
@@ -70,7 +70,7 @@
 	
 	if(self)
 	{
-		_timers = [NSHashTable hashTableWithOptions:NSPointerFunctionsWeakMemory];
+		_timers = [NSMutableSet new];
 	}
 	
 	return self;
@@ -89,7 +89,7 @@
 }
 
 /// Ugly hack for rare occasions where NSTimer gets released, but its associated objects are not released.
-static NSUInteger _DTXCleanTimersAndReturnCount(NSHashTable* _timers, NSMutableArray<NSString*(^)(void)>* eventIdentifiers)
+static NSUInteger _DTXCleanTimersAndReturnCount(NSMutableSet* _timers, NSMutableArray<NSString*(^)(void)>* eventIdentifiers)
 {	
 	for (_DTXTimerTrampoline* trampoline in _timers) {
 		if((trampoline.timer == nil && trampoline.displayLink == nil) || [DTXSyncManager isRunLoopTracked:trampoline.runLoop] == NO)

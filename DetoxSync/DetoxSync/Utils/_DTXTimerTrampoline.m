@@ -9,18 +9,6 @@
 #import "_DTXTimerTrampoline.h"
 #import "DTXTimerSyncResource-Private.h"
 
-/***
- *    ██╗    ██╗ █████╗ ██████╗ ███╗   ██╗██╗███╗   ██╗ ██████╗
- *    ██║    ██║██╔══██╗██╔══██╗████╗  ██║██║████╗  ██║██╔════╝
- *    ██║ █╗ ██║███████║██████╔╝██╔██╗ ██║██║██╔██╗ ██║██║  ███╗
- *    ██║███╗██║██╔══██║██╔══██╗██║╚██╗██║██║██║╚██╗██║██║   ██║
- *    ╚███╔███╔╝██║  ██║██║  ██║██║ ╚████║██║██║ ╚████║╚██████╔╝
- *     ╚══╝╚══╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝╚═╝  ╚═══╝ ╚═════╝
- *
- *
- * WARNING: This file compiles with ARC disabled! Take extra care when modifying or adding functionality.
- */
-
 const void* __DTXTimerTrampolineKey = &__DTXTimerTrampolineKey;
 
 @implementation _DTXTimerTrampoline
