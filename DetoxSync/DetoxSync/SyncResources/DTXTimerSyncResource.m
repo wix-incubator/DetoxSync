@@ -91,7 +91,7 @@
 /// Ugly hack for rare occasions where NSTimer gets released, but its associated objects are not released.
 static NSUInteger _DTXCleanTimersAndReturnCount(NSMutableSet* _timers, NSMutableArray<NSString*(^)(void)>* eventIdentifiers)
 {	
-	for (_DTXTimerTrampoline* trampoline in _timers) {
+	for (_DTXTimerTrampoline* trampoline in _timers.copy) {
 		if((trampoline.timer == nil && trampoline.displayLink == nil) || [DTXSyncManager isRunLoopTracked:trampoline.runLoop] == NO)
 		{
 			[eventIdentifiers addObject:_DTXStringReturningBlock([NSString stringWithFormat:@"%p", trampoline])];

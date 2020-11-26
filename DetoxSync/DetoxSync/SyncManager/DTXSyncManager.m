@@ -155,7 +155,7 @@ static atomic_voidptr _URLBlacklist = ATOMIC_VAR_INIT(NULL);
 		__detox_sync_orig_dispatch_async = dlsym(RTLD_DEFAULT, "dispatch_async");
 		__detox_sync_orig_dispatch_after = dlsym(RTLD_DEFAULT, "dispatch_after");
 		
-		_queue = dtx_dispatch_queue_create_autoreleasing("com.wix.DTXSyncManager", NULL);
+		_queue = dtx_dispatch_queue_create_autoreleasing("com.wix.DTXSyncManager", DISPATCH_QUEUE_SERIAL);
 		dispatch_queue_set_specific(_queue, _queueSpecific, _queueSpecific, NULL);
 		NSString* DTXEnableDelayedIdleFire = [NSUserDefaults.standardUserDefaults stringForKey:@"DTXEnableDelayedIdleFire"];
 		NSNumberFormatter* nf = [NSNumberFormatter new];
