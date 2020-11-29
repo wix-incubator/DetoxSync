@@ -92,7 +92,7 @@
 static NSUInteger _DTXCleanTimersAndReturnCount(NSMutableSet* _timers, NSMutableArray<NSString*(^)(void)>* eventIdentifiers)
 {	
 	for (_DTXTimerTrampoline* trampoline in _timers.copy) {
-		if((trampoline.timer == nil && trampoline.displayLink == nil) || [DTXSyncManager isRunLoopTracked:trampoline.runLoop] == NO)
+		if(trampoline.isDead)
 		{
 			[eventIdentifiers addObject:_DTXStringReturningBlock([NSString stringWithFormat:@"%p", trampoline])];
 			[_timers removeObject:trampoline];

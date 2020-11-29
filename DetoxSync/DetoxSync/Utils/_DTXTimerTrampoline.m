@@ -8,6 +8,7 @@
 
 #import "_DTXTimerTrampoline.h"
 #import "DTXTimerSyncResource-Private.h"
+#import "DTXSyncManager-Private.h"
 
 const void* __DTXTimerTrampolineKey = &__DTXTimerTrampolineKey;
 
@@ -76,6 +77,11 @@ const void* __DTXTimerTrampolineKey = &__DTXTimerTrampolineKey;
 #endif
 	}
 	return self;
+}
+
+- (BOOL)isDead
+{
+	return (self.timer == nil && self.displayLink == nil) || (self.runLoop != nil && [DTXSyncManager isRunLoopTracked:self.runLoop] == NO);
 }
 
 - (void)dealloc

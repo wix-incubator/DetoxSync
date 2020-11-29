@@ -15,6 +15,8 @@ extern const void* __DTXTimerTrampolineKey;
 - (instancetype)initWithTarget:(id)target selector:(SEL)selector fireDate:(NSDate*)fireDate interval:(NSTimeInterval)ti repeats:(BOOL)rep;
 - (instancetype)initWithCallback:(CFRunLoopTimerCallBack)callback fireDate:(NSDate*)fireDate interval:(NSTimeInterval)ti repeats:(BOOL)rep;
 
+- (BOOL)isDead;
+
 - (NSString*)syncResourceDescription;
 
 @end
