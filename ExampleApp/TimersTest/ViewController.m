@@ -13,7 +13,7 @@
 	if([NSUserDefaults.standardUserDefaults boolForKey:@"ExamplePrintSyncResources"] == NO) { break; } \
 	dispatch_group_t __await_response = dispatch_group_create();\
 	if(sync) { dispatch_group_enter(__await_response); }\
-	[DTXSyncManager syncStatusWithCompletionHandler:^(NSString* response) {\
+	[DTXSyncManager idleStatusWithCompletionHandler:^(NSString* response) {\
 		printf("⚠️⚠️⚠️ %s\n", response.UTF8String);\
 		if(sync) { dispatch_group_leave(__await_response); }\
 	}];\
@@ -164,7 +164,7 @@
 						NSLog(@"📱 Animation 6");
 						
 						self.keyFrameView.hidden = NO;
-						[UIView animateKeyframesWithDuration:20.0 delay:0.0 options:0 animations:^{
+						[UIView animateKeyframesWithDuration:2.0 delay:0.0 options:0 animations:^{
 							[UIView addKeyframeWithRelativeStartTime:0.0 relativeDuration:0.25 animations:^{
 								self.keyFrameView.backgroundColor = UIColor.systemGray6Color;
 							}];
@@ -207,7 +207,7 @@
 {
 	dispatch_queue_t customQueue = dispatch_queue_create("com.wix.test", DISPATCH_QUEUE_CONCURRENT);
 	
-	[DTXSyncManager trackDispatchQueue:customQueue];
+	[DTXSyncManager trackDispatchQueue:customQueue name:@"Demo queue"];
 	
 	dispatch_group_t serviceGroup = dispatch_group_create();
 	
@@ -269,6 +269,8 @@
 	
 	_displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(displayLinkDidTick)];
 	_displayLink.paused = YES;
+	
+	[DTXSyncManager trackDisplayLink:_displayLink name:@"Demo display link"];
 	
 	[_displayLink addToRunLoop:NSRunLoop.mainRunLoop forMode:NSDefaultRunLoopMode];
 	
