@@ -76,7 +76,7 @@
 		39DE8FB422F707F400780546 /* UIScrollView+DTXSpy.m in Sources */ = {isa = PBXBuildFile; fileRef = 39DE8F8822F707F400780546 /* UIScrollView+DTXSpy.m */; };
 		39DE8FB522F707F400780546 /* UIView+DTXSpy.h in Headers */ = {isa = PBXBuildFile; fileRef = 39DE8F8922F707F400780546 /* UIView+DTXSpy.h */; };
 		39DE8FB622F707F400780546 /* UIAnimation+DTXSpy.m in Sources */ = {isa = PBXBuildFile; fileRef = 39DE8F8A22F707F400780546 /* UIAnimation+DTXSpy.m */; };
-		39DE8FB722F707F400780546 /* DispatchQueue+DTXSpy.m in Sources */ = {isa = PBXBuildFile; fileRef = 39DE8F8B22F707F400780546 /* DispatchQueue+DTXSpy.m */; };
+		39DE8FB722F707F400780546 /* DispatchQueue+DTXSpy.m in Sources */ = {isa = PBXBuildFile; fileRef = 39DE8F8B22F707F400780546 /* DispatchQueue+DTXSpy.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		39DE8FB822F707F400780546 /* UIViewController+DTXSpy.h in Headers */ = {isa = PBXBuildFile; fileRef = 39DE8F8C22F707F400780546 /* UIViewController+DTXSpy.h */; };
 		39DE8FB922F707F400780546 /* CAAnimation+DTXSpy.m in Sources */ = {isa = PBXBuildFile; fileRef = 39DE8F8D22F707F400780546 /* CAAnimation+DTXSpy.m */; };
 		39DE8FBA22F707F400780546 /* NSObject+DTXSpy.h in Headers */ = {isa = PBXBuildFile; fileRef = 39DE8F8E22F707F400780546 /* NSObject+DTXSpy.h */; };
@@ -554,6 +554,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -576,6 +577,8 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRIP_INSTALLED_PRODUCT = NO;
+				STRIP_SWIFT_SYMBOLS = NO;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -616,6 +619,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -631,6 +635,8 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRIP_INSTALLED_PRODUCT = NO;
+				STRIP_SWIFT_SYMBOLS = NO;
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";

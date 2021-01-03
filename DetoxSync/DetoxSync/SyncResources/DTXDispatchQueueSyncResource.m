@@ -104,7 +104,7 @@ static NSString* _DTXQueueDescription(dispatch_queue_t queue, NSString* name)
 		identifier = NSUUID.UUID.UUIDString;
 		return identifier;
 	} eventDescription:_DTXStringReturningBlock(self.syncResourceGenericDescription)
-	  objectDescription:_DTXStringReturningBlock([self _descriptionForOperation:operation block:block])
+	  objectDescription:_DTXStringReturningBlock([self _descriptionForOperation:operation])
 	  additionalDescription:_DTXStringReturningBlock(moreInfo)];
 	
 	return identifier;
@@ -118,11 +118,11 @@ static NSString* _DTXQueueDescription(dispatch_queue_t queue, NSString* name)
 	}
 			 eventIdentifier:_DTXStringReturningBlock(identifier)
 			eventDescription:_DTXStringReturningBlock(self.syncResourceGenericDescription)
-		   objectDescription:_DTXStringReturningBlock([self _descriptionForOperation:operation block:block])
+		   objectDescription:_DTXStringReturningBlock([self _descriptionForOperation:operation])
 	   additionalDescription:nil];
 }
 
-- (NSString*)_descriptionForOperation:(NSString*)op block:(id)block
+- (NSString*)_descriptionForOperation:(NSString*)op
 {
 	return [NSString stringWithFormat:@"%@ on “%@”", op, _queue];
 }

@@ -6,6 +6,18 @@
 //  Copyright © 2019 wix. All rights reserved.
 //
 
+/**
+ *    ██╗    ██╗ █████╗ ██████╗ ███╗   ██╗██╗███╗   ██╗ ██████╗
+ *    ██║    ██║██╔══██╗██╔══██╗████╗  ██║██║████╗  ██║██╔════╝
+ *    ██║ █╗ ██║███████║██████╔╝██╔██╗ ██║██║██╔██╗ ██║██║  ███╗
+ *    ██║███╗██║██╔══██║██╔══██╗██║╚██╗██║██║██║╚██╗██║██║   ██║
+ *    ╚███╔███╔╝██║  ██║██║  ██║██║ ╚████║██║██║ ╚████║╚██████╔╝
+ *     ╚══╝╚══╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝╚═╝  ╚═══╝ ╚═════╝
+ *
+ *
+ * WARNING: This file compiles with ARC disabled! Take extra care when modifying or adding functionality.
+ */
+
 #import "NSObject+DTXSpy.h"
 #import "DTXDelayedPerformSelectorSyncResource.h"
 #import "DTXSyncManager-Private.h"
