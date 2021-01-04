@@ -35,13 +35,11 @@ void __detox_sync_dispatch_wrapper(void (*func)(dispatch_queue_t param1, dispatc
 	dispatch_block_t param2 = copy ? [_param2 copy] : (id)_param2;
 	
 	DTXDispatchQueueSyncResource* sr = [DTXDispatchQueueSyncResource _existingSyncResourceWithQueue:param1];
-	NSString* identifier = [sr addWorkBlock:_param2 operation:name moreInfo:nil];
-
-	dispatch_block_t param2 = copy ? [_param2 copy] : (id)_param2;
+	NSString* identifier = [sr addWorkBlock:param2 operation:name moreInfo:nil];
 	
 	func(param1, ^ {
 		param2();
-		[sr removeWorkBlock:_param2 operation:name identifier:identifier];
+		[sr removeWorkBlock:param2 operation:name identifier:identifier];
 		
 		if(copy == YES)
 		{
@@ -57,10 +55,9 @@ void __detox_sync_dispatch_group_wrapper(void (*func)(dispatch_group_t param1, d
 	
 	DTXDispatchQueueSyncResource* sr = [DTXDispatchQueueSyncResource _existingSyncResourceWithQueue:param2];
 	NSString* identifier = [sr addWorkBlock:param3 operation:name moreInfo:nil];
-	dispatch_block_t param3 = copy ? [_param3 copy] : (id)_param3;
 	func(param1, param2, ^ {
 		param3();
-		[sr removeWorkBlock:_param3 operation:name identifier:identifier];
+		[sr removeWorkBlock:param3 operation:name identifier:identifier];
 		
 		if(copy == YES)
 		{
@@ -108,20 +105,20 @@ static void __detox_sync_dispatch_after(dispatch_time_t when, dispatch_queue_t q
 		}
 	}
 	
+	dispatch_block_t block = [_block copy];
+	
 	NSString* identifier = nil;
 	if(shouldTrack)
 	{
-		identifier = [sr addWorkBlock:_block operation:@"dispatch_after" moreInfo:@(DTXDoubleWithMaxFractionLength(timeFromNow, 3)).description];
+		identifier = [sr addWorkBlock:block operation:@"dispatch_after" moreInfo:@(DTXDoubleWithMaxFractionLength(timeFromNow, 3)).description];
 	}
-	
-	dispatch_block_t block = [_block copy];
 	
 	__orig_dispatch_after(when, queue, ^{
 		block();
 		
 		if(shouldTrack)
 		{
-			[sr removeWorkBlock:_block operation:@"dispatch_after" identifier:identifier];
+			[sr removeWorkBlock:block operation:@"dispatch_after" identifier:identifier];
 		}
 		
 		[block release];
