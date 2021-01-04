@@ -12,6 +12,11 @@
 
 @implementation _DTXObjectDeallocHelper
 
+- (instancetype)init
+{
+	return [self initWithSyncResource:nil];
+}
+
 - (instancetype)initWithSyncResource:(__kindof DTXSyncResource*)syncResource
 {
 	self = [super init];

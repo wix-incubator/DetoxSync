@@ -32,6 +32,8 @@
 DTX_ALWAYS_INLINE
 void __detox_sync_dispatch_wrapper(void (*func)(dispatch_queue_t param1, dispatch_block_t param2), NSString* name, BOOL copy, dispatch_queue_t param1, dispatch_block_t _param2)
 {
+	dispatch_block_t param2 = copy ? [_param2 copy] : (id)_param2;
+	
 	DTXDispatchQueueSyncResource* sr = [DTXDispatchQueueSyncResource _existingSyncResourceWithQueue:param1];
 	NSString* identifier = [sr addWorkBlock:_param2 operation:name moreInfo:nil];
 
@@ -40,18 +42,30 @@ void __detox_sync_dispatch_wrapper(void (*func)(dispatch_queue_t param1, dispatc
 	func(param1, ^ {
 		param2();
 		[sr removeWorkBlock:_param2 operation:name identifier:identifier];
+		
+		if(copy == YES)
+		{
+			[param2 release];
+		}
 	});
 }
 
 DTX_ALWAYS_INLINE
 void __detox_sync_dispatch_group_wrapper(void (*func)(dispatch_group_t param1, dispatch_queue_t param2, dispatch_block_t param3), NSString* name, BOOL copy, dispatch_group_t param1, dispatch_queue_t param2, dispatch_block_t _param3)
 {
+	dispatch_block_t param3 = copy ? [_param3 copy] : (id)_param3;
+	
 	DTXDispatchQueueSyncResource* sr = [DTXDispatchQueueSyncResource _existingSyncResourceWithQueue:param2];
-	NSString* identifier = [sr addWorkBlock:_param3 operation:name moreInfo:nil];
+	NSString* identifier = [sr addWorkBlock:param3 operation:name moreInfo:nil];
 	dispatch_block_t param3 = copy ? [_param3 copy] : (id)_param3;
 	func(param1, param2, ^ {
 		param3();
 		[sr removeWorkBlock:_param3 operation:name identifier:identifier];
+		
+		if(copy == YES)
+		{
+			[param3 release];
+		}
 	});
 }
 
@@ -83,7 +97,7 @@ static void __detox_sync_dispatch_after(dispatch_time_t when, dispatch_queue_t q
 	uint64_t nanosecondsSinceEpoch = _dispatch_time_nanoseconds_since_epoch(when);
 	NSTimeInterval secondsSinceEpoch = (double)nanosecondsSinceEpoch / (double)1000000000;
 	NSTimeInterval timeFromNow = secondsSinceEpoch - [NSDate.date timeIntervalSince1970];
-//	NSLog(@"🤦‍♂️ %@", @(timeFromNow));
+	
 	if(shouldTrack && isinf(DTXSyncManager.maximumAllowedDelayedActionTrackingDuration) == NO)
 	{
 		shouldTrack = DTXSyncManager.maximumAllowedDelayedActionTrackingDuration >= timeFromNow;
@@ -109,6 +123,8 @@ static void __detox_sync_dispatch_after(dispatch_time_t when, dispatch_queue_t q
 		{
 			[sr removeWorkBlock:_block operation:@"dispatch_after" identifier:identifier];
 		}
+		
+		[block release];
 	});
 }
 void untracked_dispatch_after(dispatch_time_t when, dispatch_queue_t queue, dispatch_block_t block)
@@ -138,7 +154,6 @@ dispatch_queue_t __detox_sync_dispatch_queue_create(const char *_Nullable label,
 __attribute__((constructor))
 static void _install_dispatchqueue_spy(void)
 {
-//	dispatch_async
 	struct rebinding r[] = (struct rebinding[]) {
 		"dispatch_async", __detox_sync_dispatch_async, (void**)&__orig_dispatch_async,
 		"dispatch_sync", __detox_sync_dispatch_sync, (void**)&__orig_dispatch_sync,
