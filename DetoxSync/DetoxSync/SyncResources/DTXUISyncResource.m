@@ -95,7 +95,7 @@ static const void* _DTXCAAnimationTrackingIdentifierKey = &_DTXCAAnimationTracki
 	
 	if(_layerAnimationCount > 0)
 	{
-		[rvTexts addObject:[NSString stringWithFormat:@"%@ pending", _DTXPluralIfNeeded(@"layer animation", _viewAnimationCount)]];
+		[rvTexts addObject:[NSString stringWithFormat:@"%@ pending", _DTXPluralIfNeeded(@"layer animation", _layerAnimationCount)]];
 	}
 	
 	if(rvTexts.count == 0)
