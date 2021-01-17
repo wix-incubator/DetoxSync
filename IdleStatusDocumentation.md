@@ -1,6 +1,10 @@
 # Idle Status Documentation
 
-DetoxSync provides the `idleStatusWithCompletionHandler:` method as means of querying the system of its status. The completion handler is called with a string, describing the idle status of the system. A typical response looks like this:
+DetoxSync provides the `idleStatusWithCompletionHandler:` method as means of querying the system of its status. The completion handler is called with a string, describing the idle status of the system. 
+
+[Detox](https://github.com/wix/Detox) uses this API to drive its `--debug-synchronization` implementation.
+
+A typical response looks like this:
 
 ```
 The system is busy with the following tasks:
@@ -9,7 +13,7 @@ Dispatch Queue
 ⏱ Queue: “Main Queue (<OS_dispatch_queue_main: com.apple.main-thread>)” with 3 work items
 
 Timer
-⏱ Timer with fire date: 2021-01-17 18:47:53 +0200 (fire interval: 0.9999969005584717) repeats: NO repeat interval: 0>
+⏱ Fire date: 2021-01-17 18:47:53 +0200 (fire interval: 0.9999969005584717) repeats: NO repeat interval: 0>
 
 UI Elements
 ⏱ 1 view animation pending
@@ -94,11 +98,11 @@ A typical idle status response:
 
 ```
 Timer
-⏱ Timer with fire date: 2021-01-17 18:47:53 +0200 (fire interval: 0.9999969005584717) repeats: NO repeat interval: 0>
-⏱ Timer with fire date: 2021-01-17 18:47:53 +0200 (fire interval: 1.499957919120789) repeats: NO repeat interval: 0>
-⏱ Timer with fire date: 2021-01-17 18:47:53 +0200 (fire interval: 0.9999970197677612) repeats: NO repeat interval: 0>
-⏱ Timer with fire date: 2021-01-17 18:47:53 +0200 (fire interval: 0.9999929666519165) repeats: NO repeat interval: 0>
-⏱ Timer with fire date: 2021-01-17 18:47:53 +0200 (fire interval: 0.9999979734420776) repeats: NO repeat interval: 0>
+⏱ Fire date: 2021-01-17 18:47:53 +0200 (fire interval: 0.9999969005584717) repeats: NO repeat interval: 0>
+⏱ Fire date: 2021-01-17 18:47:53 +0200 (fire interval: 1.499957919120789) repeats: NO repeat interval: 0>
+⏱ Fire date: 2021-01-17 18:47:53 +0200 (fire interval: 0.9999970197677612) repeats: NO repeat interval: 0>
+⏱ Fire date: 2021-01-17 18:47:53 +0200 (fire interval: 0.9999929666519165) repeats: NO repeat interval: 0>
+⏱ Fire date: 2021-01-17 18:47:53 +0200 (fire interval: 0.9999979734420776) repeats: NO repeat interval: 0>
 ```
 
 For timers, the idle status descriptions provides the fire date (in system time zone), the fire time interval, whether the timer repeats and its repeat interval. For display links, it displays the object description.

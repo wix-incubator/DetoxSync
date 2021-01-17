@@ -219,7 +219,7 @@ const void* __DTXTimerTrampolineKey = &__DTXTimerTrampolineKey;
 		return _displayLink.description;
 	}
 	
-	return [NSString stringWithFormat:@"Timer with fire date: %@ (fire interval: %@) repeats: %@ repeat interval: %@>", [_DTXTimerTrampoline._descriptionDateFormatter stringFromDate:_fireDate], @(_deltaSinceNow), _repeats ? @"YES" : @"NO", @(_ti)];
+	return [NSString stringWithFormat:@"Fire date: %@ (fire interval: %@) repeats: %@ repeat interval: %@>", [_DTXTimerTrampoline._descriptionDateFormatter stringFromDate:_fireDate], @(_deltaSinceNow), _repeats ? @"YES" : @"NO", @(_ti)];
 }
 
 - (NSString*)syncResourceGenericDescription
