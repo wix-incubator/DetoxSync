@@ -1,6 +1,6 @@
 # Idle Status Documentation
 
-DetoxSync provides the `idleStatusWithCompletionHandler:` method as means of querying the system of its status. The completion handler is called with a string, describing the idle status of the system. 
+DetoxSync provides the `idleStatusWithCompletionHandler:` method as means to query the sync system’s status. The completion handler is called with a string, describing the status. 
 
 [Detox](https://github.com/wix/Detox) uses this API to drive its `--debug-synchronization` implementation.
 
@@ -23,9 +23,9 @@ Each section describes the busy component—a sync resource—and some informati
 
 This document aims to describe each component, how it is tracked and what can cause it to become busy.
 
-### Sync Resources
+## Sync Resources
 
-#### Delayed Perform Selector
+### Delayed Perform Selector
 
 This sync resource tracks Objective C selectors scheduled to run in the future, using API such as `-[NSObject performSelector:withObject:afterDelay:]`. Such delayed selectors are tracked for run loops that are tracked by the system.
 
@@ -38,7 +38,7 @@ Delayed Perform Selector
 
 Once all pending selectors have been called, this sync resource will become idle.
 
-#### Dispatch Queue
+### Dispatch Queue
 
 This sync resource tracks [dispatch queues](https://developer.apple.com/documentation/dispatch/dispatch_queue?language=objc) and their [work items](https://developer.apple.com/documentation/dispatch/dispatch_work_item?language=objc). Once a work item is submitted to a tracked dispatch queue, the sync resource is considered busy.
 
@@ -51,7 +51,7 @@ Dispatch Queue
 
 Once all pending work items have been executed, the sync resource will become idle.
 
-#### Run Loop
+### Run Loop
 
 The run loop sync resource tracks [run loops](https://developer.apple.com/documentation/foundation/nsrunloop) and their states. A run loop is considered idle if it is waiting for their monitored sources. Once the run loop wakes up due to one of its sources, it is considered busy.
 
@@ -64,7 +64,7 @@ Run Loop
 ⏱ “Main Run Loop”
 ```
 
-#### One-time Event
+### One-time Event
 
 One-time events are single, one-off events which start at some point during the lifetime of the app, and once finished, are released. The system is considered idle if no such events are currently tracked.
 
@@ -90,7 +90,7 @@ One Time Events
 
 This idle resource is considered idle once all tracked one-time events are finished.
 
-#### Timer
+### Timer
 
 This sync resource tracks [run loop timers](https://developer.apple.com/documentation/foundation/nstimer) and [display links](https://developer.apple.com/documentation/quartzcore/cadisplaylink). Once a timer or display link is scheduled with a tracked run loop, it is automatically tracked by the system, and the sync resource becomes busy.
 
@@ -109,7 +109,7 @@ For timers, the idle status descriptions provides the fire date (in system time 
 
 The idle resource is considered idle once all tracked timers are either cancelled or fired, and are no longer tracked.
 
-#### UI Elements
+### UI Elements
 
 This sync resource tracks [views](https://developer.apple.com/documentation/uikit/uiview?language=objc), [their controller](https://developer.apple.com/documentation/uikit/uiviewcontroller?language=objc), [layers](https://developer.apple.com/documentation/quartzcore/calayer?language=objc), lifecycle and animations.
 
@@ -140,9 +140,9 @@ UI Elements
 
 The idle resource is considered idle when there are no active events in all categories.
 
-#### JS Timer
+### JS Timer
 
-This sync resource tracks JS timers in React Native applications, started with `setTimeout()`. When a JS timer is started, it is automatically tracked by the system, and the sync resource becomes busy.
+This sync resource tracks JS timers in React Native applications, started with the `setTimeout()` API. When a JS timer is started, it is automatically tracked by the system, and the sync resource becomes busy.
 
 A typical idle status response:
 
