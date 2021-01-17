@@ -111,7 +111,7 @@
 
 - (NSString*)syncResourceGenericDescription
 {
-	return @"One Time Events";
+	return @"One-time Events";
 }
 
 @end

@@ -164,7 +164,9 @@ static NSUInteger _DTXCleanTimersAndReturnCount(NSMutableSet* _timers, NSMutable
 	id rv = nil;
 	
 	@try {
-		rv = [NSString stringWithFormat:@"Timers: %@", _timers.count > 0 ? [_timers.allObjects valueForKey:@"syncResourceDescription"] : @"-"];
+		NSArray<NSString*>* descriptions = [_timers.allObjects valueForKey:@"syncResourceDescription"];
+		rv = [descriptions componentsJoinedByString:@"\n⏱ "];
+//		rv = [NSString stringWithFormat:@"Timers: %@", _timers.count > 0 ? descriptions : @"-"];
 	} @catch (NSException *exception) {
 		rv = [super description];
 	}

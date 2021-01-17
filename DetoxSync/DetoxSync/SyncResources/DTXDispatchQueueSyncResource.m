@@ -80,12 +80,12 @@ static NSString* _DTXQueueDescription(dispatch_queue_t queue, NSString* name)
 
 - (NSString *)description
 {
-	return [NSString stringWithFormat:@"<%@: %p queue: %@%@>", self.class, self, _DTXQueueDescription(_queue, self.name), _busyCount > 0 ? [NSString stringWithFormat:@" with %lu work blocks", _busyCount] : @""];
+	return [NSString stringWithFormat:@"<%@: %p queue: %@%@>", self.class, self, _DTXQueueDescription(_queue, self.name), _busyCount > 0 ? [NSString stringWithFormat:@" with %@", _DTXPluralIfNeeded(@"work item", _busyCount)] : @""];
 }
 
 - (NSString*)syncResourceDescription
 {
-	return [NSString stringWithFormat:@"Queue: %@%@", _DTXQueueDescription(_queue, self.name), _busyCount > 0 ? [NSString stringWithFormat:@" with %lu work blocks", _busyCount] : @""];
+	return [NSString stringWithFormat:@"Queue: %@%@", _DTXQueueDescription(_queue, self.name), _busyCount > 0 ? [NSString stringWithFormat:@" with %@", _DTXPluralIfNeeded(@"work item", _busyCount)] : @""];
 }
 
 - (NSString*)syncResourceGenericDescription

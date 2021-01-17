@@ -201,7 +201,9 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
 
 - (NSString*)syncResourceDescription
 {
-	return [NSString stringWithFormat:@"Timers: %@", [[_observations.objectEnumerator.allObjects valueForKeyPath:@"@distinctUnionOfObjects._observedTimers"] firstObject]];
+	NSArray<NSString*>* timers = [[_observations.objectEnumerator.allObjects valueForKeyPath:@"@distinctUnionOfObjects._observedTimers"] firstObject];
+	
+	return [timers componentsJoinedByString:@"\n⏱ "];
 }
 
 - (NSString *)syncResourceGenericDescription
