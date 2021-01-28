@@ -476,6 +476,11 @@ static BOOL DTXIsSystemBusyNow(void)
 
 + (void)trackDispatchQueue:(dispatch_queue_t)dispatchQueue name:(nullable NSString*)name
 {
+	if(dispatchQueue == dispatch_get_main_queue())
+	{
+		return;
+	}
+	
 	DTXDispatchQueueSyncResource* sr = [DTXDispatchQueueSyncResource dispatchQueueSyncResourceWithQueue:dispatchQueue];
 	sr.name = name;
 	[self registerSyncResource:sr];
@@ -483,6 +488,11 @@ static BOOL DTXIsSystemBusyNow(void)
 
 + (void)untrackDispatchQueue:(dispatch_queue_t)dispatchQueue
 {
+	if(dispatchQueue == dispatch_get_main_queue())
+	{
+		return;
+	}
+	
 	DTXDispatchQueueSyncResource* sr = [DTXDispatchQueueSyncResource _existingSyncResourceWithQueue:dispatchQueue cleanup:YES];
 	if(sr)
 	{
@@ -606,7 +616,7 @@ static BOOL DTXIsSystemBusyNow(void)
 	[DTXTimerSyncResource clearExistingTimerProxyWithDisplayLink:displayLink];
 }
 
-+ (id<DTXEventTracker>)trackEventWithDescription:(NSString*)description objectDescription:(NSString*)objectDescription
++ (id<DTXTrackedEvent>)trackEventWithDescription:(NSString*)description objectDescription:(NSString*)objectDescription
 {
 	return [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:objectDescription eventDescription:description];
 }

@@ -1,6 +1,6 @@
 # Idle Status Documentation
 
-DetoxSync provides the `idleStatusWithCompletionHandler:` method as means to query the sync system’s status. The completion handler is called with a string, describing the status. 
+DetoxSync provides the `+[DTXSyncManager idleStatusWithCompletionHandler:]` method as means to query the sync system’s status. The completion handler is called with a string, describing the status. 
 
 [Detox](https://github.com/wix/Detox) uses this API to drive its `--debug-synchronization` implementation.
 
@@ -36,7 +36,7 @@ Delayed Perform Selector
 ⏱ 2 pending selectors
 ```
 
-Once all pending selectors have been called, this sync resource will become idle.
+Once all pending selectors have been called, this sync resource becomes idle.
 
 ### Dispatch Queue
 
@@ -49,7 +49,7 @@ Dispatch Queue
 ⏱ Queue: “Main Queue (<OS_dispatch_queue_main: com.apple.main-thread>)” with 3 work items
 ```
 
-Once all pending work items have been executed, the sync resource will become idle.
+Once all pending work items have been executed, the sync resource becomes idle.
 
 ### Run Loop
 
@@ -88,7 +88,7 @@ One Time Events
 ⏱ “Network Request” with object: “URL: “https://jsonplaceholder.typicode.com/todos/1””
 ```
 
-This idle resource is considered idle once all tracked one-time events are finished.
+This sync resource is considered idle once all tracked one-time events are finished.
 
 ### Timer
 
@@ -107,7 +107,7 @@ Timer
 
 For timers, the idle status descriptions provides the fire date (in system time zone), the fire time interval, whether the timer repeats and its repeat interval. For display links, it displays the object description.
 
-The idle resource is considered idle once all tracked timers are either cancelled or fired, and are no longer tracked.
+The sync resource is considered idle once all tracked timers are either cancelled or fired, and are no longer tracked.
 
 ### UI Elements
 
@@ -122,7 +122,7 @@ Tracked event categories include:
 - CA (layer) animations
 - Layers pending animation
 
-Each event is tracked independently, and the system is considered busy if at least one even is tracked in any category.
+Each event category is tracked independently, and the system is considered busy if at least one event exists in any category.
 
 Depending on the depth of the view hierarchy, view and layer display & layout counts can appear large, but those are typically untracked soon after they are needed. Controller appearance is usually tied to a transition animation. View and CA animations depend on the delay and duration provided by the developer, as well as animations set to repeat. 
 
@@ -138,7 +138,7 @@ UI Elements
 ⏱ 2 CA animations pending
 ```
 
-The idle resource is considered idle when there are no active events in all categories.
+The sync resource is considered idle when there are no active events in all categories.
 
 ### JS Timer
 
@@ -154,4 +154,4 @@ JS Timer
 
 For each JS timer, the timer ID is printed, as returned by `setTimeout()`. You can use this ID to investigate where in your code the timer was started.
 
-The idle resource is considered idle once all tracked timers are either cancelled or fired, and are no longer tracked.
+The sync resource is considered idle once all tracked timers are either cancelled or fired, and are no longer tracked.

@@ -11,7 +11,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol DTXSingleEvent <DTXEventTracker>
+@protocol DTXSingleEvent <DTXTrackedEvent>
 
 - (void)suspendTracking;
 - (void)resumeTracking;
