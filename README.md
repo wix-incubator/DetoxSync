@@ -74,6 +74,10 @@ The sync resource is considered idle once all tracked timers are either cancelle
 
 The idle status of the system can be queried using the `+[DTXSyncManager idleStatusWithCompletionHandler:]` method. For more information of the returned syntax, see [Idle Status Documentation](IdleStatusDocumentation.md).
 
+### React Native
+
+DetoxSync comes with React Native support out of the box, automatically tracking React Native bundle load, the React Native JavaScript run loop, its internal dispatch queues and the dispatch queues of all native modules. When a React Native bridge is reloaded, the system automatically untracks the previous run loop and any associated dispatch queues.
+
 ### API Documentation
 
 For most up-to-date documentation, check out the [DTXSyncManager header](https://github.com/wix/DetoxSync/blob/master/DetoxSync/DetoxSync/SyncManager/DTXSyncManager.h).
