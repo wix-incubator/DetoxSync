@@ -646,12 +646,12 @@ static BOOL DTXIsSystemBusyNow(void)
 			
 			if(prevClass != nil && [prevClass isEqualToString:newClass] == NO)
 			{
-				[rv appendFormat:@"\n%@\n", prettyNames == YES ? sr.syncResourceGenericDescription : sr.class];
+				[rv appendFormat:@"\n%@\n", prettyNames == YES ? sr.syncResourceGenericDescription : NSStringFromClass(sr.class)];
 			}
 		}
 		else
 		{
-			[rv appendFormat:@"%@\n", prettyNames == YES ? sr.syncResourceGenericDescription : sr.class];
+			[rv appendFormat:@"%@\n", prettyNames == YES ? sr.syncResourceGenericDescription : NSStringFromClass(sr.class)];
 		}
 		
 		prevClass = newClass;
