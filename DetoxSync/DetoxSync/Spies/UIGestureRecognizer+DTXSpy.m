@@ -28,7 +28,7 @@ static const void* _DTXGestureRecognizerSRKey = &_DTXGestureRecognizerSRKey;
 	@autoreleasepool
 	{
 		NSError* error;
-		
+
 		DTXSwizzleMethod(self, @selector(_setDirty), @selector(__detox_sync__setDirty), &error);
 		DTXSwizzleMethod(self, @selector(_resetGestureRecognizer), @selector(__detox_sync__resetGestureRecognizer), &error);
 		DTXSwizzleMethod(self, @selector(setState:), @selector(__detox_sync_setState:), &error);
@@ -37,8 +37,11 @@ static const void* _DTXGestureRecognizerSRKey = &_DTXGestureRecognizerSRKey;
 
 - (void)__detox_sync__setDirty
 {
-	DTXSingleEventSyncResource* sr = [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"Gesture Recognizer"];
-	objc_setAssociatedObject(self, _DTXGestureRecognizerSRKey, sr, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	if([NSStringFromClass(self.class) hasPrefix:@"SwiftUI."] == NO && self.state != UIGestureRecognizerStateFailed)
+	{
+		DTXSingleEventSyncResource* sr = [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"Gesture Recognizer"];
+		objc_setAssociatedObject(self, _DTXGestureRecognizerSRKey, sr, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	}
 	
 	[self __detox_sync__setDirty];
 }
