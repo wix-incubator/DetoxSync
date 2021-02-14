@@ -12,12 +12,6 @@
 
 @import ObjectiveC;
 
-@interface UIView ()
-
-+ (void)_setupAnimationWithDuration:(double)arg1 delay:(double)arg2 view:(id)arg3 options:(unsigned long long)arg4 factory:(id)arg5 animations:(id)arg6 start:(id)arg7 animationStateGenerator:(id)arg8 completion:(id)arg9;
-
-@end
-
 @implementation UIView (DTXSpy)
 
 + (void)load
@@ -40,8 +34,13 @@
 	}
 }
 
-+ (void)__detox_sync_animateWithDuration:(NSTimeInterval)duration delay:(NSTimeInterval)delay options:(UIViewAnimationOptions)options animations:(void (^)(void))animations completion:(void (^ __nullable)(BOOL finished))completion
++ (dispatch_block_t)_failSafeTrackAnimationWithDuration:(NSTimeInterval)duration delay:(NSTimeInterval)delay completion:(id)completion
 {
+	if(completion == nil)
+	{
+		return ^{};
+	}
+	
 	NSString* identifier = [DTXUISyncResource.sharedInstance trackViewAnimationWithDuration:duration delay:delay];
 	
 	__block BOOL alreadyUntracked = NO;
@@ -53,6 +52,18 @@
 		}
 	};
 	
+	//Failsafe, just in case.
+	__detox_sync_orig_dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((delay + duration + 0.1) * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+		failSafeUntrack();
+	});
+	
+	return failSafeUntrack;
+}
+
++ (void)__detox_sync_animateWithDuration:(NSTimeInterval)duration delay:(NSTimeInterval)delay options:(UIViewAnimationOptions)options animations:(void (^)(void))animations completion:(void (^ __nullable)(BOOL finished))completion
+{
+	dispatch_block_t failSafeUntrack = [self _failSafeTrackAnimationWithDuration:duration delay:delay completion:completion];
+	
 	[self __detox_sync_animateWithDuration:duration delay:delay options:options animations:animations completion:^(BOOL finished) {
 		if(completion)
 		{
@@ -61,11 +72,6 @@
 
 		failSafeUntrack();
 	}];
-	
-	//Failsafe, just in case.
-	__detox_sync_orig_dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((delay + duration + 0.1) * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-		failSafeUntrack();
-	});
 }
 
 + (void)__detox_sync_animateWithDuration:(NSTimeInterval)duration animations:(void (^)(void))animations completion:(void (^)(BOOL))completion
@@ -80,7 +86,7 @@
 
 + (void)__detox_sync_animateWithDuration:(NSTimeInterval)duration delay:(NSTimeInterval)delay usingSpringWithDamping:(CGFloat)dampingRatio initialSpringVelocity:(CGFloat)velocity options:(UIViewAnimationOptions)options animations:(void (^)(void))animations completion:(void (^ __nullable)(BOOL finished))completion
 {
-	NSString* identifier = [DTXUISyncResource.sharedInstance trackViewAnimationWithDuration:duration delay:delay];
+	dispatch_block_t failSafeUntrack = [self _failSafeTrackAnimationWithDuration:duration delay:delay completion:completion];
 	
 	[self __detox_sync_animateWithDuration:duration delay:delay usingSpringWithDamping:dampingRatio initialSpringVelocity:velocity options:options animations:animations completion:^(BOOL finished) {
 		if(completion)
@@ -88,13 +94,13 @@
 			completion(finished);
 		}
 		
-		[DTXUISyncResource.sharedInstance untrackViewAnimation:identifier];
+		failSafeUntrack();
 	}];
 }
 
 + (void)__detox_sync_transitionFromView:(UIView *)fromView toView:(UIView *)toView duration:(NSTimeInterval)duration options:(UIViewAnimationOptions)options completion:(void (^ __nullable)(BOOL finished))completion
 {
-	NSString* identifier = [DTXUISyncResource.sharedInstance trackViewAnimationWithDuration:duration delay:0.0];
+	dispatch_block_t failSafeUntrack = [self _failSafeTrackAnimationWithDuration:duration delay:0.0 completion:completion];
 	
 	[self __detox_sync_transitionFromView:fromView toView:toView duration:duration options:options completion:^(BOOL finished) {
 		if(completion)
@@ -102,13 +108,13 @@
 			completion(finished);
 		}
 		
-		[DTXUISyncResource.sharedInstance untrackViewAnimation:identifier];
+		failSafeUntrack();
 	}];
 }
 
 + (void)__detox_sync_transitionWithView:(UIView *)view duration:(NSTimeInterval)duration options:(UIViewAnimationOptions)options animations:(void (^ __nullable)(void))animations completion:(void (^ __nullable)(BOOL finished))completion
 {
-	NSString* identifier = [DTXUISyncResource.sharedInstance trackViewAnimationWithDuration:duration delay:0.0];
+	dispatch_block_t failSafeUntrack = [self _failSafeTrackAnimationWithDuration:duration delay:0.0 completion:completion];
 	
 	[self __detox_sync_transitionWithView:view duration:duration options:options animations:animations completion:^(BOOL finished) {
 		if(completion)
@@ -116,13 +122,13 @@
 			completion(finished);
 		}
 		
-		[DTXUISyncResource.sharedInstance untrackViewAnimation:identifier];
+		failSafeUntrack();
 	}];
 }
 
 + (void)__detox_sync_animateKeyframesWithDuration:(NSTimeInterval)duration delay:(NSTimeInterval)delay options:(UIViewKeyframeAnimationOptions)options animations:(void (^)(void))animations completion:(void (^ __nullable)(BOOL finished))completion
 {
-	NSString* identifier = [DTXUISyncResource.sharedInstance trackViewAnimationWithDuration:duration delay:delay];
+	dispatch_block_t failSafeUntrack = [self _failSafeTrackAnimationWithDuration:duration delay:delay completion:completion];
 	
 	[self __detox_sync_animateKeyframesWithDuration:duration delay:delay options:options animations:animations completion:^(BOOL finished) {
 		if(completion)
@@ -130,7 +136,7 @@
 			completion(finished);
 		}
 		
-		[DTXUISyncResource.sharedInstance untrackViewAnimation:identifier];
+		failSafeUntrack();
 	}];
 }
 

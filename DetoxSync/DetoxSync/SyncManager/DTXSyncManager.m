@@ -66,6 +66,8 @@ static atomic_nstimeinterval _maximumAllowedDelayedActionTrackingDuration = ATOM
 static atomic_nstimeinterval _maximumTimerIntervalTrackingDuration = ATOMIC_VAR_INIT(__builtin_inf());
 static atomic_bool _synchronizationDisabled = ATOMIC_VAR_INIT(NO);
 static atomic_voidptr _URLBlacklist = ATOMIC_VAR_INIT(NULL);
+static atomic_bool _modifyAnimations = ATOMIC_VAR_INIT(YES);
+static atomic_nstimeinterval _maximumAnimationDuration = ATOMIC_VAR_INIT(1.0);
 
 @implementation DTXSyncManager
 
@@ -112,6 +114,26 @@ static atomic_voidptr _URLBlacklist = ATOMIC_VAR_INIT(NULL);
 		CFRelease(old);
 	}
 	atomic_store(&_URLBlacklist, (void*)CFBridgingRetain(URLBlacklist.copy));
+}
+
++ (void)setModifyAnimations:(BOOL)modifyAnimations
+{
+	atomic_store(&_modifyAnimations, modifyAnimations);
+}
+
++ (BOOL)modifyAnimations
+{
+	return atomic_load(&_modifyAnimations);
+}
+
++ (void)setMaximumAnimationDuration:(NSTimeInterval)maximumAnimationDuration
+{
+	atomic_store(&_maximumAnimationDuration, maximumAnimationDuration);
+}
+
++ (NSTimeInterval)maximumAnimationDuration
+{
+	return atomic_load(&_maximumAnimationDuration);
 }
 
 + (id<DTXSyncManagerDelegate>)delegate

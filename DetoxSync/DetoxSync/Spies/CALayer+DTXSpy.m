@@ -10,6 +10,7 @@
 #import "DTXOrigDispatch.h"
 #import "CAAnimation+DTXSpy.h"
 #import "DTXUISyncResource.h"
+#import "DTXSyncManager.h"
 
 @import ObjectiveC;
 
@@ -51,9 +52,44 @@
 	[self __detox_sync_setNeedsDisplayInRect:rect];
 }
 
+- (void)__detox_sync_adjustAnimationToAllowableRange:(CAAnimation *)animation
+{
+	if(DTXSyncManager.modifyAnimations == NO)
+	{
+		return;
+	}
+	
+	CFTimeInterval maxAllowableAnimationDuration = DTXSyncManager.maximumAnimationDuration;
+	CFTimeInterval animationDuration = animation.duration;
+	if (animationDuration > maxAllowableAnimationDuration)
+	{
+		animation.duration = maxAllowableAnimationDuration;
+		animation.repeatCount = 0;
+		animation.repeatDuration = 0;
+		return;
+	}
+	
+	if (animationDuration != 0)
+	{
+		CFTimeInterval allowableRepeatDuration = maxAllowableAnimationDuration - animationDuration;
+		float allowableRepeatCount = (float)(maxAllowableAnimationDuration / animationDuration);
+		// Either repeatCount or repeatDuration is specified, not both.
+		if (animation.repeatDuration > allowableRepeatDuration)
+		{
+			animation.repeatDuration = allowableRepeatDuration;
+		}
+		if (animation.repeatCount > allowableRepeatCount)
+		{
+			animation.repeatCount = allowableRepeatCount;
+		}
+	}
+}
+
 - (void)__detox_sync_addAnimation:(CAAnimation *)anim forKey:(NSString *)key
 {
 	[DTXUISyncResource.sharedInstance trackLayerPendingAnimation:self];
+	
+	[self __detox_sync_adjustAnimationToAllowableRange:anim];
 	
 	[self __detox_sync_addAnimation:anim forKey:key];
 }

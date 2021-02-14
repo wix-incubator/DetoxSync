@@ -68,6 +68,10 @@ __attribute__((weak_import))
 @property (class, atomic) NSTimeInterval maximumTimerIntervalTrackingDuration;
 /// An array of strings representing URLs or URL regex matchers to disable tracking for.
 @property (class, atomic, copy) NSArray<NSString*>* URLBlacklist NS_SWIFT_NAME(urlBlacklist);
+/// Determines whether or not animations are modified. If @c true, then repeating animations are set to run only once and the animation duration is limited to a maximum of @c DTXSyncManager.maximumAnimationDuration. Enabled by default.
+@property (class, atomic) BOOL modifyAnimations;
+/// The maximum allowable animation duration for any CALayer based animation. Only in effect if @c DTXSyncManager.modifyAnimations is enabled. Default value is @c 1.0.
+@property (class, atomic) NSTimeInterval maximumAnimationDuration;
 
 /// The system delegate.
 @property (class, nonatomic, weak) id<DTXSyncManagerDelegate> delegate;
