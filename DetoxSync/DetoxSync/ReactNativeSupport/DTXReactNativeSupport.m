@@ -253,7 +253,10 @@ static void _setupRNSupport()
 	
 	[_observedQueues removeAllObjects];
 	
-	_DTXTrackUIManagerQueue();
+    // Adding delay before re-tracking so the resource dealloc won't trigger unregisteration (preventing race condition)
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 100 * NSEC_PER_MSEC), dispatch_get_main_queue(), ^{
+        _DTXTrackUIManagerQueue();
+    });
 }
 
 @end
