@@ -4,19 +4,20 @@
   "private": true,
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "podInstall": "cd ios && bundle exec pod install"
   },
   "dependencies": {
-    "react": "16.8.6",
-    "react-native": "0.60.3"
+    "react": "17.0.1",
+    "react-native": "0.64.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.4.0",
-    "@babel/runtime": "^7.4.2",
-    "@react-native-community/eslint-config": "^0.0.3",
-    "babel-jest": "^24.5.0",
-    "eslint": "^5.15.3",
-    "metro-react-native-babel-preset": "^0.53.1"
+    "@babel/core": "^7.12.9",
+    "@babel/runtime": "^7.12.5",
+    "@react-native-community/eslint-config": "^2.0.0",
+    "babel-jest": "^26.6.3",
+    "eslint": "7.14.0",
+    "metro-react-native-babel-preset": "^0.64.0"
   },
   "jest": {
     "preset": "react-native"
