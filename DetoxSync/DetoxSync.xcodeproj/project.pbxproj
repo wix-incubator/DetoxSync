@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		39202E3C25516F0F009A6C2A /* fishhook.h in Headers */ = {isa = PBXBuildFile; fileRef = 39202E3A25516F0E009A6C2A /* fishhook.h */; };
-		39202E3D25516F0F009A6C2A /* fishhook.c in Sources */ = {isa = PBXBuildFile; fileRef = 39202E3B25516F0E009A6C2A /* fishhook.c */; };
 		392250E423047179008E811D /* RCTNativeAnimatedNodesManager+DTXSpy.m in Sources */ = {isa = PBXBuildFile; fileRef = 392250E323047179008E811D /* RCTNativeAnimatedNodesManager+DTXSpy.m */; };
 		3923B11E23045B1F009D8780 /* DTXJSTimerSyncResource.h in Headers */ = {isa = PBXBuildFile; fileRef = 3923B11C23045B1F009D8780 /* DTXJSTimerSyncResource.h */; };
 		3923B11F23045B1F009D8780 /* DTXJSTimerSyncResource.m in Sources */ = {isa = PBXBuildFile; fileRef = 3923B11D23045B1F009D8780 /* DTXJSTimerSyncResource.m */; };
@@ -84,11 +82,11 @@
 		39DE8FBC22F707F400780546 /* DTXOrigDispatch.h in Headers */ = {isa = PBXBuildFile; fileRef = 39DE8F9122F707F400780546 /* DTXOrigDispatch.h */; };
 		39EECB7424C0A3EC009C3364 /* DTXAddressInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 39EECB7224C0A3EC009C3364 /* DTXAddressInfo.h */; };
 		39EECB7524C0A3EC009C3364 /* DTXAddressInfo.mm in Sources */ = {isa = PBXBuildFile; fileRef = 39EECB7324C0A3EC009C3364 /* DTXAddressInfo.mm */; };
+		6066775F271EFB000008A2C6 /* fishhook.c in Sources */ = {isa = PBXBuildFile; fileRef = 6066775D271EFB000008A2C6 /* fishhook.c */; };
+		60667760271EFB000008A2C6 /* fishhook.h in Headers */ = {isa = PBXBuildFile; fileRef = 6066775E271EFB000008A2C6 /* fishhook.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		39202E3A25516F0E009A6C2A /* fishhook.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fishhook.h; path = DTXSwizzlingHelper/fishhook/fishhook.h; sourceTree = SOURCE_ROOT; };
-		39202E3B25516F0E009A6C2A /* fishhook.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = fishhook.c; path = DTXSwizzlingHelper/fishhook/fishhook.c; sourceTree = SOURCE_ROOT; };
 		392250E223047161008E811D /* RCTNativeAnimatedNodesManager+DTXSpy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RCTNativeAnimatedNodesManager+DTXSpy.h"; sourceTree = "<group>"; };
 		392250E323047179008E811D /* RCTNativeAnimatedNodesManager+DTXSpy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "RCTNativeAnimatedNodesManager+DTXSpy.m"; sourceTree = "<group>"; };
 		3923B11C23045B1F009D8780 /* DTXJSTimerSyncResource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DTXJSTimerSyncResource.h; sourceTree = "<group>"; };
@@ -173,6 +171,8 @@
 		39DE8F9122F707F400780546 /* DTXOrigDispatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DTXOrigDispatch.h; sourceTree = "<group>"; };
 		39EECB7224C0A3EC009C3364 /* DTXAddressInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTXAddressInfo.h; path = DTXSwizzlingHelper/DTXAddressInfo.h; sourceTree = SOURCE_ROOT; };
 		39EECB7324C0A3EC009C3364 /* DTXAddressInfo.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = DTXAddressInfo.mm; path = DTXSwizzlingHelper/DTXAddressInfo.mm; sourceTree = SOURCE_ROOT; };
+		6066775D271EFB000008A2C6 /* fishhook.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = fishhook.c; path = fishhook/fishhook.c; sourceTree = SOURCE_ROOT; };
+		6066775E271EFB000008A2C6 /* fishhook.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fishhook.h; path = fishhook/fishhook.h; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -333,6 +333,7 @@
 		39DE8F8F22F707F400780546 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				39BC7B462397B6EB00DAF671 /* DTXSwizzlingHelper */,
 				399678CC22F9C90400BAF0A8 /* _DTXObjectDeallocHelper.h */,
 				399678CD22F9C90400BAF0A8 /* _DTXObjectDeallocHelper.m */,
 				395AD82224B784BB002B382B /* _DTXTimerTrampoline.h */,
@@ -348,9 +349,8 @@
 				397CA5FF22F9F9B2005024D0 /* DTXLoggingSubsystem.h */,
 				39DE8F9122F707F400780546 /* DTXOrigDispatch.h */,
 				39DE8F9022F707F400780546 /* DTXOrigDispatch.m */,
-				39BC7B462397B6EB00DAF671 /* DTXSwizzlingHelper */,
-				39202E3B25516F0E009A6C2A /* fishhook.c */,
-				39202E3A25516F0E009A6C2A /* fishhook.h */,
+				6066775D271EFB000008A2C6 /* fishhook.c */,
+				6066775E271EFB000008A2C6 /* fishhook.h */,
 				39CC258724BE1AA70058EA64 /* NSURL+DetoxSyncUtils.h */,
 				39CC258824BE1AA70058EA64 /* NSURL+DetoxSyncUtils.m */,
 				39B71FBD24641B8B00CC9A88 /* Swiftier.h */,
@@ -365,6 +365,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				60667760271EFB000008A2C6 /* fishhook.h in Headers */,
 				39DE8FA022F707F400780546 /* DTXSyncManager.h in Headers */,
 				3923B11E23045B1F009D8780 /* DTXJSTimerSyncResource.h in Headers */,
 				39DE8F9F22F707F400780546 /* DTXSyncManager-Private.h in Headers */,
@@ -376,7 +377,6 @@
 				39DE8FB122F707F400780546 /* NSTimer+DTXSpy.h in Headers */,
 				39DE8FAC22F707F400780546 /* CAAnimation+DTXSpy.h in Headers */,
 				39DE8F9522F707F400780546 /* DTXSingleEventSyncResource.h in Headers */,
-				39202E3C25516F0F009A6C2A /* fishhook.h in Headers */,
 				39CC258924BE1AA70058EA64 /* NSURL+DetoxSyncUtils.h in Headers */,
 				39DE8F9222F707F400780546 /* DTXDispatchQueueSyncResource-Private.h in Headers */,
 				396C8B1623038CED00979E86 /* CADisplayLink+DTXSpy.h in Headers */,
@@ -478,7 +478,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				39DE8FA922F707F400780546 /* NSTimer+DTXSpy.m in Sources */,
-				39202E3D25516F0F009A6C2A /* fishhook.c in Sources */,
 				399678CF22F9C90400BAF0A8 /* _DTXObjectDeallocHelper.m in Sources */,
 				39DE8FB722F707F400780546 /* DispatchQueue+DTXSpy.m in Sources */,
 				39CC258A24BE1AA70058EA64 /* NSURL+DetoxSyncUtils.m in Sources */,
@@ -500,6 +499,7 @@
 				3923B11F23045B1F009D8780 /* DTXJSTimerSyncResource.m in Sources */,
 				39DE8F9A22F707F400780546 /* DTXSingleEventSyncResource.m in Sources */,
 				39DE8FBB22F707F400780546 /* DTXOrigDispatch.m in Sources */,
+				6066775F271EFB000008A2C6 /* fishhook.c in Sources */,
 				39DE8FB622F707F400780546 /* UIAnimation+DTXSpy.m in Sources */,
 				397CA5FD22F9F9A1005024D0 /* DTXLogging.m in Sources */,
 				39DE8FAA22F707F400780546 /* NSObject+DTXSpy.m in Sources */,

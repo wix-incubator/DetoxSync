@@ -4,3 +4,6 @@
 [submodule "DetoxSync/DTXSwizzlingHelper"]
 	path = DetoxSync/DTXSwizzlingHelper
 	url = https://github.com/wix/DTXObjectiveCHelpers.git
+[submodule "DetoxSync/fishhook"]
+	path = DetoxSync/fishhook
+	url = https://github.com/facebook/fishhook

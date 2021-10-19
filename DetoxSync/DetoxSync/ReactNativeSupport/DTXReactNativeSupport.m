@@ -11,9 +11,9 @@
 #import "DTXSyncManager-Private.h"
 #import "DTXJSTimerSyncResource.h"
 #import "DTXSingleEventSyncResource.h"
+#import "fishhook.h"
 #import <dlfcn.h>
 #import <stdatomic.h>
-#import <fishhook.h>
 
 @import UIKit;
 @import ObjectiveC;
