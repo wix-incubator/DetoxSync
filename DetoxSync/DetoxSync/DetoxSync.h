@@ -16,3 +16,4 @@ FOUNDATION_EXPORT const unsigned char DetoxSyncVersionString[];
 
 #import <DetoxSync/DTXSyncManager.h>
 #import <DetoxSync/DTXReactNativeSupport.h>
+#import <DetoxSync/fishhook.h>
