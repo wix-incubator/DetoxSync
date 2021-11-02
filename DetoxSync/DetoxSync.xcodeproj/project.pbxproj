@@ -84,6 +84,8 @@
 		604A436F271F506F003B22CA /* DTXSwizzlingHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 604A436E271F506F003B22CA /* DTXSwizzlingHelper.h */; };
 		6066775F271EFB000008A2C6 /* fishhook.c in Sources */ = {isa = PBXBuildFile; fileRef = 6066775D271EFB000008A2C6 /* fishhook.c */; };
 		60667760271EFB000008A2C6 /* fishhook.h in Headers */ = {isa = PBXBuildFile; fileRef = 6066775E271EFB000008A2C6 /* fishhook.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		60B19FB2272EFCA900AB49E3 /* NSString+SyncResource.h in Headers */ = {isa = PBXBuildFile; fileRef = 60B19FB0272EFCA900AB49E3 /* NSString+SyncResource.h */; };
+		60B19FB3272EFCA900AB49E3 /* NSString+SyncResource.m in Sources */ = {isa = PBXBuildFile; fileRef = 60B19FB1272EFCA900AB49E3 /* NSString+SyncResource.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -173,6 +175,8 @@
 		604A436E271F506F003B22CA /* DTXSwizzlingHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTXSwizzlingHelper.h; path = DTXObjectiveCHelpers/DTXSwizzlingHelper.h; sourceTree = SOURCE_ROOT; };
 		6066775D271EFB000008A2C6 /* fishhook.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = fishhook.c; path = fishhook/fishhook.c; sourceTree = SOURCE_ROOT; };
 		6066775E271EFB000008A2C6 /* fishhook.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fishhook.h; path = fishhook/fishhook.h; sourceTree = SOURCE_ROOT; };
+		60B19FB0272EFCA900AB49E3 /* NSString+SyncResource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+SyncResource.h"; sourceTree = "<group>"; };
+		60B19FB1272EFCA900AB49E3 /* NSString+SyncResource.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSString+SyncResource.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -346,6 +350,8 @@
 				39CC258724BE1AA70058EA64 /* NSURL+DetoxSyncUtils.h */,
 				39CC258824BE1AA70058EA64 /* NSURL+DetoxSyncUtils.m */,
 				604A436A271F5004003B22CA /* Swiftier.h */,
+				60B19FB0272EFCA900AB49E3 /* NSString+SyncResource.h */,
+				60B19FB1272EFCA900AB49E3 /* NSString+SyncResource.m */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -396,6 +402,7 @@
 				39DE8FA722F707F400780546 /* UIApplication+DTXSpy.h in Headers */,
 				604A436D271F5004003B22CA /* Swiftier.h in Headers */,
 				39DE8FB822F707F400780546 /* UIViewController+DTXSpy.h in Headers */,
+				60B19FB2272EFCA900AB49E3 /* NSString+SyncResource.h in Headers */,
 				39DE8F9C22F707F400780546 /* DTXDelayedPerformSelectorSyncResource.h in Headers */,
 				39DE8FAE22F707F400780546 /* UIGestureRecognizer+DTXSpy.h in Headers */,
 			);
@@ -498,6 +505,7 @@
 				39DE8FB322F707F400780546 /* UIApplication+DTXSpy.m in Sources */,
 				39DE8F9722F707F400780546 /* DTXTimerSyncResource.m in Sources */,
 				39DC982E24BB5BB400FFB224 /* dispatch_time.c in Sources */,
+				60B19FB3272EFCA900AB49E3 /* NSString+SyncResource.m in Sources */,
 				39DE8F9822F707F400780546 /* DTXDelayedPerformSelectorSyncResource.m in Sources */,
 				39DE8FAB22F707F400780546 /* UIViewController+DTXSpy.m in Sources */,
 				395AD82524B784BB002B382B /* _DTXTimerTrampoline.m in Sources */,
