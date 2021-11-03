@@ -1,27 +1,42 @@
-# Idle Status Documentation
+# Synchronization Status Documentation
 
-DetoxSync provides the `+[DTXSyncManager idleStatusWithCompletionHandler:]` method as means to query the sync system’s status. The completion handler is called with a string, describing the status. 
+DetoxSync provides the `+[DTXSyncManager statusWithCompletionHandler:]` method as means to query the sync system’s status. The completion handler is called with a JSON object, describing the status. 
 
 [Detox](https://github.com/wix/Detox) uses this API to drive its `--debug-synchronization` implementation.
 
 A typical response looks like this:
 
 ```
-The system is busy with the following tasks:
-
-Dispatch Queue
-⏱ Queue: “Main Queue (<OS_dispatch_queue_main: com.apple.main-thread>)” with 3 work items
-
-Timer
-⏱ Fire date: 2021-01-17 18:47:53 +0200 (fire interval: 0.9999969005584717) repeats: NO repeat interval: 0>
-
-UI Elements
-⏱ 1 view animation pending
+{
+  "app_status": "busy",
+  "busy_resources": [
+    {
+      "name": "run_loop",
+      "description": {
+        "name": "Main Run Loop"
+      }
+    },
+    {
+      "name": "ui",
+      "description": {
+        "layer_animation_pending_count": 2,
+        "layer_needs_display_count": 0,
+        "layer_needs_layout_count": 1,
+        "layer_pending_animation_count": 3,
+        "view_animation_pending_count": 2,
+        "view_controller_will_appear_count": 0,
+        "view_controller_will_disappear_count": 0,
+        "view_needs_display_count": 0,
+        "view_needs_layout_count": 0
+      }
+    }
+  ]
+}
 ```
 
-Each section describes the busy component—a sync resource—and some information from the component, attempting to shed more light on why the component is busy.
+Each item of the `busy_resources` describes a busy sync resource, along with availble description of the resource, attempting to shed more light on why the resource is busy.
 
-This document aims to describe each component, how it is tracked and what can cause it to become busy.
+This document aims to describe each resource the sync system tracks, how it is tracked and what can cause it to become busy.
 
 ## Sync Resources
 
@@ -29,11 +44,15 @@ This document aims to describe each component, how it is tracked and what can ca
 
 This sync resource tracks Objective C selectors scheduled to run in the future, using API such as `-[NSObject performSelector:withObject:afterDelay:]`. Such delayed selectors are tracked for run loops that are tracked by the system.
 
-A typical idle status response:
+A typical busy resource representation:
 
 ```
-Delayed Perform Selector
-⏱ 2 pending selectors
+{
+  "name": "delayed_perform_selector",
+  "description": {
+    "pending_selectors": 2
+  }
+}
 ```
 
 Once all pending selectors have been called, this sync resource becomes idle.
@@ -42,11 +61,16 @@ Once all pending selectors have been called, this sync resource becomes idle.
 
 This sync resource tracks [dispatch queues](https://developer.apple.com/documentation/dispatch/dispatch_queue?language=objc) and their [work items](https://developer.apple.com/documentation/dispatch/dispatch_work_item?language=objc). Once a work item is submitted to a tracked dispatch queue, the sync resource is considered busy.
 
-A typical idle status response:
+A typical busy resource representation:
 
 ```
-Dispatch Queue
-⏱ Queue: “Main Queue (<OS_dispatch_queue_main: com.apple.main-thread>)” with 3 work items
+{
+  "name": "dispatch_queue",
+  "description": {
+    "queue": "Main Queue (<OS_dispatch_queue_main: com.apple.main-thread>)",
+    "works_count": 3
+  }
+}
 ```
 
 Once all pending work items have been executed, the sync resource becomes idle.
@@ -57,11 +81,15 @@ The run loop sync resource tracks [run loops](https://developer.apple.com/docume
 
 During the normal lifecycle of an app, its run loops normally switch often between busy and idle states, and no special significance should be paid to a busy run loop, as it is usually accompanied by other busy sync resources, which better describe what the system is doing.
 
-A typical idle status response:
+A typical busy resource representation:
 
 ```
-Run Loop
-⏱ “Main Run Loop”
+{
+  "name": "run_loop",
+  "description": {
+    "name": "Main Run Loop"
+  }
+}
 ```
 
 ### One-time Event
@@ -81,11 +109,16 @@ One-time events include:
 
 Each one-time event description may include an object and/or other identifiable information to help hint what the event is.
 
-A typical idle status response:
+A typical busy resource representation:
 
 ```
-One Time Events
-⏱ “Network Request” with object: “URL: “https://jsonplaceholder.typicode.com/todos/1””
+{
+  "name": "one_time_events",
+  "description": {
+    "event": "Network Request",
+    "object": "URL: “https://jsonplaceholder.typicode.com/todos/1”"
+  }
+}
 ```
 
 This sync resource is considered idle once all tracked one-time events are finished.
@@ -94,18 +127,37 @@ This sync resource is considered idle once all tracked one-time events are finis
 
 This sync resource tracks [run loop timers](https://developer.apple.com/documentation/foundation/nstimer) and [display links](https://developer.apple.com/documentation/quartzcore/cadisplaylink). Once a timer or display link is scheduled with a tracked run loop, it is automatically tracked by the system, and the sync resource becomes busy.
 
-A typical idle status response:
+A typical busy resource representation:
 
 ```
-Timer
-⏱ Fire date: 2021-01-17 18:47:53 +0200 (fire interval: 0.9999969005584717) repeats: NO repeat interval: 0>
-⏱ Fire date: 2021-01-17 18:47:53 +0200 (fire interval: 1.499957919120789) repeats: NO repeat interval: 0>
-⏱ Fire date: 2021-01-17 18:47:53 +0200 (fire interval: 0.9999970197677612) repeats: NO repeat interval: 0>
-⏱ Fire date: 2021-01-17 18:47:53 +0200 (fire interval: 0.9999929666519165) repeats: NO repeat interval: 0>
-⏱ Fire date: 2021-01-17 18:47:53 +0200 (fire interval: 0.9999979734420776) repeats: NO repeat interval: 0>
+{
+  "name": "timers",
+  "description": {
+    "timers": [
+      {
+        "fire_date": "2021-11-02 14:37:30 +0200",
+        "time_until_fire": "0.9999970197677612",
+        "repeat_interval": 0,
+        "is_recurring": false
+      },
+      {
+        "fire_date": "2021-11-02 14:37:30 +0200",
+        "time_until_fire": "1.499961972236633",
+        "repeat_interval": 0,
+        "is_recurring": false
+      },
+      {
+        "fire_date": "2021-11-02 14:37:30 +0200",
+        "time_until_fire": "0.9999980926513672",
+        "repeat_interval": 0,
+        "is_recurring": false
+      }
+    ]
+  }
+}
 ```
 
-For timers, the idle status descriptions provides the fire date (in system time zone), the fire time interval, whether the timer repeats and its repeat interval. For display links, it displays the object description.
+For timers, the idle status descriptions provides the fire date (in system time zone), the time until fire, whether the timer is recurring and its repeat interval. For display links, it displays the object description.
 
 The sync resource is considered idle once all tracked timers are either cancelled or fired, and are no longer tracked.
 
@@ -128,28 +180,44 @@ Depending on the depth of the view hierarchy, view and layer display & layout co
 
 **Due to the decentralized nature of view and CA animations, it is impossible to provide precise information of which view or layer are being animated. It is up to developers to be familiar with their apps.** Certain special views, such as [activity indicator views](https://developer.apple.com/documentation/uikit/uiactivityindicatorview?language=objc), can infinitely animate when displayed, and will keep the system busy. Ensure your app removes them when idle, or stops their animation.
 
-A typical idle status response:
+A typical busy resource representation:
 
 ```
-UI Elements
-⏱ 1 layer awaiting layout
-⏱ 3 layers pending animation
-⏱ 3 view animations pending
-⏱ 2 CA animations pending
+{
+  "name": "ui",
+  "description": {
+    "layer_animation_pending_count": 2,
+    "layer_needs_display_count": 1,
+    "layer_needs_layout_count": 1,
+    "layer_pending_animation_count": 3,
+    "view_animation_pending_count": 2,
+    "view_controller_will_appear_count": 1,
+    "view_controller_will_disappear_count": 1,
+    "view_needs_display_count": 1,
+    "view_needs_layout_count": 1
+  }
+}
 ```
 
 The sync resource is considered idle when there are no active events in all categories.
 
 ### JS Timer
 
-This sync resource tracks JS timers in React Native applications, started with the `setTimeout()` API. When a JS timer is started, it is automatically tracked by the system, and the sync resource becomes busy.
+This sync resource tracks JS timers in React Native applications, started with the `setTimeout()` or `setInterval()` APIs.
+When a JS timer is started, it is automatically tracked by the system, and the sync resource becomes busy.
 
-A typical idle status response:
+A typical busy resource representation:
 
 ```
-JS Timer
-⏱ 8
-⏱ 57
+{
+  "name": "js_timers",
+  "description": {
+    "ids": [
+      8,
+      57
+    ]
+  }
+}
 ```
 
 For each JS timer, the timer ID is printed, as returned by `setTimeout()`. You can use this ID to investigate where in your code the timer was started.

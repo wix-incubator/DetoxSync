@@ -166,6 +166,7 @@ typedef void (^DTXStatusHandler)(NSDictionary<NSString *, id> *);
 /// @param completionHandler The completion handler to call with the synchronization status result.
 ///
 /// @note The completion handler is called on a background queue.
+/// @see https://github.com/wix/DetoxSync/blob/master/StatusDocumentation.md for more documentation.
 + (void)statusWithCompletionHandler:(DTXStatusHandler)completionHandler;
 
 @end
