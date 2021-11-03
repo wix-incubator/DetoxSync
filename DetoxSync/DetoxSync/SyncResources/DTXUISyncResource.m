@@ -10,6 +10,7 @@
 #import "DTXSyncManager-Private.h"
 #import "DTXSingleEventSyncResource.h"
 #import "DTXOrigDispatch.h"
+#import "NSString+SyncResource.h"
 
 static const void* _DTXCAAnimationTrackingIdentifierKey = &_DTXCAAnimationTrackingIdentifierKey;
 
@@ -109,6 +110,43 @@ static const void* _DTXCAAnimationTrackingIdentifierKey = &_DTXCAAnimationTracki
 - (NSString *)syncResourceGenericDescription
 {
 	return @"UI Elements";
+}
+
+- (NSDictionary<NSString *, id> *)jsonDescription {
+  NSDictionary<NSString *, NSNumber *> *rawDescription = [@{
+    // Awaiting layout:
+    @"view_needs_layout_count": @(_viewNeedsLayoutCount),
+    @"layer_needs_layout_count": @(_layerNeedsLayoutCount),
+
+    // Awaiting display:
+    @"view_needs_display_count": @(_viewNeedsDisplayCount),
+    @"layer_needs_display_count": @(_layerNeedsDisplayCount),
+
+    // Pending animations:
+    @"layer_pending_animation_count": @(_layerPendingAnimationCount),
+
+    // Animations pending:
+    @"view_animation_pending_count": @(_viewAnimationCount),
+    @"layer_animation_pending_count": @(_layerAnimationCount),
+
+    // View controllers appearance:
+    @"view_controller_will_appear_count": @(_viewControllerWillAppearCount),
+    @"view_controller_will_disappear_count": @(_viewControllerWillDisappearCount)
+  } mutableCopy];
+
+  auto resourceDescription = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
+  for (NSString *key in rawDescription) {
+    auto countValue = rawDescription[key];
+
+    if (countValue.boolValue) {
+      resourceDescription[key] = countValue;
+    }
+  }
+
+  return @{
+    NSString.dtx_resourceNameKey: @"ui",
+    NSString.dtx_resourceDescriptionKey: resourceDescription
+  };
 }
 
 - (nullable NSString*)_trackForParam:(NSUInteger*)param eventDescription:(NSString*(NS_NOESCAPE ^)(void))eventDescription objectDescription:(NSString*(NS_NOESCAPE ^)(void))objectDescription

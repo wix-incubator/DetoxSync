@@ -11,12 +11,13 @@
 #import "DTXSyncManager-Private.h"
 #import "CADisplayLink+DTXSpy.h"
 #import "_DTXTimerTrampoline.h"
+#import "NSString+SyncResource.h"
 
 @import ObjectiveC;
 
 @implementation DTXTimerSyncResource
 {
-	NSMutableSet* _timers;
+	NSMutableSet<_DTXTimerTrampoline *> * _timers;
 }
 
 + (id<DTXTimerProxy>)timerProxyWithTarget:(id)target selector:(SEL)selector fireDate:(NSDate*)fireDate interval:(NSTimeInterval)ti repeats:(BOOL)rep
@@ -177,6 +178,15 @@ static NSUInteger _DTXCleanTimersAndReturnCount(NSMutableSet* _timers, NSMutable
 - (NSString*)syncResourceGenericDescription
 {
 	return @"Timer";
+}
+
+- (NSDictionary<NSString *, id> *)jsonDescription {
+  return @{
+    NSString.dtx_resourceNameKey: @"timers",
+    NSString.dtx_resourceDescriptionKey: @{
+      @"timers": [_timers.allObjects valueForKey:@"jsonDescription"]
+    }
+  };
 }
 
 + (void)clearTimersForCFRunLoop:(CFRunLoopRef)cfRunLoop

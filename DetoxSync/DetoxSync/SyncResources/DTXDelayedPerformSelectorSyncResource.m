@@ -8,6 +8,7 @@
 
 #import "DTXDelayedPerformSelectorSyncResource.h"
 #import "DTXSyncManager-Private.h"
+#import "NSString+SyncResource.h"
 
 @interface DTXDelayedPerformSelectorSyncResource ()
 
@@ -117,6 +118,15 @@
 - (NSString*)_selectorTargetDescription
 {
 	return _DTXPluralIfNeeded(@"pending selector", _busyCount);
+}
+
+- (NSDictionary<NSString *, id> *)jsonDescription {
+  return @{
+    NSString.dtx_resourceNameKey: @"delayed_perform_selector",
+    NSString.dtx_resourceDescriptionKey: @{
+      @"pending_selectors": @(_busyCount)
+    }
+  };
 }
 
 + (id<DTXDelayedPerformSelectorProxy>)delayedPerformSelectorProxyWithTarget:(id)target selector:(SEL)selector object:(id)obj;

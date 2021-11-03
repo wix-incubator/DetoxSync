@@ -10,6 +10,7 @@
 #import "DTXSyncResource-Private.h"
 #import "_DTXObjectDeallocHelper.h"
 #import "DTXTimerSyncResource-Private.h"
+#import "NSString+SyncResource.h"
 
 @import ObjectiveC;
 
@@ -190,6 +191,15 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 - (NSString*)syncResourceGenericDescription
 {
 	return @"Run Loop";
+}
+
+- (NSDictionary<NSString *, id> *)jsonDescription {
+  return @{
+    NSString.dtx_resourceNameKey: @"run_loop",
+    NSString.dtx_resourceDescriptionKey: @{
+      @"name": _DTXCFRunLoopDescription(_runLoop, self.name)
+    }
+  };
 }
 
 @end

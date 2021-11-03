@@ -112,6 +112,11 @@ NSString* _DTXPluralIfNeeded(NSString* word, NSUInteger count)
 	return nil;
 }
 
+- (NSDictionary<NSString *, id> *)jsonDescription {
+  [self doesNotRecognizeSelector:_cmd];
+  return nil;
+}
+
 - (void)dealloc
 {
 	[DTXSyncManager unregisterSyncResource:self];

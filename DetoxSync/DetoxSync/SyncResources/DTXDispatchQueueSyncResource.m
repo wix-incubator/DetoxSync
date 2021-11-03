@@ -9,6 +9,7 @@
 #import "DTXDispatchQueueSyncResource-Private.h"
 #import "DTXSyncManager-Private.h"
 #import "_DTXObjectDeallocHelper.h"
+#import "NSString+SyncResource.h"
 
 @import ObjectiveC;
 
@@ -91,6 +92,16 @@ static NSString* _DTXQueueDescription(dispatch_queue_t queue, NSString* name)
 - (NSString*)syncResourceGenericDescription
 {
 	return @"Dispatch Queue";
+}
+
+- (NSDictionary<NSString *, id> *)jsonDescription {
+  return @{
+    NSString.dtx_resourceNameKey: @"dispatch_queue",
+    NSString.dtx_resourceDescriptionKey: @{
+      @"queue": _DTXQueueDescription(_queue, self.name),
+      @"works_count": @(_busyCount)
+    }
+  };
 }
 
 - (nullable NSString*)addWorkBlock:(id)block operation:(NSString*)operation moreInfo:(nullable NSString*)moreInfo
