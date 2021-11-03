@@ -121,16 +121,21 @@ static NSUInteger _DTXCleanTimersAndReturnCount(NSMutableSet* _timers, NSMutable
 	__block NSMutableArray<NSString*(^)(void)>* eventDescriptions = [NSMutableArray new];
 	__block NSMutableArray<NSString*(^)(void)>* objectDescriptions = [NSMutableArray new];
 	
-	[self performMultipleUpdateBlock:^{
-		[eventIdentifiers addObject:_DTXStringReturningBlock([NSString stringWithFormat:@"%p", trampoline])];
-		[eventDescriptions addObject:_DTXStringReturningBlock(self.syncResourceGenericDescription)];
-		[objectDescriptions addObject:_DTXStringReturningBlock(trampoline.syncResourceDescription)];
-		[_timers addObject:trampoline];
-		return _DTXCleanTimersAndReturnCount(_timers, eventIdentifiers);
-	} eventIdentifiers:_DTXObjectReturningBlock(eventIdentifiers)
-				   eventDescriptions:_DTXObjectReturningBlock(eventDescriptions)
-				  objectDescriptions:_DTXObjectReturningBlock(objectDescriptions)
-			  additionalDescriptions:nil];
+	[self
+     performMultipleUpdateBlock:^{
+      [eventIdentifiers addObject:_DTXStringReturningBlock([NSString stringWithFormat:@"%p",
+                                                            trampoline])];
+      [eventDescriptions addObject:_DTXStringReturningBlock(self.resourceName)];
+      [objectDescriptions addObject:_DTXStringReturningBlock([NSString stringWithFormat:@"%@",
+                                                              trampoline.jsonDescription])];
+      [_timers addObject:trampoline];
+
+      return _DTXCleanTimersAndReturnCount(_timers, eventIdentifiers);
+	}
+     eventIdentifiers:_DTXObjectReturningBlock(eventIdentifiers)
+     eventDescriptions:_DTXObjectReturningBlock(eventDescriptions)
+     objectDescriptions:_DTXObjectReturningBlock(objectDescriptions)
+     additionalDescriptions:nil];
 }
 
 - (void)untrackTimerTrampoline:(_DTXTimerTrampoline *)trampoline
@@ -145,39 +150,6 @@ static NSUInteger _DTXCleanTimersAndReturnCount(NSMutableSet* _timers, NSMutable
 				   eventDescriptions:nil
 				  objectDescriptions:nil
 			  additionalDescriptions:nil];
-}
-
-- (NSString *)description
-{
-	id rv = nil;
-	
-	@try {
-		rv = [NSString stringWithFormat:@"<%@: %p%@>", self.class, self, _timers.count > 0 ? [NSString stringWithFormat:@"  timers: %@", [_timers.allObjects valueForKey:@"description"]] : @""];
-	} @catch (NSException *exception) {
-		rv = [super description];
-	}
-	
-	return rv;
-}
-
-- (NSString*)syncResourceDescription
-{
-	id rv = nil;
-	
-	@try {
-		NSArray<NSString*>* descriptions = [_timers.allObjects valueForKey:@"syncResourceDescription"];
-		rv = [descriptions componentsJoinedByString:@"\n⏱ "];
-//		rv = [NSString stringWithFormat:@"Timers: %@", _timers.count > 0 ? descriptions : @"-"];
-	} @catch (NSException *exception) {
-		rv = [super description];
-	}
-	
-	return rv;
-}
-
-- (NSString*)syncResourceGenericDescription
-{
-	return @"Timer";
 }
 
 - (NSDictionary<NSString *, id> *)jsonDescription {

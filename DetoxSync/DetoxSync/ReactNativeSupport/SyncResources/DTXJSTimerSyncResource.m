@@ -74,22 +74,20 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
 
 - (void)removeObjectForKey:(NSNumber*)aKey
 {
-	[_syncResource performUpdateBlock:^ {
-		if([_observedTimers containsObject:aKey])
-		{
-			DTXSyncResourceVerboseLog(@"⏲ Removing observed timer %@", aKey);
-			[_observedTimers removeObject:aKey];
-		}
-		
-		return [_syncResource _busyCount];
-	} eventIdentifier:_DTXStringReturningBlock(aKey.stringValue) eventDescription:_DTXStringReturningBlock(_syncResource.syncResourceGenericDescription) objectDescription:_DTXStringReturningBlock(_prettyTimerDescription(aKey)) additionalDescription:nil];
+	[_syncResource
+     performUpdateBlock:^ {
+      if([_observedTimers containsObject:aKey]) {
+        DTXSyncResourceVerboseLog(@"⏲ Removing observed timer %@", aKey);
+        [_observedTimers removeObject:aKey];
+      }
+      return [_syncResource _busyCount];
+    }
+     eventIdentifier:_DTXStringReturningBlock(aKey.stringValue)
+     eventDescription:_DTXStringReturningBlock([_syncResource resourceName])
+     objectDescription:_DTXStringReturningBlock(_prettyTimerDescription(aKey))
+     additionalDescription:nil];
 	
 	[_timers removeObjectForKey:aKey];
-}
-
-- (NSString*)syncResourceDescription
-{
-	return [_observedTimers description];
 }
 
 @end
@@ -197,7 +195,10 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
 		}
 
 		return [self _busyCount];
-	} eventIdentifier:_DTXStringReturningBlock(timerID.stringValue) eventDescription:_DTXStringReturningBlock(self.syncResourceGenericDescription) objectDescription:_DTXStringReturningBlock(_prettyTimerDescription(timerID)) additionalDescription:nil];
+	}
+             eventIdentifier:_DTXStringReturningBlock(timerID.stringValue)
+            eventDescription:_DTXStringReturningBlock(self.resourceName)
+           objectDescription:_DTXStringReturningBlock(_prettyTimerDescription(timerID)) additionalDescription:nil];
 }
 
 - (NSString*)syncResourceDescription
@@ -205,11 +206,6 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
 	NSArray<NSString*>* timers = [[_observations.objectEnumerator.allObjects valueForKeyPath:@"@distinctUnionOfObjects._observedTimers"] firstObject];
 	
 	return [timers componentsJoinedByString:@"\n⏱ "];
-}
-
-- (NSString *)syncResourceGenericDescription
-{
-	return @"JS Timer";
 }
 
 - (NSDictionary<NSString *, id> *)jsonDescription {

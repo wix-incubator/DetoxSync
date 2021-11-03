@@ -94,10 +94,15 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 
 - (void)_setBusy:(BOOL)isBusyNow
 {
-	[self performUpdateBlock:^ NSUInteger {
-		self._wasPreviouslyBusy = isBusyNow;
-		return isBusyNow;
-	} eventIdentifier:_DTXStringReturningBlock([NSString stringWithFormat:@"%p", self]) eventDescription:_DTXStringReturningBlock(self.syncResourceGenericDescription) objectDescription:_DTXStringReturningBlock(_DTXCFRunLoopDescription(_runLoop, self.name)) additionalDescription:nil];
+	[self
+     performUpdateBlock:^ NSUInteger {
+      self._wasPreviouslyBusy = isBusyNow;
+      return isBusyNow;
+    }
+     eventIdentifier:_DTXStringReturningBlock([NSString stringWithFormat:@"%p", self])
+     eventDescription:_DTXStringReturningBlock(self.resourceName)
+     objectDescription:_DTXStringReturningBlock(_DTXCFRunLoopDescription(_runLoop, self.runLoopName))
+     additionalDescription:nil];
 }
 
 - (void)_startTracking
@@ -140,9 +145,10 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 	if(CFRunLoopIsWaiting(_runLoop) == NO)
 	{
 		self._wasPreviouslyBusy = YES;
-		[self performUpdateBlock:^ NSUInteger {
-			return 1;
-		} eventIdentifier:_DTXStringReturningBlock([NSString stringWithFormat:@"%p", self]) eventDescription:_DTXStringReturningBlock(self.syncResourceGenericDescription) objectDescription:_DTXStringReturningBlock(_DTXCFRunLoopDescription(_runLoop, self.name)) additionalDescription:nil];
+		[self
+         performUpdateBlock:^ NSUInteger {
+          return 1;
+        } eventIdentifier:_DTXStringReturningBlock([NSString stringWithFormat:@"%p", self]) eventDescription:_DTXStringReturningBlock(self.resourceName) objectDescription:_DTXStringReturningBlock(_DTXCFRunLoopDescription(_runLoop, self.runLoopName)) additionalDescription:nil];
 	}
 }
 
@@ -159,9 +165,14 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 		_observer = nil;
 	}
 	
-	[self performUpdateBlock:^ NSUInteger {
-		return 0;
-	} eventIdentifier:_DTXStringReturningBlock([NSString stringWithFormat:@"%p", self]) eventDescription:_DTXStringReturningBlock(self.syncResourceGenericDescription) objectDescription:_DTXStringReturningBlock(_DTXCFRunLoopDescription(_runLoop, self.name)) additionalDescription:nil];
+	[self
+     performUpdateBlock:^ NSUInteger {
+      return 0;
+    }
+     eventIdentifier:_DTXStringReturningBlock([NSString stringWithFormat:@"%p", self])
+     eventDescription:_DTXStringReturningBlock(self.resourceName)
+     objectDescription:_DTXStringReturningBlock(_DTXCFRunLoopDescription(_runLoop, self.runLoopName))
+     additionalDescription:nil];
 	
 	_isTracking = NO;
 }
@@ -178,26 +189,11 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 	objc_setAssociatedObject((__bridge id)_runLoop, DTXRunLoopDeallocHelperKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-- (NSString *)description
-{
-	return [NSString stringWithFormat:@"<%@: %p runLoop: “%@”>", self.class, self, _runLoop == CFRunLoopGetMain() ? @"Main Run Loop" : _DTXCFRunLoopDescription(_runLoop, self.name)];
-}
-
-- (NSString *)syncResourceDescription
-{
-	return [NSString stringWithFormat:@"“%@”", _DTXCFRunLoopDescription(_runLoop, self.name)];
-}
-
-- (NSString*)syncResourceGenericDescription
-{
-	return @"Run Loop";
-}
-
 - (NSDictionary<NSString *, id> *)jsonDescription {
   return @{
     NSString.dtx_resourceNameKey: @"run_loop",
     NSString.dtx_resourceDescriptionKey: @{
-      @"name": _DTXCFRunLoopDescription(_runLoop, self.name)
+      @"name": _DTXCFRunLoopDescription(_runLoop, self.runLoopName)
     }
   };
 }

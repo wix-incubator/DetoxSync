@@ -95,26 +95,6 @@
 	[DTXSyncManager unregisterSyncResource:self];
 }
 
-- (NSString *)description
-{
-	if(_description == nil && _object == nil)
-	{
-		return [super description];
-	}
-	
-	return [NSString stringWithFormat:@"<%@: %p%@%@>", self.class, self, _description ? [NSString stringWithFormat:@" description: “%@”", _description] : @"", _object ? [NSString stringWithFormat:@" object: “%@”", _object] : @""];
-}
-
-- (NSString*)syncResourceDescription
-{
-	return [NSString stringWithFormat:@"“%@”%@", _description ? [NSString stringWithFormat:@"%@", _description] : @"Event", _object ? [NSString stringWithFormat:@" with object: “%@”", _object] : @""];
-}
-
-- (NSString*)syncResourceGenericDescription
-{
-	return @"One-time Events";
-}
-
 - (NSDictionary<NSString *, id> *)jsonDescription {
   return @{
     NSString.dtx_resourceNameKey: @"one_time_events",

@@ -81,13 +81,20 @@
 {
 	__block NSString* identifier = nil;
 	
-	[self performUpdateBlock:^NSUInteger{
-		_busyCount++;
-		return _busyCount;
-	} eventIdentifier:^ {
-		identifier = NSUUID.UUID.UUIDString;
-		return identifier;
-	} eventDescription:_DTXStringReturningBlock(self.syncResourceGenericDescription) objectDescription:_DTXStringReturningBlock([NSString stringWithFormat:@"“%@” on “<%@: %p>”", NSStringFromSelector(selector), [target class], target]) additionalDescription:nil];
+	[self
+     performUpdateBlock:^NSUInteger{
+      _busyCount++;
+      return _busyCount;
+    }
+     eventIdentifier:^ {
+      identifier = NSUUID.UUID.UUIDString;
+      return identifier;
+    }
+     eventDescription:_DTXStringReturningBlock(self.resourceName)
+     objectDescription:_DTXStringReturningBlock([NSString stringWithFormat:@"“%@” on “<%@: %p>”",
+                                                 NSStringFromSelector(selector),
+                                                 [target class], target])
+     additionalDescription:nil];
 	
 	return identifier;
 }
@@ -98,26 +105,6 @@
 		_busyCount--;
 		return _busyCount;
 	} eventIdentifier:_DTXStringReturningBlock(identifier) eventDescription:nil objectDescription:nil additionalDescription:nil];
-}
-
-- (NSString *)description
-{
-	return [NSString stringWithFormat:@"<DTXDelayedPerformSelectorSyncResource: %p %@>", self, self._selectorTargetDescription];
-}
-
-- (NSString*)syncResourceDescription
-{
-	return self._selectorTargetDescription;
-}
-
-- (NSString *)syncResourceGenericDescription
-{
-	return @"Delayed Perform Selector";
-}
-
-- (NSString*)_selectorTargetDescription
-{
-	return _DTXPluralIfNeeded(@"pending selector", _busyCount);
 }
 
 - (NSDictionary<NSString *, id> *)jsonDescription {

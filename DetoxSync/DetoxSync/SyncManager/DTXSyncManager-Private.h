@@ -41,9 +41,6 @@ void __detox_sync_DTXSyncResourceVerboseLog(NSString* format, ...)  NS_FORMAT_FU
 + (BOOL)isThreadTracked:(NSThread*)thread;
 + (BOOL)isRunLoopTracked:(CFRunLoopRef)runLoop;
 
-+ (NSString*)idleStatus;
-+ (NSString*)syncStatus;
-
 @end
 
 NS_ASSUME_NONNULL_END

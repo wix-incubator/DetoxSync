@@ -158,15 +158,6 @@ __attribute__((weak_import))
 /// @param objectDescription An optional string description of the object triggering the event
 + (id<DTXTrackedEvent>)trackEventWithDescription:(NSString*)description objectDescription:(nullable NSString*)objectDescription NS_SWIFT_NAME(track(eventWithdescription:objectDescription:));
 
-/// Queries the idle status of the sync system and calls the provided completion handler with the result.
-///
-/// For documentation of the result string, see https://github.com/wix/DetoxSync/blob/master/IdleStatusDocumentation.md
-///
-/// The completion handler is called on a background queue.
-///
-/// @param completionHandler The completion handler to call with the idle status result.
-+ (void)idleStatusWithCompletionHandler:(void (^)(NSString* information))completionHandler;
-
 /// Block to call with a synchronization status to handle.
 typedef void (^DTXStatusHandler)(NSDictionary<NSString *, id> *);
 

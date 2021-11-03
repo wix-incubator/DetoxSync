@@ -17,7 +17,6 @@ extern const void* __DTXTimerTrampolineKey;
 
 - (BOOL)isDead;
 
-- (NSString*)syncResourceDescription;
 /// Returns a JSON dictionary that describes the timer.
 - (NSDictionary<NSString *, id> *)jsonDescription;
 

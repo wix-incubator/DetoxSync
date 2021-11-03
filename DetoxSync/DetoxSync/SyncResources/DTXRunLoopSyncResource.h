@@ -12,6 +12,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface DTXRunLoopSyncResource : DTXSyncResource
 
+/// Name of the run loop that is being tracked.
+@property (nonatomic, copy) NSString* runLoopName;
+
 + (instancetype)runLoopSyncResourceWithRunLoop:(CFRunLoopRef)runLoop;
 
 @end
