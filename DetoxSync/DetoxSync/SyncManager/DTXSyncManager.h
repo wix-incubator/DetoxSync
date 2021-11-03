@@ -167,6 +167,16 @@ __attribute__((weak_import))
 /// @param completionHandler The completion handler to call with the idle status result.
 + (void)idleStatusWithCompletionHandler:(void (^)(NSString* information))completionHandler;
 
+/// Block to call with a synchronization status to handle.
+typedef void (^DTXStatusHandler)(NSDictionary<NSString *, id> *);
+
+/// Queries the status of the sync system and calls the provided completion handler with the result.
+///
+/// @param completionHandler The completion handler to call with the synchronization status result.
+///
+/// @note The completion handler is called on a background queue.
++ (void)statusWithCompletionHandler:(DTXStatusHandler)completionHandler;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -15,6 +15,7 @@
 #import "DTXSingleEventSyncResource.h"
 #import "_DTXObjectDeallocHelper.h"
 #import "CADisplayLink+DTXSpy-Private.h"
+#import "NSString+SyncStatus.h"
 
 #include <dlfcn.h>
 
@@ -643,6 +644,27 @@ static BOOL DTXIsSystemBusyNow(void)
 	return [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:objectDescription eventDescription:description];
 }
 
++ (NSDictionary<NSString *, id> *)_syncStatus {
+  NSMutableArray<NSDictionary *> * busyResourcesDescriptions = [NSMutableArray new];
+
+  for(DTXSyncResource* resource in _registeredResources.allObjects) {
+    if (![[_resourceMapping objectForKey:resource] boolValue]) {
+      continue;
+    }
+
+    [busyResourcesDescriptions addObject:resource.jsonDescription];
+  }
+
+  if (!busyResourcesDescriptions.count) {
+    return @{ NSString.dtx_appStatusKey: @"idle" };
+  }
+
+  return @{
+    NSString.dtx_appStatusKey: @"busy",
+    NSString.dtx_busyResourcesKey: busyResourcesDescriptions
+  };
+}
+
 + (NSString*)_syncStatus:(BOOL)prettyNames;
 {
 	NSMutableString* rv = [NSMutableString new];
@@ -704,6 +726,12 @@ static BOOL DTXIsSystemBusyNow(void)
 	__detox_sync_orig_dispatch_async(_queue, ^ {
 		completionHandler([self _syncStatus:YES]);
 	});
+}
+
++ (void)statusWithCompletionHandler:(DTXStatusHandler)completionHandler {
+  __detox_sync_orig_dispatch_async(_queue, ^ {
+    completionHandler([self _syncStatus]);
+  });
 }
 
 @end
