@@ -13,11 +13,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NSString* _DTXPluralIfNeeded(NSString* word, NSUInteger count);
-
 @interface DTXSyncResource : NSObject
-
-@property (nonatomic, copy) NSString* name;
 
 - (void)performUpdateBlock:(NSUInteger(NS_NOESCAPE ^)(void))block
 		   eventIdentifier:(NSString*(NS_NOESCAPE ^)(void))eventID
@@ -31,8 +27,11 @@ NSString* _DTXPluralIfNeeded(NSString* word, NSUInteger count);
 				objectDescriptions:(nullable NSArray<NSString*(^)(void)>*(NS_NOESCAPE ^)(void))objectDescriptions
 			additionalDescriptions:(nullable NSArray<NSString*(^)(void)>*(NS_NOESCAPE ^)(void))additionalDescriptions;
 
-- (NSString*)syncResourceGenericDescription;
-- (NSString*)syncResourceDescription;
+/// Returns a JSON dictionary that describes the resource's status.
+- (NSDictionary<NSString *, id> *)jsonDescription;
+
+/// Name of the sync resource, retrieved from the \c jsonDescription.
+@property (readonly, nonatomic) NSString* resourceName;
 
 #if DEBUG
 - (NSString*)history;

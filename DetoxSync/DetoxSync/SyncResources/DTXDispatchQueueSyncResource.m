@@ -26,7 +26,7 @@ static const void* DTXQueueDeallocHelperKey = &DTXQueueDeallocHelperKey;
 	@autoreleasepool
 	{
 		DTXDispatchQueueSyncResource* mainQueueSync = [DTXDispatchQueueSyncResource dispatchQueueSyncResourceWithQueue:dispatch_get_main_queue()];
-		mainQueueSync.name = @"Main Queue";
+		mainQueueSync.queueName = @"Main Queue";
 		[DTXSyncManager registerSyncResource:mainQueueSync];
 	}
 }
@@ -76,29 +76,14 @@ static const void* DTXQueueDeallocHelperKey = &DTXQueueDeallocHelperKey;
 
 static NSString* _DTXQueueDescription(dispatch_queue_t queue, NSString* name)
 {	
-	return [NSString stringWithFormat:@"“%@%@%@”", name != nil ? [NSString stringWithFormat:@"%@ (", name] : @"", queue, name != nil ? @")" : @""];
-}
-
-- (NSString *)description
-{
-	return [NSString stringWithFormat:@"<%@: %p queue: %@%@>", self.class, self, _DTXQueueDescription(_queue, self.name), _busyCount > 0 ? [NSString stringWithFormat:@" with %@", _DTXPluralIfNeeded(@"work item", _busyCount)] : @""];
-}
-
-- (NSString*)syncResourceDescription
-{
-	return [NSString stringWithFormat:@"Queue: %@%@", _DTXQueueDescription(_queue, self.name), _busyCount > 0 ? [NSString stringWithFormat:@" with %@", _DTXPluralIfNeeded(@"work item", _busyCount)] : @""];
-}
-
-- (NSString*)syncResourceGenericDescription
-{
-	return @"Dispatch Queue";
+	return [NSString stringWithFormat:@"%@%@%@", name != nil ? [NSString stringWithFormat:@"%@ (", name] : @"", queue, name != nil ? @")" : @""];
 }
 
 - (NSDictionary<NSString *, id> *)jsonDescription {
   return @{
     NSString.dtx_resourceNameKey: @"dispatch_queue",
     NSString.dtx_resourceDescriptionKey: @{
-      @"queue": _DTXQueueDescription(_queue, self.name),
+      @"queue": _DTXQueueDescription(_queue, self.queueName),
       @"works_count": @(_busyCount)
     }
   };
@@ -114,7 +99,7 @@ static NSString* _DTXQueueDescription(dispatch_queue_t queue, NSString* name)
 	} eventIdentifier:^ NSString* {
 		identifier = NSUUID.UUID.UUIDString;
 		return identifier;
-	} eventDescription:_DTXStringReturningBlock(self.syncResourceGenericDescription)
+	} eventDescription:_DTXStringReturningBlock(self.resourceName)
 	  objectDescription:_DTXStringReturningBlock([self _descriptionForOperation:operation])
 	  additionalDescription:_DTXStringReturningBlock(moreInfo)];
 	
@@ -123,14 +108,15 @@ static NSString* _DTXQueueDescription(dispatch_queue_t queue, NSString* name)
 
 - (void)removeWorkBlock:(id)block operation:(NSString*)operation identifier:(NSString*)identifier
 {
-	[self performUpdateBlock:^NSUInteger{
-		_busyCount -= 1;
-		return _busyCount;
-	}
-			 eventIdentifier:_DTXStringReturningBlock(identifier)
-			eventDescription:_DTXStringReturningBlock(self.syncResourceGenericDescription)
-		   objectDescription:_DTXStringReturningBlock([self _descriptionForOperation:operation])
-	   additionalDescription:nil];
+	[self
+     performUpdateBlock:^NSUInteger{
+      _busyCount -= 1;
+      return _busyCount;
+    }
+     eventIdentifier:_DTXStringReturningBlock(identifier)
+     eventDescription:_DTXStringReturningBlock(self.resourceName)
+     objectDescription:_DTXStringReturningBlock([self _descriptionForOperation:operation])
+     additionalDescription:nil];
 }
 
 - (NSString*)_descriptionForOperation:(NSString*)op

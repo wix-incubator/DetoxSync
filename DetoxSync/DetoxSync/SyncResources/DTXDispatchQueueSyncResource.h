@@ -12,6 +12,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface DTXDispatchQueueSyncResource : DTXSyncResource
 
+/// Name of the dispatch queue that is being tracked.
+@property (nonatomic, copy) NSString* queueName;
+
 + (instancetype)dispatchQueueSyncResourceWithQueue:(dispatch_queue_t)queue;
 
 @end

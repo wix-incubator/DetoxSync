@@ -232,7 +232,7 @@ static atomic_nstimeinterval _maximumAnimationDuration = ATOMIC_VAR_INIT(1.0);
 		NSUInteger busyCount = block();
 		if(previousBusyCount != busyCount)
 		{
-			DTXSyncResourceVerboseLog(@"%@ %@ (count: %lu)", busyCount > 0 ? @"👎" : @"👍", resource.syncResourceDescription, (unsigned long)busyCount);
+			DTXSyncResourceVerboseLog(@"%@", resource.jsonDescription);
 			
 			if(dtx_unlikely(_delegate != nil))
 			{
@@ -283,7 +283,7 @@ static atomic_nstimeinterval _maximumAnimationDuration = ATOMIC_VAR_INIT(1.0);
 		NSUInteger busyCount = block();
 		if(previousBusyCount != busyCount)
 		{
-			DTXSyncResourceVerboseLog(@"%@ %@ (count: %lu)", busyCount > 0 ? @"👎" : @"👍", resource.syncResourceDescription, (unsigned long)busyCount);
+        DTXSyncResourceVerboseLog(@"%@", resource.jsonDescription);
 			
 			if(dtx_unlikely(_delegate != nil))
 			{
@@ -505,7 +505,7 @@ static BOOL DTXIsSystemBusyNow(void)
 	}
 	
 	DTXDispatchQueueSyncResource* sr = [DTXDispatchQueueSyncResource dispatchQueueSyncResourceWithQueue:dispatchQueue];
-	sr.name = name;
+	sr.queueName = name;
 	[self registerSyncResource:sr];
 }
 
@@ -552,7 +552,7 @@ static BOOL DTXIsSystemBusyNow(void)
 	}
 	
 	sr = [DTXRunLoopSyncResource runLoopSyncResourceWithRunLoop:runLoop];
-	sr.name = name;
+	sr.runLoopName = name;
 	[self registerSyncResource:sr];
 	[sr _startTracking];
 }
@@ -663,69 +663,6 @@ static BOOL DTXIsSystemBusyNow(void)
     NSString.dtx_appStatusKey: @"busy",
     NSString.dtx_busyResourcesKey: busyResourcesDescriptions
   };
-}
-
-+ (NSString*)_syncStatus:(BOOL)prettyNames;
-{
-	NSMutableString* rv = [NSMutableString new];
-	
-	NSArray* registeredResources = [_registeredResources.allObjects sortedArrayUsingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
-		return [NSStringFromClass([obj1 class]) compare:NSStringFromClass([obj2 class])];
-	}];
-	
-	NSString* prevClass = nil;
-	for(DTXSyncResource* sr in registeredResources)
-	{
-		BOOL isBusy = [[_resourceMapping objectForKey:sr] boolValue];
-		
-		if(prettyNames == YES && isBusy == NO)
-		{
-			continue;
-		}
-		
-		NSString* newClass = NSStringFromClass(sr.class);
-		if(rv.length > 0)
-		{
-			[rv appendString:@"\n"];
-			
-			if(prevClass != nil && [prevClass isEqualToString:newClass] == NO)
-			{
-				[rv appendFormat:@"\n%@\n", prettyNames == YES ? sr.syncResourceGenericDescription : NSStringFromClass(sr.class)];
-			}
-		}
-		else
-		{
-			[rv appendFormat:@"%@\n", prettyNames == YES ? sr.syncResourceGenericDescription : NSStringFromClass(sr.class)];
-		}
-		
-		prevClass = newClass;
-		
-		[rv appendFormat:@"%@%@", (isBusy == YES) ? @"⏱ " : @"🏁 " ,  prettyNames == YES ? sr.syncResourceDescription : sr.description];
-	}
-	
-	if(rv.length == 0)
-	{
-		return @"The system is idle.";
-	}
-	
-	return [NSString stringWithFormat:@"The system is busy with the following tasks:\n\n%@", rv];
-}
-
-+ (NSString*)idleStatus
-{
-	return [self _syncStatus:YES];
-}
-
-+ (NSString*)syncStatus
-{
-	return [self _syncStatus:NO];
-}
-
-+ (void)idleStatusWithCompletionHandler:(void (^)(NSString* information))completionHandler
-{
-	__detox_sync_orig_dispatch_async(_queue, ^ {
-		completionHandler([self _syncStatus:YES]);
-	});
 }
 
 + (void)statusWithCompletionHandler:(DTXStatusHandler)completionHandler {

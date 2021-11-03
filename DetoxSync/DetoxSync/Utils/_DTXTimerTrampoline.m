@@ -191,42 +191,6 @@ const void* __DTXTimerTrampolineKey = &__DTXTimerTrampolineKey;
 	return _dateFormatter;
 }
 
-- (NSString *)_description
-{
-	if(_displayLink != nil)
-	{
-		return _displayLink.description;
-	}
-
-	return [NSString stringWithFormat:@"<%@: %p (proxy: %p) fireDate: %@ (fire interval: %@) repeats: %@ repeat interval: %@>", _timer.class, _timer, self, [_DTXTimerTrampoline._descriptionDateFormatter stringFromDate:_fireDate], @(_deltaSinceNow), _repeats ? @"YES" : @"NO", @(_ti)];
-}
-
-- (NSString *)description
-{
-	NSString* _description = self._description;
-	if(_name == nil)
-	{
-		return _description;
-	}
-
-	return [NSString stringWithFormat:@"%@: %@", _name, _description];
-}
-
-- (NSString*)syncResourceDescription
-{
-	if(_displayLink != nil)
-	{
-		return _displayLink.description;
-	}
-
-	return [NSString stringWithFormat:@"Fire date: %@ (fire interval: %@) repeats: %@ repeat interval: %@>", [_DTXTimerTrampoline._descriptionDateFormatter stringFromDate:_fireDate], @(_deltaSinceNow), _repeats ? @"YES" : @"NO", @(_ti)];
-}
-
-- (NSString*)syncResourceGenericDescription
-{
-	return @"Timer";
-}
-
 - (NSDictionary<NSString *, id> *)jsonDescription {
   return @{
     @"fire_date": [_DTXTimerTrampoline._descriptionDateFormatter stringFromDate:_fireDate],

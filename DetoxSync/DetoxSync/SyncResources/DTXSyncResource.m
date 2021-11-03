@@ -10,17 +10,13 @@
 #import "DTXSyncManager-Private.h"
 #import "DTXAddressInfo.h"
 #import <execinfo.h>
+#import "NSString+SyncResource.h"
 
 #if DEBUG
 #define MAX_FRAME_COUNT 50
 #endif
 
 @import ObjectiveC;
-
-NSString* _DTXPluralIfNeeded(NSString* word, NSUInteger count)
-{
-	return [NSString stringWithFormat:@"%lu %@%@", count, word, count == 1 ? @"" : @"s"];
-}
 
 @implementation DTXSyncResource
 {
@@ -100,21 +96,13 @@ NSString* _DTXPluralIfNeeded(NSString* word, NSUInteger count)
 														 block:block];
 }
 
-- (NSString*)syncResourceDescription
-{
-	[self doesNotRecognizeSelector:_cmd];
-	return nil;
-}
-
-- (NSString*)syncResourceGenericDescription
-{
-	[self doesNotRecognizeSelector:_cmd];
-	return nil;
-}
-
 - (NSDictionary<NSString *, id> *)jsonDescription {
   [self doesNotRecognizeSelector:_cmd];
   return nil;
+}
+
+- (NSString *)resourceName {
+  return [self jsonDescription][NSString.dtx_resourceNameKey];
 }
 
 - (void)dealloc
