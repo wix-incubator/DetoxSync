@@ -13,8 +13,8 @@
 	if([NSUserDefaults.standardUserDefaults boolForKey:@"ExamplePrintSyncResources"] == NO) { break; } \
 	dispatch_group_t __await_response = dispatch_group_create();\
 	if(sync) { dispatch_group_enter(__await_response); }\
-	[DTXSyncManager idleStatusWithCompletionHandler:^(NSString* response) {\
-		printf("⚠️⚠️⚠️ %s\n", response.UTF8String);\
+	[DTXSyncManager statusWithCompletionHandler:^(NSDictionary<NSString *, id> * response) {\
+		printf("⚠️⚠️⚠️ %s\n", response.description.UTF8String);\
 		if(sync) { dispatch_group_leave(__await_response); }\
 	}];\
 } while(false);
