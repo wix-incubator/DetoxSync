@@ -84,6 +84,8 @@
 		604A436F271F506F003B22CA /* DTXSwizzlingHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 604A436E271F506F003B22CA /* DTXSwizzlingHelper.h */; };
 		6066775F271EFB000008A2C6 /* fishhook.c in Sources */ = {isa = PBXBuildFile; fileRef = 6066775D271EFB000008A2C6 /* fishhook.c */; };
 		60667760271EFB000008A2C6 /* fishhook.h in Headers */ = {isa = PBXBuildFile; fileRef = 6066775E271EFB000008A2C6 /* fishhook.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		60A9954927314A1700250FA6 /* NSString+SyncStatus.h in Headers */ = {isa = PBXBuildFile; fileRef = 60A9954727314A1700250FA6 /* NSString+SyncStatus.h */; };
+		60A9954A27314A1700250FA6 /* NSString+SyncStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 60A9954827314A1700250FA6 /* NSString+SyncStatus.m */; };
 		60B19FB2272EFCA900AB49E3 /* NSString+SyncResource.h in Headers */ = {isa = PBXBuildFile; fileRef = 60B19FB0272EFCA900AB49E3 /* NSString+SyncResource.h */; };
 		60B19FB3272EFCA900AB49E3 /* NSString+SyncResource.m in Sources */ = {isa = PBXBuildFile; fileRef = 60B19FB1272EFCA900AB49E3 /* NSString+SyncResource.m */; };
 /* End PBXBuildFile section */
@@ -175,6 +177,8 @@
 		604A436E271F506F003B22CA /* DTXSwizzlingHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTXSwizzlingHelper.h; path = DTXObjectiveCHelpers/DTXSwizzlingHelper.h; sourceTree = SOURCE_ROOT; };
 		6066775D271EFB000008A2C6 /* fishhook.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = fishhook.c; path = fishhook/fishhook.c; sourceTree = SOURCE_ROOT; };
 		6066775E271EFB000008A2C6 /* fishhook.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fishhook.h; path = fishhook/fishhook.h; sourceTree = SOURCE_ROOT; };
+		60A9954727314A1700250FA6 /* NSString+SyncStatus.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+SyncStatus.h"; sourceTree = "<group>"; };
+		60A9954827314A1700250FA6 /* NSString+SyncStatus.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSString+SyncStatus.m"; sourceTree = "<group>"; };
 		60B19FB0272EFCA900AB49E3 /* NSString+SyncResource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+SyncResource.h"; sourceTree = "<group>"; };
 		60B19FB1272EFCA900AB49E3 /* NSString+SyncResource.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSString+SyncResource.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -352,6 +356,8 @@
 				604A436A271F5004003B22CA /* Swiftier.h */,
 				60B19FB0272EFCA900AB49E3 /* NSString+SyncResource.h */,
 				60B19FB1272EFCA900AB49E3 /* NSString+SyncResource.m */,
+				60A9954727314A1700250FA6 /* NSString+SyncStatus.h */,
+				60A9954827314A1700250FA6 /* NSString+SyncStatus.m */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -382,6 +388,7 @@
 				396C8B842304424E00979E86 /* ReactNativeHeaders.h in Headers */,
 				39DE8FBC22F707F400780546 /* DTXOrigDispatch.h in Headers */,
 				39A6C13122F9AF8300187B56 /* DTXRunLoopSyncResource.h in Headers */,
+				60A9954927314A1700250FA6 /* NSString+SyncStatus.h in Headers */,
 				39DE8FAD22F707F400780546 /* DispatchQueue+DTXSpy.h in Headers */,
 				399AE33823B27B2000BF1318 /* CFRunLoopDescription.h in Headers */,
 				396C8B87230442A300979E86 /* DTXReactNativeSupport.h in Headers */,
@@ -502,6 +509,7 @@
 				39DE8FB622F707F400780546 /* UIAnimation+DTXSpy.m in Sources */,
 				397CA5FD22F9F9A1005024D0 /* DTXLogging.m in Sources */,
 				39DE8FAA22F707F400780546 /* NSObject+DTXSpy.m in Sources */,
+				60A9954A27314A1700250FA6 /* NSString+SyncStatus.m in Sources */,
 				39DE8FB322F707F400780546 /* UIApplication+DTXSpy.m in Sources */,
 				39DE8F9722F707F400780546 /* DTXTimerSyncResource.m in Sources */,
 				39DC982E24BB5BB400FFB224 /* dispatch_time.c in Sources */,
