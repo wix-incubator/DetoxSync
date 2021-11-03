@@ -8,6 +8,7 @@
 
 #import "DTXJSTimerSyncResource.h"
 #import "DTXSyncManager-Private.h"
+#import "NSString+SyncResource.h"
 
 @import ObjectiveC;
 
@@ -209,6 +210,18 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
 - (NSString *)syncResourceGenericDescription
 {
 	return @"JS Timer";
+}
+
+- (NSDictionary<NSString *, id> *)jsonDescription {
+  NSArray<NSNumber *> * timersIDs = [_observations.objectEnumerator.allObjects
+                                     valueForKeyPath:@"@distinctUnionOfObjects._observedTimers"];
+
+  return @{
+    NSString.dtx_resourceNameKey: @"js_timers",
+    NSString.dtx_resourceDescriptionKey: @{
+      @"ids": timersIDs
+    }
+  };
 }
 
 @end

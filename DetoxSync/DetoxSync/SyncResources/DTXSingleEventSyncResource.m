@@ -9,6 +9,7 @@
 #import "DTXSingleEventSyncResource.h"
 #import "DTXSyncManager-Private.h"
 #import "_DTXObjectDeallocHelper.h"
+#import "NSString+SyncResource.h"
 
 @interface _DTXSingleUseDeallocationHelper : _DTXObjectDeallocHelper <DTXSingleEvent> @end
 @implementation _DTXSingleUseDeallocationHelper
@@ -112,6 +113,16 @@
 - (NSString*)syncResourceGenericDescription
 {
 	return @"One-time Events";
+}
+
+- (NSDictionary<NSString *, id> *)jsonDescription {
+  return @{
+    NSString.dtx_resourceNameKey: @"one_time_events",
+    NSString.dtx_resourceDescriptionKey: @{
+      @"event": _description ?: [NSNull null],
+      @"object": _object ?: [NSNull null]
+    }
+  };
 }
 
 @end
