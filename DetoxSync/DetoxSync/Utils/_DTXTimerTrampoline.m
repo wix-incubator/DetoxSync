@@ -22,7 +22,7 @@ const void* __DTXTimerTrampolineKey = &__DTXTimerTrampolineKey;
 	CFRunLoopTimerCallBack _callback;
 	CFRunLoopRef _runLoop;
 	NSString* _timerDescription;
-	NSTimeInterval _deltaSinceNow;
+	NSTimeInterval _timeUntilFire;
 	
 	//CADisplayLink
 	__weak CADisplayLink* _displayLink;
@@ -50,7 +50,7 @@ const void* __DTXTimerTrampolineKey = &__DTXTimerTrampolineKey;
 		_target = target;
 		_sel = selector;
 		_fireDate = fireDate;
-		_deltaSinceNow = [fireDate timeIntervalSinceNow];
+		_timeUntilFire = [fireDate timeIntervalSinceNow];
 		_ti = ti;
 		_repeats = rep;
 		
@@ -68,7 +68,7 @@ const void* __DTXTimerTrampolineKey = &__DTXTimerTrampolineKey;
 	{
 		_callback = callback;
 		_fireDate = fireDate;
-		_deltaSinceNow = [fireDate timeIntervalSinceNow];
+		_timeUntilFire = [fireDate timeIntervalSinceNow];
 		_ti = ti;
 		_repeats = rep;
 		
@@ -197,7 +197,7 @@ const void* __DTXTimerTrampolineKey = &__DTXTimerTrampolineKey;
 	{
 		return _displayLink.description;
 	}
-	
+
 	return [NSString stringWithFormat:@"<%@: %p (proxy: %p) fireDate: %@ (fire interval: %@) repeats: %@ repeat interval: %@>", _timer.class, _timer, self, [_DTXTimerTrampoline._descriptionDateFormatter stringFromDate:_fireDate], @(_deltaSinceNow), _repeats ? @"YES" : @"NO", @(_ti)];
 }
 
@@ -208,7 +208,7 @@ const void* __DTXTimerTrampolineKey = &__DTXTimerTrampolineKey;
 	{
 		return _description;
 	}
-	
+
 	return [NSString stringWithFormat:@"%@: %@", _name, _description];
 }
 
@@ -218,13 +218,22 @@ const void* __DTXTimerTrampolineKey = &__DTXTimerTrampolineKey;
 	{
 		return _displayLink.description;
 	}
-	
+
 	return [NSString stringWithFormat:@"Fire date: %@ (fire interval: %@) repeats: %@ repeat interval: %@>", [_DTXTimerTrampoline._descriptionDateFormatter stringFromDate:_fireDate], @(_deltaSinceNow), _repeats ? @"YES" : @"NO", @(_ti)];
 }
 
 - (NSString*)syncResourceGenericDescription
 {
 	return @"Timer";
+}
+
+- (NSDictionary<NSString *, id> *)jsonDescription {
+  return @{
+    @"fire_date": [_DTXTimerTrampoline._descriptionDateFormatter stringFromDate:_fireDate],
+    @"time_until_fire": @(_timeUntilFire),
+    @"is_recurring": @(_repeats),
+    @"repeat_interval": @(_ti)
+  };
 }
 
 #if DEBUG
