@@ -70,9 +70,9 @@ This sync resource tracks JS timers in React Native applications, started with t
 
 The sync resource is considered idle once all tracked timers are either cancelled or fired, and are no longer tracked.
 
-### Idle Status
+### Sync Status
 
-The idle status of the system can be queried using the `+[DTXSyncManager idleStatusWithCompletionHandler:]` method. For more information of the returned syntax, see [Idle Status Documentation](IdleStatusDocumentation.md).
+The sync status of the system can be queried using the `+[DTXSyncManager statusWithCompletionHandler:]` method. For more information of the returned syntax, see [Sync Status Documentation](StatusDocumentation.md).
 
 ### React Native
 
