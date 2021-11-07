@@ -212,9 +212,17 @@ A typical busy resource representation:
 {
   "name": "js_timers",
   "description": {
-    "ids": [
-      8,
-      57
+    "timers": [
+      {
+        "timer_id": 13,
+        "duration": 3,
+        "is_recurring": false
+      },
+      {
+        "timer_id": 24,
+        "duration": 10,
+        "is_recurring": true
+      }
     ]
   }
 }
