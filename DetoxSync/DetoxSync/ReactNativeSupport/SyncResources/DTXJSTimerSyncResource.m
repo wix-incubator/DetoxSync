@@ -12,6 +12,50 @@
 
 @import ObjectiveC;
 
+/// Represents an observed Javascript timer, for internal use of \c DTXJSTimerSyncResource.
+@interface JSTimer: NSObject
+
+/// Identifier of the JS timer, as returned from the \c setTimeout / \c setInterval JS methods.
+@property (nonatomic, readonly) NSNumber *timerID;
+
+/// Duration of the JS timer.
+@property (nonatomic, readonly) NSTimeInterval duration;
+
+/// Indicated whether the JS timer is reccuring.
+@property (nonatomic, readonly) BOOL isReccuring;
+
+- (instancetype)init NS_UNAVAILABLE;
+
+- (instancetype)initWithTimerID:(NSNumber *)timerID duration:(NSTimeInterval)duration
+                    isReccuring:(BOOL)isReccuring NS_DESIGNATED_INITIALIZER;
+
+/// Returns a JSON dictionary that describes the timer.
+- (NSDictionary<NSString *, id> *)jsonDescription;
+
+@end
+
+@implementation JSTimer
+
+- (instancetype)initWithTimerID:(NSNumber *)timerID duration:(NSTimeInterval)duration
+                    isReccuring:(BOOL)isReccuring {
+  if (self = [super init]) {
+    _timerID = timerID;
+    _duration = duration;
+    _isReccuring = isReccuring;
+  }
+  return self;
+}
+
+- (NSDictionary<NSString *, id> *)jsonDescription {
+  return @{
+    @"timer_id": self.timerID,
+    @"duration": @(self.duration),
+    @"is_recurring": @(self.isReccuring)
+  };
+}
+
+@end
+
 @interface DTXJSTimerSyncResource ()
 
 - (NSUInteger)_busyCount;
@@ -26,8 +70,8 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
 @interface _DTXJSTimerObservationWrapper : NSObject @end
 @implementation _DTXJSTimerObservationWrapper
 {
-	NSMutableArray<NSNumber*>* _observedTimers;
-	NSMutableDictionary* _timers;
+	NSMutableArray<JSTimer *> *_observedTimers;
+	NSMutableDictionary *_timers;
 	
 	__weak DTXJSTimerSyncResource* _syncResource;
 }
@@ -62,9 +106,8 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
 	[anInvocation invokeWithTarget:_timers];
 }
 
-- (void)addObservedTimer:(NSNumber*)observedNumber
-{
-	[_observedTimers addObject:observedNumber];
+- (void)addObservedTimer:(JSTimer *)timer {
+  [_observedTimers addObject:timer];
 }
 
 - (NSUInteger)countOfObservedTimers
@@ -76,10 +119,13 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
 {
 	[_syncResource
      performUpdateBlock:^ {
-      if([_observedTimers containsObject:aKey]) {
-        DTXSyncResourceVerboseLog(@"⏲ Removing observed timer %@", aKey);
-        [_observedTimers removeObject:aKey];
+      for (JSTimer *timer in _observedTimers) {
+        if (timer.timerID == aKey) {
+          DTXSyncResourceVerboseLog(@"⏲ Removing observed timer: (%@)", timer);
+          [_observedTimers removeObject:timer];
+        }
       }
+
       return [_syncResource _busyCount];
     }
      eventIdentifier:_DTXStringReturningBlock(aKey.stringValue)
@@ -187,7 +233,9 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
 		{
 			DTXSyncResourceVerboseLog(@"⏲ Observing timer “%@” duration: %@ repeats: %@", timerID, @(duration), @(repeats));
 
-			[_observationWrapper addObservedTimer:timerID];
+			[_observationWrapper addObservedTimer:[[JSTimer alloc] initWithTimerID:timerID
+                                                                          duration:duration
+                                                                       isReccuring:repeats]];
 		}
 		else
 		{
@@ -209,13 +257,13 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
 }
 
 - (NSDictionary<NSString *, id> *)jsonDescription {
-  NSArray<NSNumber *> * timersIDs = [_observations.objectEnumerator.allObjects
-                                     valueForKeyPath:@"@distinctUnionOfObjects._observedTimers"];
+  NSArray<JSTimer *> * observedTimers = [_observations.objectEnumerator.allObjects
+                                         valueForKeyPath:@"@distinctUnionOfObjects._observedTimers"];
 
   return @{
     NSString.dtx_resourceNameKey: @"js_timers",
     NSString.dtx_resourceDescriptionKey: @{
-      @"ids": timersIDs
+      @"timers": [observedTimers valueForKey:@"jsonDescription"]
     }
   };
 }
