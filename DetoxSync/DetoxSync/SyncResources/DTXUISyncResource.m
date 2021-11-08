@@ -51,7 +51,28 @@ static const void* _DTXCAAnimationTrackingIdentifierKey = &_DTXCAAnimationTracki
 }
 
 - (NSDictionary<NSString *, id> *)jsonDescription {
-  NSDictionary<NSString *, NSNumber *> *rawDescription = [@{
+  return @{
+    NSString.dtx_resourceNameKey: @"ui",
+    NSString.dtx_resourceDescriptionKey: [self resourceDescription]
+  };
+}
+
+- (NSDictionary<NSString *, NSNumber *> *)resourceDescription {
+  auto rawDescription = [self rawResourceDescription];
+  auto description = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
+  for (NSString *key in rawDescription) {
+    auto countValue = rawDescription[key];
+
+    if (countValue.boolValue) {
+      description[key] = countValue;
+    }
+  }
+
+  return description;
+}
+
+- (NSDictionary<NSString *, NSNumber *> *)rawResourceDescription {
+  return @{
     // Awaiting layout:
     @"view_needs_layout_count": @(_viewNeedsLayoutCount),
     @"layer_needs_layout_count": @(_layerNeedsLayoutCount),
@@ -70,20 +91,6 @@ static const void* _DTXCAAnimationTrackingIdentifierKey = &_DTXCAAnimationTracki
     // View controllers appearance:
     @"view_controller_will_appear_count": @(_viewControllerWillAppearCount),
     @"view_controller_will_disappear_count": @(_viewControllerWillDisappearCount)
-  } mutableCopy];
-
-  auto resourceDescription = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
-  for (NSString *key in rawDescription) {
-    auto countValue = rawDescription[key];
-
-    if (countValue.boolValue) {
-      resourceDescription[key] = countValue;
-    }
-  }
-
-  return @{
-    NSString.dtx_resourceNameKey: @"ui",
-    NSString.dtx_resourceDescriptionKey: resourceDescription
   };
 }
 
