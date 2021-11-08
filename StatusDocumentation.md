@@ -19,15 +19,10 @@ A typical response looks like this:
     {
       "name": "ui",
       "description": {
-        "layer_animation_pending_count": 2,
-        "layer_needs_display_count": 0,
+        "layer_animation_pending_count": 2
         "layer_needs_layout_count": 1,
         "layer_pending_animation_count": 3,
-        "view_animation_pending_count": 2,
-        "view_controller_will_appear_count": 0,
-        "view_controller_will_disappear_count": 0,
-        "view_needs_display_count": 0,
-        "view_needs_layout_count": 0
+        "view_animation_pending_count": 2
       }
     }
   ]
