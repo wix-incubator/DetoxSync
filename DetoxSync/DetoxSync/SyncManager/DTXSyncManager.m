@@ -645,15 +645,7 @@ static BOOL DTXIsSystemBusyNow(void)
 }
 
 + (NSDictionary<NSString *, id> *)_syncStatus {
-  NSMutableArray<NSDictionary *> * busyResourcesDescriptions = [NSMutableArray new];
-
-  for(DTXSyncResource* resource in _registeredResources.allObjects) {
-    if (![[_resourceMapping objectForKey:resource] boolValue]) {
-      continue;
-    }
-
-    [busyResourcesDescriptions addObject:resource.jsonDescription];
-  }
+  auto busyResourcesDescriptions = [self busyResourcesDescriptions];
 
   if (!busyResourcesDescriptions.count) {
     return @{ NSString.dtx_appStatusKey: @"idle" };
@@ -663,6 +655,22 @@ static BOOL DTXIsSystemBusyNow(void)
     NSString.dtx_appStatusKey: @"busy",
     NSString.dtx_busyResourcesKey: busyResourcesDescriptions
   };
+}
+
++ (NSArray<NSDictionary *> *)busyResourcesDescriptions {
+  auto resources = _registeredResources;
+
+  NSMutableArray<NSDictionary *> * descriptions = [NSMutableArray new];
+  for (DTXSyncResource* resource in resources) {
+    NSNumber *busyCount = [_resourceMapping objectForKey:resource];
+    if (!busyCount.unsignedIntValue) {
+      continue;
+    }
+
+    [descriptions addObject:resource.jsonDescription];
+  }
+
+  return descriptions;
 }
 
 + (void)statusWithCompletionHandler:(DTXStatusHandler)completionHandler {
