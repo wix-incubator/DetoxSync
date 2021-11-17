@@ -7,3 +7,6 @@
 [submodule "DetoxSync/DTXObjectiveCHelpers"]
 	path = DetoxSync/DTXObjectiveCHelpers
 	url = https://github.com/wix/DTXObjectiveCHelpers.git
+[submodule "DetoxSync/specta"]
+	path = DetoxSync/specta
+	url = https://github.com/specta/specta
