@@ -1,0 +1,15 @@
+//
+//  PrefixHeader.pch
+//  DetoxSync
+//
+//  Created by Asaf Korem on 17/11/2021.
+//  Copyright © 2021 wix. All rights reserved.
+//
+
+#ifndef PrefixHeader_pch
+#define PrefixHeader_pch
+
+#import <Specta/Specta.h>
+#import <Expecta/Expecta.h>
+
+#endif /* PrefixHeader_pch */
