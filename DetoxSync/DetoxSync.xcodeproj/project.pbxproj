@@ -78,6 +78,8 @@
 		39DE8FBA22F707F400780546 /* NSObject+DTXSpy.h in Headers */ = {isa = PBXBuildFile; fileRef = 39DE8F8E22F707F400780546 /* NSObject+DTXSpy.h */; };
 		39DE8FBB22F707F400780546 /* DTXOrigDispatch.m in Sources */ = {isa = PBXBuildFile; fileRef = 39DE8F9022F707F400780546 /* DTXOrigDispatch.m */; };
 		39DE8FBC22F707F400780546 /* DTXOrigDispatch.h in Headers */ = {isa = PBXBuildFile; fileRef = 39DE8F9122F707F400780546 /* DTXOrigDispatch.h */; };
+		602F956D274528ED00BAFA74 /* DetoxSyncTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 602F956C274528ED00BAFA74 /* DetoxSyncTests.m */; };
+		602F956E274528ED00BAFA74 /* DetoxSync.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 39DE8F5222F707DD00780546 /* DetoxSync.framework */; };
 		604A436B271F5004003B22CA /* DTXAddressInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 604A4368271F5004003B22CA /* DTXAddressInfo.h */; };
 		604A436C271F5004003B22CA /* DTXAddressInfo.mm in Sources */ = {isa = PBXBuildFile; fileRef = 604A4369271F5004003B22CA /* DTXAddressInfo.mm */; };
 		604A436D271F5004003B22CA /* Swiftier.h in Headers */ = {isa = PBXBuildFile; fileRef = 604A436A271F5004003B22CA /* Swiftier.h */; };
@@ -89,6 +91,16 @@
 		60B19FB2272EFCA900AB49E3 /* NSString+SyncResource.h in Headers */ = {isa = PBXBuildFile; fileRef = 60B19FB0272EFCA900AB49E3 /* NSString+SyncResource.h */; };
 		60B19FB3272EFCA900AB49E3 /* NSString+SyncResource.m in Sources */ = {isa = PBXBuildFile; fileRef = 60B19FB1272EFCA900AB49E3 /* NSString+SyncResource.m */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		602F956F274528ED00BAFA74 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 39DE8F4922F707DD00780546 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 39DE8F5122F707DD00780546;
+			remoteInfo = DetoxSync;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		392250E223047161008E811D /* RCTNativeAnimatedNodesManager+DTXSpy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RCTNativeAnimatedNodesManager+DTXSpy.h"; sourceTree = "<group>"; };
@@ -171,6 +183,8 @@
 		39DE8F8E22F707F400780546 /* NSObject+DTXSpy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+DTXSpy.h"; sourceTree = "<group>"; };
 		39DE8F9022F707F400780546 /* DTXOrigDispatch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DTXOrigDispatch.m; sourceTree = "<group>"; };
 		39DE8F9122F707F400780546 /* DTXOrigDispatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DTXOrigDispatch.h; sourceTree = "<group>"; };
+		602F956A274528ED00BAFA74 /* DetoxSyncTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DetoxSyncTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		602F956C274528ED00BAFA74 /* DetoxSyncTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DetoxSyncTests.m; sourceTree = "<group>"; };
 		604A4368271F5004003B22CA /* DTXAddressInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTXAddressInfo.h; path = DTXObjectiveCHelpers/DTXAddressInfo.h; sourceTree = SOURCE_ROOT; };
 		604A4369271F5004003B22CA /* DTXAddressInfo.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = DTXAddressInfo.mm; path = DTXObjectiveCHelpers/DTXAddressInfo.mm; sourceTree = SOURCE_ROOT; };
 		604A436A271F5004003B22CA /* Swiftier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Swiftier.h; path = DTXObjectiveCHelpers/Swiftier.h; sourceTree = SOURCE_ROOT; };
@@ -188,6 +202,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		602F9567274528ED00BAFA74 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				602F956E274528ED00BAFA74 /* DetoxSync.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -228,6 +250,7 @@
 			isa = PBXGroup;
 			children = (
 				39DE8F5422F707DD00780546 /* DetoxSync */,
+				602F956B274528ED00BAFA74 /* DetoxSyncTests */,
 				39DE8F5322F707DD00780546 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -236,6 +259,7 @@
 			isa = PBXGroup;
 			children = (
 				39DE8F5222F707DD00780546 /* DetoxSync.framework */,
+				602F956A274528ED00BAFA74 /* DetoxSyncTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -362,6 +386,14 @@
 			path = Utils;
 			sourceTree = "<group>";
 		};
+		602F956B274528ED00BAFA74 /* DetoxSyncTests */ = {
+			isa = PBXGroup;
+			children = (
+				602F956C274528ED00BAFA74 /* DetoxSyncTests.m */,
+			);
+			path = DetoxSyncTests;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -436,6 +468,24 @@
 			productReference = 39DE8F5222F707DD00780546 /* DetoxSync.framework */;
 			productType = "com.apple.product-type.framework";
 		};
+		602F9569274528ED00BAFA74 /* DetoxSyncTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 602F9573274528ED00BAFA74 /* Build configuration list for PBXNativeTarget "DetoxSyncTests" */;
+			buildPhases = (
+				602F9566274528ED00BAFA74 /* Sources */,
+				602F9567274528ED00BAFA74 /* Frameworks */,
+				602F9568274528ED00BAFA74 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				602F9570274528ED00BAFA74 /* PBXTargetDependency */,
+			);
+			name = DetoxSyncTests;
+			productName = DetoxSyncTests;
+			productReference = 602F956A274528ED00BAFA74 /* DetoxSyncTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -447,6 +497,9 @@
 				TargetAttributes = {
 					39DE8F5122F707DD00780546 = {
 						CreatedOnToolsVersion = 11.0;
+					};
+					602F9569274528ED00BAFA74 = {
+						CreatedOnToolsVersion = 13.1;
 					};
 				};
 			};
@@ -464,12 +517,20 @@
 			projectRoot = "";
 			targets = (
 				39DE8F5122F707DD00780546 /* DetoxSync */,
+				602F9569274528ED00BAFA74 /* DetoxSyncTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		39DE8F5022F707DD00780546 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		602F9568274528ED00BAFA74 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -524,7 +585,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		602F9566274528ED00BAFA74 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				602F956D274528ED00BAFA74 /* DetoxSyncTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		602F9570274528ED00BAFA74 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 39DE8F5122F707DD00780546 /* DetoxSync */;
+			targetProxy = 602F956F274528ED00BAFA74 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		39DE8F5822F707DD00780546 /* Debug */ = {
@@ -713,6 +790,50 @@
 			};
 			name = Release;
 		};
+		602F9571274528ED00BAFA74 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5J684MLCAU;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = asafkorem.DetoxSyncTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		602F9572274528ED00BAFA74 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5J684MLCAU;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = asafkorem.DetoxSyncTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -730,6 +851,15 @@
 			buildConfigurations = (
 				39DE8F5B22F707DD00780546 /* Debug */,
 				39DE8F5C22F707DD00780546 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		602F9573274528ED00BAFA74 /* Build configuration list for PBXNativeTarget "DetoxSyncTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				602F9571274528ED00BAFA74 /* Debug */,
+				602F9572274528ED00BAFA74 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
