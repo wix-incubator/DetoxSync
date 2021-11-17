@@ -6,6 +6,10 @@
 //  Copyright © 2021 wix. All rights reserved.
 //
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef PrefixHeader_pch
 #define PrefixHeader_pch
 
@@ -13,3 +17,7 @@
 #import <Expecta/Expecta.h>
 
 #endif /* PrefixHeader_pch */
+
+#ifdef __cplusplus
+}
+#endif
