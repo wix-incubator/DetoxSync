@@ -78,7 +78,6 @@
 		39DE8FBA22F707F400780546 /* NSObject+DTXSpy.h in Headers */ = {isa = PBXBuildFile; fileRef = 39DE8F8E22F707F400780546 /* NSObject+DTXSpy.h */; };
 		39DE8FBB22F707F400780546 /* DTXOrigDispatch.m in Sources */ = {isa = PBXBuildFile; fileRef = 39DE8F9022F707F400780546 /* DTXOrigDispatch.m */; };
 		39DE8FBC22F707F400780546 /* DTXOrigDispatch.h in Headers */ = {isa = PBXBuildFile; fileRef = 39DE8F9122F707F400780546 /* DTXOrigDispatch.h */; };
-		602F956D274528ED00BAFA74 /* DetoxSyncTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 602F956C274528ED00BAFA74 /* DetoxSyncTests.m */; };
 		602F956E274528ED00BAFA74 /* DetoxSync.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 39DE8F5222F707DD00780546 /* DetoxSync.framework */; };
 		604A436B271F5004003B22CA /* DTXAddressInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 604A4368271F5004003B22CA /* DTXAddressInfo.h */; };
 		604A436C271F5004003B22CA /* DTXAddressInfo.mm in Sources */ = {isa = PBXBuildFile; fileRef = 604A4369271F5004003B22CA /* DTXAddressInfo.mm */; };
@@ -298,7 +297,6 @@
 		39DE8F9022F707F400780546 /* DTXOrigDispatch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DTXOrigDispatch.m; sourceTree = "<group>"; };
 		39DE8F9122F707F400780546 /* DTXOrigDispatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DTXOrigDispatch.h; sourceTree = "<group>"; };
 		602F956A274528ED00BAFA74 /* DetoxSyncTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DetoxSyncTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		602F956C274528ED00BAFA74 /* DetoxSyncTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DetoxSyncTests.m; sourceTree = "<group>"; };
 		604A4368271F5004003B22CA /* DTXAddressInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTXAddressInfo.h; path = DTXObjectiveCHelpers/DTXAddressInfo.h; sourceTree = SOURCE_ROOT; };
 		604A4369271F5004003B22CA /* DTXAddressInfo.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = DTXAddressInfo.mm; path = DTXObjectiveCHelpers/DTXAddressInfo.mm; sourceTree = SOURCE_ROOT; };
 		604A436A271F5004003B22CA /* Swiftier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Swiftier.h; path = DTXObjectiveCHelpers/Swiftier.h; sourceTree = SOURCE_ROOT; };
@@ -510,7 +508,6 @@
 			isa = PBXGroup;
 			children = (
 				60F75D5327452D9E00DF6C29 /* Frameworks */,
-				602F956C274528ED00BAFA74 /* DetoxSyncTests.m */,
 				60F75D8B2745309700DF6C29 /* PrefixHeader.pch */,
 			);
 			path = DetoxSyncTests;
@@ -868,7 +865,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				602F956D274528ED00BAFA74 /* DetoxSyncTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
