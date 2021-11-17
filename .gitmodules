@@ -10,3 +10,6 @@
 [submodule "DetoxSync/specta"]
 	path = DetoxSync/specta
 	url = https://github.com/specta/specta
+[submodule "DetoxSync/expecta"]
+	path = DetoxSync/expecta
+	url = https://github.com/specta/expecta
