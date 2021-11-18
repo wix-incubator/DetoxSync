@@ -13,6 +13,7 @@ extern "C" {
 #ifndef PrefixHeader_pch
 #define PrefixHeader_pch
 
+#import <Foundation/Foundation.h>
 #import <Specta/Specta.h>
 #import <Expecta/Expecta.h>
 #import <OCMock/OCMock.h>
