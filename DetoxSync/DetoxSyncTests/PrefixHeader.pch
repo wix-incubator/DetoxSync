@@ -17,6 +17,8 @@ extern "C" {
 #import <Expecta/Expecta.h>
 #import <OCMock/OCMock.h>
 
+#import "Swiftier.h"
+
 #endif /* PrefixHeader_pch */
 
 #ifdef __cplusplus

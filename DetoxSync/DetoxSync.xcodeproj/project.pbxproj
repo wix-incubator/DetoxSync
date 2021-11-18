@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		392250E423047179008E811D /* RCTNativeAnimatedNodesManager+DTXSpy.m in Sources */ = {isa = PBXBuildFile; fileRef = 392250E323047179008E811D /* RCTNativeAnimatedNodesManager+DTXSpy.m */; };
-		3923B11E23045B1F009D8780 /* DTXJSTimerSyncResource.h in Headers */ = {isa = PBXBuildFile; fileRef = 3923B11C23045B1F009D8780 /* DTXJSTimerSyncResource.h */; };
+		3923B11E23045B1F009D8780 /* DTXJSTimerSyncResource.h in Headers */ = {isa = PBXBuildFile; fileRef = 3923B11C23045B1F009D8780 /* DTXJSTimerSyncResource.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3923B11F23045B1F009D8780 /* DTXJSTimerSyncResource.m in Sources */ = {isa = PBXBuildFile; fileRef = 3923B11D23045B1F009D8780 /* DTXJSTimerSyncResource.m */; };
 		3946CD5A2567145F000A3606 /* DTXUISyncResource.h in Headers */ = {isa = PBXBuildFile; fileRef = 3946CD582567145F000A3606 /* DTXUISyncResource.h */; };
 		3946CD5B2567145F000A3606 /* DTXUISyncResource.m in Sources */ = {isa = PBXBuildFile; fileRef = 3946CD592567145F000A3606 /* DTXUISyncResource.m */; };
@@ -85,6 +85,11 @@
 		604A436F271F506F003B22CA /* DTXSwizzlingHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 604A436E271F506F003B22CA /* DTXSwizzlingHelper.h */; };
 		6066775F271EFB000008A2C6 /* fishhook.c in Sources */ = {isa = PBXBuildFile; fileRef = 6066775D271EFB000008A2C6 /* fishhook.c */; };
 		60667760271EFB000008A2C6 /* fishhook.h in Headers */ = {isa = PBXBuildFile; fileRef = 6066775E271EFB000008A2C6 /* fishhook.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		6097C6AC27467D5D00612E00 /* RCTFakes.m in Sources */ = {isa = PBXBuildFile; fileRef = 6097C6AB27467D5D00612E00 /* RCTFakes.m */; };
+		6097C6B42746815600612E00 /* NSString+SyncResource.h in Sources */ = {isa = PBXBuildFile; fileRef = 60B19FB0272EFCA900AB49E3 /* NSString+SyncResource.h */; };
+		6097C6B52746815600612E00 /* NSString+SyncResource.m in Sources */ = {isa = PBXBuildFile; fileRef = 60B19FB1272EFCA900AB49E3 /* NSString+SyncResource.m */; };
+		6097C6B62746815600612E00 /* NSString+SyncStatus.h in Sources */ = {isa = PBXBuildFile; fileRef = 60A9954727314A1700250FA6 /* NSString+SyncStatus.h */; };
+		6097C6B72746815600612E00 /* NSString+SyncStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 60A9954827314A1700250FA6 /* NSString+SyncStatus.m */; };
 		60A9954927314A1700250FA6 /* NSString+SyncStatus.h in Headers */ = {isa = PBXBuildFile; fileRef = 60A9954727314A1700250FA6 /* NSString+SyncStatus.h */; };
 		60A9954A27314A1700250FA6 /* NSString+SyncStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 60A9954827314A1700250FA6 /* NSString+SyncStatus.m */; };
 		60B19FB2272EFCA900AB49E3 /* NSString+SyncResource.h in Headers */ = {isa = PBXBuildFile; fileRef = 60B19FB0272EFCA900AB49E3 /* NSString+SyncResource.h */; };
@@ -362,6 +367,8 @@
 		604A436E271F506F003B22CA /* DTXSwizzlingHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTXSwizzlingHelper.h; path = DTXObjectiveCHelpers/DTXSwizzlingHelper.h; sourceTree = SOURCE_ROOT; };
 		6066775D271EFB000008A2C6 /* fishhook.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = fishhook.c; path = fishhook/fishhook.c; sourceTree = SOURCE_ROOT; };
 		6066775E271EFB000008A2C6 /* fishhook.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fishhook.h; path = fishhook/fishhook.h; sourceTree = SOURCE_ROOT; };
+		6097C6AA27467D5D00612E00 /* RCTFakes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCTFakes.h; sourceTree = "<group>"; };
+		6097C6AB27467D5D00612E00 /* RCTFakes.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCTFakes.m; sourceTree = "<group>"; };
 		60A9954727314A1700250FA6 /* NSString+SyncStatus.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+SyncStatus.h"; sourceTree = "<group>"; };
 		60A9954827314A1700250FA6 /* NSString+SyncStatus.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSString+SyncStatus.m"; sourceTree = "<group>"; };
 		60B19FB0272EFCA900AB49E3 /* NSString+SyncResource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+SyncResource.h"; sourceTree = "<group>"; };
@@ -571,6 +578,7 @@
 		602F956B274528ED00BAFA74 /* DetoxSyncTests */ = {
 			isa = PBXGroup;
 			children = (
+				60D200402746668D009F1794 /* Utils */,
 				60D200392746516E009F1794 /* DTXSyncManagerSpecHelpers.h */,
 				60D2003A2746516E009F1794 /* DTXSyncManagerSpecHelpers.m */,
 				60F75D8B2745309700DF6C29 /* PrefixHeader.pch */,
@@ -592,6 +600,15 @@
 				60D20030274641F1009F1794 /* OCMock.framework */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		60D200402746668D009F1794 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				6097C6AA27467D5D00612E00 /* RCTFakes.h */,
+				6097C6AB27467D5D00612E00 /* RCTFakes.m */,
+			);
+			name = Utils;
 			sourceTree = "<group>";
 		};
 		60F75D5327452D9E00DF6C29 /* Frameworks */ = {
@@ -1001,6 +1018,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6097C6B42746815600612E00 /* NSString+SyncResource.h in Sources */,
+				6097C6B52746815600612E00 /* NSString+SyncResource.m in Sources */,
+				6097C6B62746815600612E00 /* NSString+SyncStatus.h in Sources */,
+				6097C6B72746815600612E00 /* NSString+SyncStatus.m in Sources */,
+				6097C6AC27467D5D00612E00 /* RCTFakes.m in Sources */,
 				60D2003B2746516E009F1794 /* DTXSyncManagerSpecHelpers.m in Sources */,
 				60D2FF9227455A07009F1794 /* DTXSyncManagerSpec.m in Sources */,
 			);
@@ -1225,6 +1247,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 5J684MLCAU;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PREFIX_HEADER = DetoxSyncTests/PrefixHeader.pch;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
@@ -1248,6 +1271,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 5J684MLCAU;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PREFIX_HEADER = DetoxSyncTests/PrefixHeader.pch;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;

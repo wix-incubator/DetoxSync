@@ -8,6 +8,18 @@
 
 #import "DTXSyncManagerSpecHelpers.h"
 
+#import <DetoxSync/DTXSyncManager.h>
+#import <DetoxSync/DTXJSTimerSyncResource.h>
+
+#import "NSString+SyncResource.h"
+#import "RCTFakes.h"
+
+@interface DTXSyncManager (ForTesting)
+
++ (void)registerSyncResource:(DTXSyncResource*)syncResource;
+
+@end
+
 @implementation NSDictionary (RoundedTimer)
 
 - (NSDictionary<NSString *,id> *)roundedTimerValue {
@@ -62,4 +74,15 @@ NSArray<NSDictionary<NSString *,id> *> *DTXMapTimers(NSArray<NSDictionary<NSStri
   }];
 
   return mappedTimers;
+}
+
+void DTXConnectWithJSTimerSyncResource(void) {
+  DTXJSTimerSyncResource* sr = [DTXJSTimerSyncResource new];
+  [DTXSyncManager registerSyncResource:sr];
+}
+
+void DTXCreateFakeJSTimer(double callbackID, NSTimeInterval duration, double schedulingTime,
+                          BOOL repeats) {
+  RCTTiming *fakeTiming = [[RCTTiming alloc] init];
+  [fakeTiming createTimer:callbackID duration:duration jsSchedulingTime:schedulingTime repeats:repeats];
 }
