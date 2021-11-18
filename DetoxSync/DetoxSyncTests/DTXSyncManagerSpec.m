@@ -57,8 +57,11 @@ NSArray<NSDictionary<NSString *,id> *> *DTXRoundTimers(
 SpecBegin(DTXSyncManagerSpec)
 
 it(@"should report delayed perform selector busy resource correctly", ^{
-  SEL dummySelector = @selector(setValue:forKey:);
-  [self performSelector:dummySelector withObject:nil afterDelay:123];
+  SEL dummySelector1 = @selector(setValue:forKey:);
+  [self performSelector:dummySelector1 withObject:nil afterDelay:123];
+
+  SEL dummySelector2 = @selector(setValue:forKey:);
+  [self performSelector:dummySelector2 withObject:nil afterDelay:100];
 
   NSDictionary<NSString *,id> *status = DTXAwaitStatus();
   expect(status[NSString.dtx_appStatusKey]).to.equal(@"busy");
@@ -67,7 +70,7 @@ it(@"should report delayed perform selector busy resource correctly", ^{
   expect(DTXFindResources(resourceName, status[NSString.dtx_busyResourcesKey])).to.contain((@{
     NSString.dtx_resourceNameKey: resourceName,
     NSString.dtx_resourceDescriptionKey: @{
-      @"pending_selectors": @1
+      @"pending_selectors": @2
     }
   }));
 });
