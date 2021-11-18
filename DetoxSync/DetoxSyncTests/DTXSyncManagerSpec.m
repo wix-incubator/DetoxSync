@@ -15,7 +15,7 @@
 
 SpecBegin(DTXSyncManagerSpec)
 
-it(@"should report delayed perform selector busy resource correctly", ^{
+it(@"should report delayed perform selector busy resource", ^{
   SEL dummySelector1 = @selector(setValue:forKey:);
   [self performSelector:dummySelector1 withObject:nil afterDelay:123];
 
@@ -34,7 +34,7 @@ it(@"should report delayed perform selector busy resource correctly", ^{
   }));
 });
 
-it(@"should report dispatch queue busy resource correctly", ^{
+it(@"should report dispatch queue busy resource", ^{
   dispatch_queue_t dummyQueue = dispatch_queue_create("foo", 0);
   [DTXSyncManager trackDispatchQueue:dummyQueue name:@"dummyQueue"];
 
@@ -55,7 +55,7 @@ it(@"should report dispatch queue busy resource correctly", ^{
   }));
 });
 
-it(@"should report native timers busy resource correctly", ^{
+it(@"should report native timers busy resource", ^{
   NSTimer *dummyTimer = [NSTimer scheduledTimerWithTimeInterval:15 repeats:NO
                                                           block:^(NSTimer * __unused timer) {}];
 
@@ -74,7 +74,7 @@ it(@"should report native timers busy resource correctly", ^{
   }));
 });
 
-it(@"should report js-timers busy resource correctly", ^{
+it(@"should report js-timers busy resource", ^{
   DTXConnectWithJSTimerSyncResource();
   DTXCreateFakeJSTimer(12, 31.123, 21, NO);
   DTXCreateFakeJSTimer(31, 13.1, 23, NO);
@@ -100,6 +100,79 @@ it(@"should report js-timers busy resource correctly", ^{
     },
     nil
   ]);
+});
+
+it(@"should report run-loop busy resource", ^{
+  __block NSDictionary<NSString *,id> * _Nullable status;
+  __block NSRunLoop * _Nullable runLoop;
+
+  waitUntil(^(DoneCallback done) {
+    NSThread *thread = [[NSThread alloc] initWithBlock:^{
+      runLoop = [NSRunLoop currentRunLoop];
+      [DTXSyncManager trackRunLoop:runLoop name:@"foo"];
+      status = DTXAwaitStatus();
+      done();
+    }];
+    [thread start];
+  });
+
+  expect(status[NSString.dtx_appStatusKey]).to.equal(@"busy");
+
+  NSString *resourceName = @"run_loop";
+  expect(DTXFindResources(resourceName, status[NSString.dtx_busyResourcesKey])).to.contain((@{
+    NSString.dtx_resourceNameKey: resourceName,
+    NSString.dtx_resourceDescriptionKey: @{
+      @"name": [NSString stringWithFormat:@"foo <CFRunLoop: %p>", [runLoop getCFRunLoop]]
+    }
+  }));
+});
+
+it(@"should report one-time-events busy resource", ^{
+  DTXRegisterSingleEvent(@"foo", @"bar");
+  DTXRegisterSingleEvent(@"baz", nil);
+
+  NSDictionary<NSString *,id> *status = DTXAwaitStatus();
+  expect(status[NSString.dtx_appStatusKey]).to.equal(@"busy");
+
+  NSString *resourceName = @"one_time_events";
+  expect(DTXFindResources(resourceName, status[NSString.dtx_busyResourcesKey])).to.contain((@{
+    NSString.dtx_resourceNameKey: resourceName,
+    NSString.dtx_resourceDescriptionKey: @{
+      @"event": @"foo",
+      @"object": @"bar"
+    }
+  }));
+
+  expect(DTXFindResources(resourceName, status[NSString.dtx_busyResourcesKey])).to.contain((@{
+    NSString.dtx_resourceNameKey: resourceName,
+    NSString.dtx_resourceDescriptionKey: @{
+      @"event": @"baz",
+      @"object": [NSNull null]
+    }
+  }));
+});
+
+it(@"should report ui busy resource", ^{
+  UIViewController *dummyController = OCMPartialMock([[UIViewController alloc] init]);
+  id <UIViewControllerTransitionCoordinator> coordinator =
+      OCMProtocolMock(@protocol(UIViewControllerTransitionCoordinator));
+  OCMStub([dummyController transitionCoordinator]).andReturn(coordinator);
+
+  [dummyController viewWillAppear:YES];
+  [dummyController viewWillAppear:NO];
+  [dummyController viewWillDisappear:YES];
+
+  NSDictionary<NSString *,id> *status = DTXAwaitStatus();
+  expect(status[NSString.dtx_appStatusKey]).to.equal(@"busy");
+
+  NSString *resourceName = @"ui";
+  expect(DTXFindResources(resourceName, status[NSString.dtx_busyResourcesKey])).to.contain((@{
+    NSString.dtx_resourceNameKey: resourceName,
+    NSString.dtx_resourceDescriptionKey: @{
+      @"view_controller_will_appear_count": @2,
+      @"view_controller_will_disappear_count": @1,
+    }
+  }));
 });
 
 SpecEnd

@@ -36,4 +36,7 @@ void DTXConnectWithJSTimerSyncResource(void);
 void DTXCreateFakeJSTimer(double callbackID, NSTimeInterval duration, double schedulingTime,
                           BOOL repeats);
 
+/// Register a new single (one-time) event.
+void DTXRegisterSingleEvent(NSString *event, NSString * _Nullable object);
+
 NS_ASSUME_NONNULL_END
