@@ -13,3 +13,6 @@
 [submodule "DetoxSync/expecta"]
 	path = DetoxSync/expecta
 	url = https://github.com/specta/expecta
+[submodule "DetoxSync/ocmock"]
+	path = DetoxSync/ocmock
+	url = https://github.com/erikdoe/ocmock
