@@ -257,13 +257,16 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
 }
 
 - (NSDictionary<NSString *, id> *)jsonDescription {
-  NSArray<JSTimer *> * observedTimers = [_observations.objectEnumerator.allObjects
-                                         valueForKeyPath:@"@distinctUnionOfObjects._observedTimers"];
+  NSArray<NSArray<JSTimer *> *> *observedTimers =
+      [_observations.objectEnumerator.allObjects
+       valueForKeyPath:@"@distinctUnionOfObjects._observedTimers"];
+
+  NSArray *flattenedObservedTimers = [observedTimers valueForKeyPath: @"@unionOfArrays.self"];
 
   return @{
     NSString.dtx_resourceNameKey: @"js_timers",
     NSString.dtx_resourceDescriptionKey: @{
-      @"timers": [observedTimers valueForKey:@"jsonDescription"]
+      @"timers": [flattenedObservedTimers valueForKey:@"jsonDescription"]
     }
   };
 }
