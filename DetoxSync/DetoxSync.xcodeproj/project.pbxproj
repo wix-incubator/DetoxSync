@@ -90,6 +90,7 @@
 		60B19FB2272EFCA900AB49E3 /* NSString+SyncResource.h in Headers */ = {isa = PBXBuildFile; fileRef = 60B19FB0272EFCA900AB49E3 /* NSString+SyncResource.h */; };
 		60B19FB3272EFCA900AB49E3 /* NSString+SyncResource.m in Sources */ = {isa = PBXBuildFile; fileRef = 60B19FB1272EFCA900AB49E3 /* NSString+SyncResource.m */; };
 		60D2003827464202009F1794 /* OCMock.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 60D2002C274641F1009F1794 /* OCMock.framework */; };
+		60D2003B2746516E009F1794 /* DTXSyncManagerSpecHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 60D2003A2746516E009F1794 /* DTXSyncManagerSpecHelpers.m */; };
 		60D2FF9227455A07009F1794 /* DTXSyncManagerSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 60D2FF8527455A07009F1794 /* DTXSyncManagerSpec.m */; };
 		60F75D8927452E8F00DF6C29 /* Specta.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 60F75D6227452E3300DF6C29 /* Specta.framework */; };
 		60F75D8A27452E9500DF6C29 /* Expecta.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 60F75D7727452E4200DF6C29 /* Expecta.framework */; };
@@ -366,6 +367,8 @@
 		60B19FB0272EFCA900AB49E3 /* NSString+SyncResource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+SyncResource.h"; sourceTree = "<group>"; };
 		60B19FB1272EFCA900AB49E3 /* NSString+SyncResource.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSString+SyncResource.m"; sourceTree = "<group>"; };
 		60D20012274641F1009F1794 /* OCMock.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = OCMock.xcodeproj; path = ocmock/Source/OCMock.xcodeproj; sourceTree = SOURCE_ROOT; };
+		60D200392746516E009F1794 /* DTXSyncManagerSpecHelpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DTXSyncManagerSpecHelpers.h; sourceTree = "<group>"; };
+		60D2003A2746516E009F1794 /* DTXSyncManagerSpecHelpers.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DTXSyncManagerSpecHelpers.m; sourceTree = "<group>"; };
 		60D2FF8527455A07009F1794 /* DTXSyncManagerSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DTXSyncManagerSpec.m; sourceTree = "<group>"; };
 		60F75D5427452E3300DF6C29 /* Specta.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Specta.xcodeproj; path = specta/Specta/Specta.xcodeproj; sourceTree = SOURCE_ROOT; };
 		60F75D6927452E4200DF6C29 /* Expecta.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Expecta.xcodeproj; path = expecta/Expecta.xcodeproj; sourceTree = SOURCE_ROOT; };
@@ -568,9 +571,11 @@
 		602F956B274528ED00BAFA74 /* DetoxSyncTests */ = {
 			isa = PBXGroup;
 			children = (
-				60F75D5327452D9E00DF6C29 /* Frameworks */,
+				60D200392746516E009F1794 /* DTXSyncManagerSpecHelpers.h */,
+				60D2003A2746516E009F1794 /* DTXSyncManagerSpecHelpers.m */,
 				60F75D8B2745309700DF6C29 /* PrefixHeader.pch */,
 				60D2FF8527455A07009F1794 /* DTXSyncManagerSpec.m */,
+				60F75D5327452D9E00DF6C29 /* Frameworks */,
 			);
 			path = DetoxSyncTests;
 			sourceTree = "<group>";
@@ -996,6 +1001,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				60D2003B2746516E009F1794 /* DTXSyncManagerSpecHelpers.m in Sources */,
 				60D2FF9227455A07009F1794 /* DTXSyncManagerSpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
