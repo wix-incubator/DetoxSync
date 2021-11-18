@@ -6,13 +6,6 @@
 //  Copyright © 2021 wix. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
-
-#import <DetoxSync/DTXSyncManager.h>
-
-#import "NSString+SyncStatus.h"
-#import "NSString+SyncResource.h"
-
 NS_ASSUME_NONNULL_BEGIN
 
 /// Category provides mapped timer dictionary for a timer resource representation.
@@ -35,5 +28,12 @@ NSDateFormatter *DTXDateFormatter(void);
 
 /// Maps timers to a new list of timers with rounded float values.
 NSArray<NSDictionary<NSString *,id> *> *DTXMapTimers(NSArray<NSDictionary<NSString *,id> *> *timers);
+
+/// Connects \c DTXSyncManager with JS-timers sync resource.
+void DTXConnectWithJSTimerSyncResource(void);
+
+/// Create fake JS timer with given params.
+void DTXCreateFakeJSTimer(double callbackID, NSTimeInterval duration, double schedulingTime,
+                          BOOL repeats);
 
 NS_ASSUME_NONNULL_END

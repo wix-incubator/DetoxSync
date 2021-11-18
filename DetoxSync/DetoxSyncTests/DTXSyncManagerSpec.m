@@ -8,6 +8,11 @@
 
 #import "DTXSyncManagerSpecHelpers.h"
 
+#import <DetoxSync/DTXSyncManager.h>
+
+#import "NSString+SyncStatus.h"
+#import "NSString+SyncResource.h"
+
 SpecBegin(DTXSyncManagerSpec)
 
 it(@"should report delayed perform selector busy resource correctly", ^{
@@ -50,7 +55,7 @@ it(@"should report dispatch queue busy resource correctly", ^{
   }));
 });
 
-it(@"should report timers busy resource correctly", ^{
+it(@"should report native timers busy resource correctly", ^{
   NSTimer *dummyTimer = [NSTimer scheduledTimerWithTimeInterval:15 repeats:NO
                                                           block:^(NSTimer * __unused timer) {}];
 
@@ -67,6 +72,34 @@ it(@"should report timers busy resource correctly", ^{
     @"is_recurring": @NO,
     @"repeat_interval": @0
   }));
+});
+
+it(@"should report js-timers busy resource correctly", ^{
+  DTXConnectWithJSTimerSyncResource();
+  DTXCreateFakeJSTimer(12, 31.123, 21, NO);
+  DTXCreateFakeJSTimer(31, 13.1, 23, NO);
+
+  NSDictionary<NSString *,id> * _Nullable status = DTXAwaitStatus();
+  expect(status[NSString.dtx_appStatusKey]).to.equal(@"busy");
+
+  NSDictionary<NSString *,id> *resource =
+  DTXFindResources(@"js_timers", status[NSString.dtx_busyResourcesKey]).firstObject;
+  NSArray<NSDictionary<NSString *,NSNumber *> *> *timers =
+      resource[NSString.dtx_resourceDescriptionKey][@"timers"];
+
+  expect([NSSet setWithArray:timers]).to.equal([NSSet setWithObjects:
+    @{
+      @"timer_id": @12,
+      @"duration": @31.123,
+      @"is_recurring": @NO
+    },
+    @{
+      @"timer_id": @31,
+      @"duration": @13.1,
+      @"is_recurring": @NO
+    },
+    nil
+  ]);
 });
 
 SpecEnd
