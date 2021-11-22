@@ -16,6 +16,7 @@
 #import "_DTXObjectDeallocHelper.h"
 #import "CADisplayLink+DTXSpy-Private.h"
 #import "NSString+SyncStatus.h"
+#import "NSArray+Functional.h"
 
 #include <dlfcn.h>
 
@@ -658,19 +659,14 @@ static BOOL DTXIsSystemBusyNow(void)
 }
 
 + (NSArray<NSDictionary *> *)busyResourcesDescriptions {
-  auto resources = _registeredResources;
-
-  NSMutableArray<NSDictionary *> * descriptions = [NSMutableArray new];
-  for (DTXSyncResource* resource in resources) {
-    NSNumber *busyCount = [_resourceMapping objectForKey:resource];
-    if (!busyCount.unsignedIntValue) {
-      continue;
-    }
-
-    [descriptions addObject:resource.jsonDescription];
-  }
-
-  return descriptions;
+  return [[[_registeredResources allObjects]
+      filter:^BOOL(DTXSyncResource* resource) {
+        NSNumber *busyCount = [_resourceMapping objectForKey:resource];
+        return busyCount.unsignedIntValue;
+      }]
+      map:^NSDictionary<NSString *,id> * (DTXSyncResource* resource) {
+        return resource.jsonDescription;
+      }];
 }
 
 + (void)statusWithCompletionHandler:(DTXStatusHandler)completionHandler {

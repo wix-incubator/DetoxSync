@@ -9,6 +9,7 @@
 #import "DTXJSTimerSyncResource.h"
 #import "DTXSyncManager-Private.h"
 #import "NSString+SyncResource.h"
+#import "NSArray+Functional.h"
 
 @import ObjectiveC;
 
@@ -252,7 +253,7 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
 - (NSString*)syncResourceDescription
 {
 	NSArray<NSString*>* timers = [[_observations.objectEnumerator.allObjects valueForKeyPath:@"@distinctUnionOfObjects._observedTimers"] firstObject];
-	
+
 	return [timers componentsJoinedByString:@"\n⏱ "];
 }
 
@@ -262,11 +263,15 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
        valueForKeyPath:@"@distinctUnionOfObjects._observedTimers"];
 
   NSArray *flattenedObservedTimers = [observedTimers valueForKeyPath:@"@unionOfArrays.self"];
+  NSArray *timersDescriptions = [flattenedObservedTimers
+      map:^NSDictionary *(DTXJSTimerSyncResource *timer) {
+        return [timer jsonDescription];
+      }];
 
   return @{
     NSString.dtx_resourceNameKey: @"js_timers",
     NSString.dtx_resourceDescriptionKey: @{
-      @"timers": [flattenedObservedTimers valueForKey:@"jsonDescription"]
+      @"timers": timersDescriptions
     }
   };
 }
