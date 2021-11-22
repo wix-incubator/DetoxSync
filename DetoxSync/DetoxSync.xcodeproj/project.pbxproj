@@ -563,6 +563,7 @@
 		39DE8F8F22F707F400780546 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				6017CCB3274BB00600E17AB1 /* Functional */,
 				399678CC22F9C90400BAF0A8 /* _DTXObjectDeallocHelper.h */,
 				399678CD22F9C90400BAF0A8 /* _DTXObjectDeallocHelper.m */,
 				395AD82224B784BB002B382B /* _DTXTimerTrampoline.h */,
@@ -589,12 +590,19 @@
 				60A9954727314A1700250FA6 /* NSString+SyncStatus.h */,
 				60A9954827314A1700250FA6 /* NSString+SyncStatus.m */,
 				6017CC99274AB59F00E17AB1 /* DTXTypedefs.h */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
+		6017CCB3274BB00600E17AB1 /* Functional */ = {
+			isa = PBXGroup;
+			children = (
 				6017CCA6274BA0C200E17AB1 /* NSArray+Functional.h */,
 				6017CCA7274BA0C200E17AB1 /* NSArray+Functional.m */,
 				6017CCAC274BA83B00E17AB1 /* NSDictionary+Functional.h */,
 				6017CCAD274BA83B00E17AB1 /* NSDictionary+Functional.m */,
 			);
-			path = Utils;
+			name = Functional;
 			sourceTree = "<group>";
 		};
 		602F956B274528ED00BAFA74 /* DetoxSyncTests */ = {
