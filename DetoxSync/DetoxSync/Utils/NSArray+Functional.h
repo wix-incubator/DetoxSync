@@ -13,12 +13,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// Category for functional methods on arrays.
 @interface NSArray (Functional)
 
-typedef BOOL(^FilterBlock)(id object);
-
 /// Filters objects in the array using the given \c block.
 - (NSArray *)filter:(FilterBlock)block;
-
-typedef id _Nonnull (^MapBlock)(id object);
 
 /// Maps objects in the array using the given \c block.
 - (NSArray *)map:(MapBlock)block;

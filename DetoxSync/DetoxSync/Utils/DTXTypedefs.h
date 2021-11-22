@@ -17,4 +17,10 @@ typedef NSArray<DTXBusyResource *> DTXBusyResources;
 /// Type of synchronization status result.
 typedef NSDictionary<NSString *, id> DTXSyncStatus;
 
+/// Filtering block, used for filter methods on collections.
+typedef BOOL(^FilterBlock)(id object);
+
+/// Mapping block, used for map methods on collections.
+typedef id _Nonnull (^MapBlock)(id object);
+
 NS_ASSUME_NONNULL_END
