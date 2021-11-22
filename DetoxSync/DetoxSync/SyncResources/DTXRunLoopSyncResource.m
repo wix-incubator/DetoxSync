@@ -189,7 +189,7 @@ static const void* DTXRunLoopDeallocHelperKey = &DTXRunLoopDeallocHelperKey;
 	objc_setAssociatedObject((__bridge id)_runLoop, DTXRunLoopDeallocHelperKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-- (NSDictionary<NSString *, id> *)jsonDescription {
+- (DTXBusyResource *)jsonDescription {
   return @{
     NSString.dtx_resourceNameKey: @"run_loop",
     NSString.dtx_resourceDescriptionKey: @{

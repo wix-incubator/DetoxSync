@@ -9,9 +9,10 @@
 #import "DTXSyncManagerSpecHelpers.h"
 
 #import <DetoxSync/DTXSyncManager.h>
-#import <DetoxSync/DTXJSTimerSyncResource.h>
 
+#import "DTXJSTimerSyncResource.h"
 #import "NSString+SyncResource.h"
+#import "NSString+SyncStatus.h"
 #import "RCTFakes.h"
 
 @interface DTXSyncManager (ForTesting)
@@ -34,7 +35,24 @@
 
 @end
 
-NSDictionary<NSString *,id> *DTXAwaitStatus(void) {
+@implementation NSDictionary (SyncStatus)
+
+- (DTXBusyResources *)busyResourcesWithName:(NSString *)name {
+  DTXBusyResources * busyResources = self[NSString.dtx_busyResourcesKey];
+  NSMutableArray<NSDictionary<NSString *,id> *> *matchingResources = [NSMutableArray array];
+
+  for (DTXBusyResource *resource in busyResources) {
+    if ([resource[NSString.dtx_resourceNameKey] isEqualToString:name]) {
+      [matchingResources addObject:resource];
+    }
+  }
+
+  return matchingResources;
+}
+
+@end
+
+DTXSyncStatus *DTXAwaitStatus(void) {
   __block NSDictionary<NSString *,id> * _Nullable syncStatus;
   waitUntil(^(DoneCallback done) {
     [DTXSyncManager statusWithCompletionHandler:^(NSDictionary<NSString *,id> *status) {
@@ -45,17 +63,6 @@ NSDictionary<NSString *,id> *DTXAwaitStatus(void) {
 
   assert(syncStatus);
   return syncStatus;
-}
-
-NSArray<NSDictionary<NSString *,id> *> *DTXFindResources(
-    NSString *name, NSArray<NSDictionary<NSString *,id> *> *resources) {
-  NSMutableArray<NSDictionary<NSString *,id> *> *matchingResources = [NSMutableArray array];
-  for (NSDictionary<NSString *,id> *resource in resources) {
-    if ([resource[NSString.dtx_resourceNameKey] isEqualToString:name]) {
-      [matchingResources addObject:resource];
-    }
-  }
-  return matchingResources;
 }
 
 NSDateFormatter *DTXDateFormatter(void) {
@@ -90,4 +97,58 @@ void DTXCreateFakeJSTimer(double callbackID, NSTimeInterval duration, double sch
 void DTXRegisterSingleEvent(NSString *event, NSString * _Nullable object) {
   id trackEvent = [DTXSyncManager trackEventWithDescription:event objectDescription:object];
   [DTXSyncManager registerSyncResource:trackEvent];
+}
+
+void DTXPerformSelectorAfterDelay(void) {
+  NSNumber *dummyObject = @1;
+  SEL dummySelector = @selector(floatValue);
+  [dummyObject performSelector:dummySelector withObject:nil afterDelay:20];
+}
+
+void DTXDispatcSyncOnArbitraryQueue(void (^block)(void)) {
+  static dispatch_queue_t dummyQueue;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    dummyQueue = dispatch_queue_create("foo", 0);
+    [DTXSyncManager trackDispatchQueue:dummyQueue name:@"bar"];
+  });
+
+  dispatch_sync(dummyQueue, ^{
+    block();
+  });
+}
+
+NSString *DTXScheduleTimer(BOOL shouldRepeat, NSTimeInterval interval) {
+  NSTimer *dummyTimer = [NSTimer scheduledTimerWithTimeInterval:interval repeats:shouldRepeat
+                                                          block:^(NSTimer * __unused timer) {}];
+  return [DTXDateFormatter() stringFromDate:dummyTimer.fireDate];
+}
+
+CFRunLoopRef DTXExecuteOnArbitraryThread(void (^block)(void)) {
+  __block NSRunLoop * _Nullable runLoop;
+  __block NSThread * _Nullable thread;
+
+  waitUntil(^(DoneCallback done) {
+    thread = [[NSThread alloc] initWithBlock:^{
+      runLoop = [NSRunLoop currentRunLoop];
+      [DTXSyncManager trackRunLoop:runLoop name:@"foo"];
+      block();
+      done();
+    }];
+    [thread start];
+  });
+
+  [thread cancel];
+
+  return [runLoop getCFRunLoop];
+}
+
+UIViewController *DTXCreateDummyViewController(void) {
+  UIViewController *controller = OCMPartialMock([[UIViewController alloc] init]);
+
+  id <UIViewControllerTransitionCoordinator> coordinator =
+      OCMProtocolMock(@protocol(UIViewControllerTransitionCoordinator));
+  OCMStub([controller transitionCoordinator]).andReturn(coordinator);
+
+  return controller;
 }

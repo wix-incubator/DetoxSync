@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 			additionalDescriptions:(nullable NSArray<NSString*(^)(void)>*(NS_NOESCAPE ^)(void))additionalDescriptions;
 
 /// Returns a JSON dictionary that describes the resource's status.
-- (NSDictionary<NSString *, id> *)jsonDescription;
+- (DTXBusyResource *)jsonDescription;
 
 /// Name of the sync resource, retrieved from the \c jsonDescription.
 @property (readonly, nonatomic) NSString* resourceName;

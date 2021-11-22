@@ -152,7 +152,7 @@ static NSUInteger _DTXCleanTimersAndReturnCount(NSMutableSet* _timers, NSMutable
 			  additionalDescriptions:nil];
 }
 
-- (NSDictionary<NSString *, id> *)jsonDescription {
+- (DTXBusyResource *)jsonDescription {
   return @{
     NSString.dtx_resourceNameKey: @"timers",
     NSString.dtx_resourceDescriptionKey: @{

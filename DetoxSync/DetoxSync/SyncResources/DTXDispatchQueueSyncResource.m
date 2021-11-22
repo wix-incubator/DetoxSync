@@ -79,7 +79,7 @@ static NSString* _DTXQueueDescription(dispatch_queue_t queue, NSString* name)
 	return [NSString stringWithFormat:@"%@%@%@", name != nil ? [NSString stringWithFormat:@"%@ (", name] : @"", queue, name != nil ? @")" : @""];
 }
 
-- (NSDictionary<NSString *, id> *)jsonDescription {
+- (DTXBusyResource *)jsonDescription {
   return @{
     NSString.dtx_resourceNameKey: @"dispatch_queue",
     NSString.dtx_resourceDescriptionKey: @{

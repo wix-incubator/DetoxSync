@@ -50,7 +50,7 @@ static const void* _DTXCAAnimationTrackingIdentifierKey = &_DTXCAAnimationTracki
 	return _viewNeedsLayoutCount + _viewNeedsDisplayCount + _layerNeedsLayoutCount + _layerNeedsDisplayCount + _layerPendingAnimationCount + _viewControllerWillAppearCount + _viewControllerWillDisappearCount + _viewAnimationCount + _layerAnimationCount;
 }
 
-- (NSDictionary<NSString *, id> *)jsonDescription {
+- (DTXBusyResource *)jsonDescription {
   return @{
     NSString.dtx_resourceNameKey: @"ui",
     NSString.dtx_resourceDescriptionKey: [self resourceDescription]

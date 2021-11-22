@@ -30,7 +30,7 @@
                     isReccuring:(BOOL)isReccuring NS_DESIGNATED_INITIALIZER;
 
 /// Returns a JSON dictionary that describes the timer.
-- (NSDictionary<NSString *, id> *)jsonDescription;
+- (DTXBusyResource *)jsonDescription;
 
 @end
 
@@ -46,7 +46,7 @@
   return self;
 }
 
-- (NSDictionary<NSString *, id> *)jsonDescription {
+- (DTXBusyResource *)jsonDescription {
   return @{
     @"timer_id": self.timerID,
     @"duration": @(self.duration),
@@ -256,12 +256,12 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
 	return [timers componentsJoinedByString:@"\n⏱ "];
 }
 
-- (NSDictionary<NSString *, id> *)jsonDescription {
+- (DTXBusyResource *)jsonDescription {
   NSArray<NSArray<JSTimer *> *> *observedTimers =
       [_observations.objectEnumerator.allObjects
        valueForKeyPath:@"@distinctUnionOfObjects._observedTimers"];
 
-  NSArray *flattenedObservedTimers = [observedTimers valueForKeyPath: @"@unionOfArrays.self"];
+  NSArray *flattenedObservedTimers = [observedTimers valueForKeyPath:@"@unionOfArrays.self"];
 
   return @{
     NSString.dtx_resourceNameKey: @"js_timers",
