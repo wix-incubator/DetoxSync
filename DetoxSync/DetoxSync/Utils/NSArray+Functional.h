@@ -16,7 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// Filters objects in the array using the given \c block.
 - (NSArray *)filter:(FilterBlock)block;
 
-/// Maps objects in the array using the given \c block. ------ ---
+/// Maps objects in the array using the given \c block. ------ -------
 - (NSArray *)map:(MapBlock)block;
 
 @end
