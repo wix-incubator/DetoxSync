@@ -14,6 +14,7 @@
 #import "NSString+SyncResource.h"
 #import "NSString+SyncStatus.h"
 #import "RCTFakes.h"
+#import "NSArray+Functional.h"
 
 @interface DTXSyncManager (ForTesting)
 
@@ -39,15 +40,9 @@
 
 - (DTXBusyResources *)busyResourcesWithName:(NSString *)name {
   DTXBusyResources * busyResources = self[NSString.dtx_busyResourcesKey];
-  NSMutableArray<NSDictionary<NSString *,id> *> *matchingResources = [NSMutableArray array];
-
-  for (DTXBusyResource *resource in busyResources) {
-    if ([resource[NSString.dtx_resourceNameKey] isEqualToString:name]) {
-      [matchingResources addObject:resource];
-    }
-  }
-
-  return matchingResources;
+  return [busyResources filter:^BOOL(DTXBusyResource *resource) {
+    return [resource[NSString.dtx_resourceNameKey] isEqualToString:name];
+  }];
 }
 
 @end
@@ -75,12 +70,9 @@ NSDateFormatter *DTXDateFormatter(void) {
 }
 
 NSArray<NSDictionary<NSString *,id> *> *DTXMapTimers(NSArray<NSDictionary<NSString *,id> *> *timers) {
-  NSMutableArray<NSDictionary<NSString *,id> *> *mappedTimers = [timers mutableCopy];
-  [timers enumerateObjectsUsingBlock:^(NSDictionary<NSString *,id> *timer, NSUInteger index, BOOL * __unused stop) {
-    [mappedTimers replaceObjectAtIndex:index withObject:timer.roundedTimerValue];
+  return [timers map:^NSDictionary<NSString *,id> *(NSDictionary<NSString *,id> *timer) {
+    return timer.roundedTimerValue;
   }];
-
-  return mappedTimers;
 }
 
 void DTXConnectWithJSTimerSyncResource(void) {
