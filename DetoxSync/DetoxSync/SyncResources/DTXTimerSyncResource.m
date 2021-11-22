@@ -12,6 +12,7 @@
 #import "CADisplayLink+DTXSpy.h"
 #import "_DTXTimerTrampoline.h"
 #import "NSString+SyncResource.h"
+#import "NSArray+Functional.h"
 
 @import ObjectiveC;
 
@@ -153,10 +154,15 @@ static NSUInteger _DTXCleanTimersAndReturnCount(NSMutableSet* _timers, NSMutable
 }
 
 - (DTXBusyResource *)jsonDescription {
+  NSArray<DTXBusyResource *> *timersDescriptions = [_timers.allObjects
+      map:^DTXBusyResource *(_DTXTimerTrampoline *trampoline) {
+        return [trampoline jsonDescription];
+      }];
+
   return @{
     NSString.dtx_resourceNameKey: @"timers",
     NSString.dtx_resourceDescriptionKey: @{
-      @"timers": [_timers.allObjects valueForKey:@"jsonDescription"]
+      @"timers": timersDescriptions
     }
   };
 }
