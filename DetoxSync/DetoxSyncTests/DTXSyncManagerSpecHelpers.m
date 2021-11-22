@@ -15,6 +15,7 @@
 #import "NSString+SyncStatus.h"
 #import "RCTFakes.h"
 #import "NSArray+Functional.h"
+#import "NSDictionary+Functional.h"
 
 @interface DTXSyncManager (ForTesting)
 
@@ -25,13 +26,13 @@
 @implementation NSDictionary (RoundedTimer)
 
 - (NSDictionary<NSString *,id> *)roundedTimerValue {
-  NSMutableDictionary<NSString *,id> *mappedTimer = [self mutableCopy];
-  for (NSString *key in self) {
+  return [self map:^id(NSString *key, id value) {
     if ([key isEqualToString:@"time_until_fire"]) {
-      mappedTimer[key] = @(floorf([self[key] floatValue] + 0.5f));
+      return @(floorf([value floatValue] + 0.5f));
     }
-  }
-  return mappedTimer;
+
+    return value;
+  }];
 }
 
 @end

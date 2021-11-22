@@ -10,27 +10,27 @@
 
 @implementation NSDictionary (Functional)
 
-- (NSDictionary *)filter:(FilterBlock)block {
+- (NSDictionary *)filter:(FilterBlockWithKeyValue)block {
   NSDictionary *dictionary = [self copy];
   NSMutableDictionary *filterredDictionary = [NSMutableDictionary new];
 
   for (id key in dictionary) {
-    id object = dictionary[key];
-    if (block(object)) {
-      filterredDictionary[key] = object;
+    id value = dictionary[key];
+    if (block(key, value)) {
+      filterredDictionary[key] = value;
     }
   }
 
   return filterredDictionary;
 }
 
-- (NSDictionary *)map:(MapBlock)block {
+- (NSDictionary *)map:(MapBlockWithKeyValue)block {
   NSDictionary *dictionary = [self copy];
   NSMutableDictionary *mappedDictionary = [NSMutableDictionary new];
 
   for (id key in dictionary) {
-    id object = dictionary[key];
-    mappedDictionary[key] = block(object);
+    id value = dictionary[key];
+    mappedDictionary[key] = block(key, value);
   }
 
   return mappedDictionary;
