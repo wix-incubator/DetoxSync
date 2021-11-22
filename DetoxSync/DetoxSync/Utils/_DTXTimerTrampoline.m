@@ -191,7 +191,7 @@ const void* __DTXTimerTrampolineKey = &__DTXTimerTrampolineKey;
 	return _dateFormatter;
 }
 
-- (NSDictionary<NSString *, id> *)jsonDescription {
+- (DTXBusyResource *)jsonDescription {
   return @{
     @"fire_date": [_DTXTimerTrampoline._descriptionDateFormatter stringFromDate:_fireDate],
     @"time_until_fire": @(_timeUntilFire),

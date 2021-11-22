@@ -107,7 +107,7 @@
 	} eventIdentifier:_DTXStringReturningBlock(identifier) eventDescription:nil objectDescription:nil additionalDescription:nil];
 }
 
-- (NSDictionary<NSString *, id> *)jsonDescription {
+- (DTXBusyResource *)jsonDescription {
   return @{
     NSString.dtx_resourceNameKey: @"delayed_perform_selector",
     NSString.dtx_resourceDescriptionKey: @{

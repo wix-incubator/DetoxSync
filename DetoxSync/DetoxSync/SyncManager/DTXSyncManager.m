@@ -644,7 +644,7 @@ static BOOL DTXIsSystemBusyNow(void)
 	return [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:objectDescription eventDescription:description];
 }
 
-+ (NSDictionary<NSString *, id> *)_syncStatus {
++ (DTXSyncStatus *)_syncStatus {
   auto busyResourcesDescriptions = [self busyResourcesDescriptions];
 
   if (!busyResourcesDescriptions.count) {

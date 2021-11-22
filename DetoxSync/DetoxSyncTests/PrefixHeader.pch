@@ -19,6 +19,7 @@ extern "C" {
 #import <OCMock/OCMock.h>
 
 #import "Swiftier.h"
+#import "DTXTypedefs.h"
 
 #endif /* PrefixHeader_pch */
 

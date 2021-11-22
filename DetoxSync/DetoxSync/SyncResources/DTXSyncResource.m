@@ -96,7 +96,7 @@
 														 block:block];
 }
 
-- (NSDictionary<NSString *, id> *)jsonDescription {
+- (DTXBusyResource *)jsonDescription {
   [self doesNotRecognizeSelector:_cmd];
   return nil;
 }

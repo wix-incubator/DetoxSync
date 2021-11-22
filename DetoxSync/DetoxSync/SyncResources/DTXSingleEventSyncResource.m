@@ -95,7 +95,7 @@
 	[DTXSyncManager unregisterSyncResource:self];
 }
 
-- (NSDictionary<NSString *, id> *)jsonDescription {
+- (DTXBusyResource *)jsonDescription {
   return @{
     NSString.dtx_resourceNameKey: @"one_time_events",
     NSString.dtx_resourceDescriptionKey: @{

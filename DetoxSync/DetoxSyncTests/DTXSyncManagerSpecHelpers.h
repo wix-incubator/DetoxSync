@@ -16,12 +16,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-/// Await for synchronization status and return the fetched status.
-NSDictionary<NSString *,id> *DTXAwaitStatus(void);
+/// Category provides utils for sync-status dictionary.
+@interface NSDictionary (SyncStatus)
 
-/// Find busy-resources with \c name from a list of \c resources.
-NSArray<NSDictionary<NSString *,id> *> *DTXFindResources(
-    NSString *name, NSArray<NSDictionary<NSString *,id> *> *resources);
+/// Return all busy resources with given \c name.
+- (DTXBusyResources *)busyResourcesWithName:(NSString *)name;
+
+@end
+
+/// Await for synchronization status and return the fetched status.
+DTXSyncStatus *DTXAwaitStatus(void);
 
 /// Format date to Detox date-format.
 NSDateFormatter *DTXDateFormatter(void);
@@ -38,5 +42,21 @@ void DTXCreateFakeJSTimer(double callbackID, NSTimeInterval duration, double sch
 
 /// Register a new single (one-time) event.
 void DTXRegisterSingleEvent(NSString *event, NSString * _Nullable object);
+
+/// Perform arbitrary selector after arbitrary \c delay.
+void DTXPerformSelectorAfterDelay(void);
+
+/// Dispatch \c block synchronically on arbitrary queue with label "foo" and queue name "bar".
+void DTXDispatcSyncOnArbitraryQueue(void (^block)(void));
+
+/// Schedule an arbitrary timer with repeats if required, returns the fire date of the timer.
+NSString *DTXScheduleTimer(BOOL shouldRepeat, NSTimeInterval interval);
+
+/// Excute \c block on arbitrary thread and track its run-loop with name "foo". Returns the
+/// \c CFRunLoopRef of the thread's run-loop.
+CFRunLoopRef DTXExecuteOnArbitraryThread(void (^block)(void));
+
+/// Creates a partially mocked view controller.
+UIViewController *DTXCreateDummyViewController(void);
 
 NS_ASSUME_NONNULL_END

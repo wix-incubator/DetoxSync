@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		392250E423047179008E811D /* RCTNativeAnimatedNodesManager+DTXSpy.m in Sources */ = {isa = PBXBuildFile; fileRef = 392250E323047179008E811D /* RCTNativeAnimatedNodesManager+DTXSpy.m */; };
-		3923B11E23045B1F009D8780 /* DTXJSTimerSyncResource.h in Headers */ = {isa = PBXBuildFile; fileRef = 3923B11C23045B1F009D8780 /* DTXJSTimerSyncResource.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3923B11E23045B1F009D8780 /* DTXJSTimerSyncResource.h in Headers */ = {isa = PBXBuildFile; fileRef = 3923B11C23045B1F009D8780 /* DTXJSTimerSyncResource.h */; };
 		3923B11F23045B1F009D8780 /* DTXJSTimerSyncResource.m in Sources */ = {isa = PBXBuildFile; fileRef = 3923B11D23045B1F009D8780 /* DTXJSTimerSyncResource.m */; };
 		3946CD5A2567145F000A3606 /* DTXUISyncResource.h in Headers */ = {isa = PBXBuildFile; fileRef = 3946CD582567145F000A3606 /* DTXUISyncResource.h */; };
 		3946CD5B2567145F000A3606 /* DTXUISyncResource.m in Sources */ = {isa = PBXBuildFile; fileRef = 3946CD592567145F000A3606 /* DTXUISyncResource.m */; };
@@ -78,6 +78,10 @@
 		39DE8FBA22F707F400780546 /* NSObject+DTXSpy.h in Headers */ = {isa = PBXBuildFile; fileRef = 39DE8F8E22F707F400780546 /* NSObject+DTXSpy.h */; };
 		39DE8FBB22F707F400780546 /* DTXOrigDispatch.m in Sources */ = {isa = PBXBuildFile; fileRef = 39DE8F9022F707F400780546 /* DTXOrigDispatch.m */; };
 		39DE8FBC22F707F400780546 /* DTXOrigDispatch.h in Headers */ = {isa = PBXBuildFile; fileRef = 39DE8F9122F707F400780546 /* DTXOrigDispatch.h */; };
+		6017CC9B274AB59F00E17AB1 /* DTXTypedefs.h in Headers */ = {isa = PBXBuildFile; fileRef = 6017CC99274AB59F00E17AB1 /* DTXTypedefs.h */; };
+		6017CC9D274B807000E17AB1 /* DTXTypedefs.h in Sources */ = {isa = PBXBuildFile; fileRef = 6017CC99274AB59F00E17AB1 /* DTXTypedefs.h */; };
+		6017CC9E274B837100E17AB1 /* DTXSyncResource.h in Sources */ = {isa = PBXBuildFile; fileRef = 39DE8F6822F707F400780546 /* DTXSyncResource.h */; };
+		6017CC9F274B837700E17AB1 /* DTXJSTimerSyncResource.h in Sources */ = {isa = PBXBuildFile; fileRef = 3923B11C23045B1F009D8780 /* DTXJSTimerSyncResource.h */; };
 		602F956E274528ED00BAFA74 /* DetoxSync.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 39DE8F5222F707DD00780546 /* DetoxSync.framework */; };
 		604A436B271F5004003B22CA /* DTXAddressInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 604A4368271F5004003B22CA /* DTXAddressInfo.h */; };
 		604A436C271F5004003B22CA /* DTXAddressInfo.mm in Sources */ = {isa = PBXBuildFile; fileRef = 604A4369271F5004003B22CA /* DTXAddressInfo.mm */; };
@@ -360,6 +364,7 @@
 		39DE8F8E22F707F400780546 /* NSObject+DTXSpy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+DTXSpy.h"; sourceTree = "<group>"; };
 		39DE8F9022F707F400780546 /* DTXOrigDispatch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DTXOrigDispatch.m; sourceTree = "<group>"; };
 		39DE8F9122F707F400780546 /* DTXOrigDispatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DTXOrigDispatch.h; sourceTree = "<group>"; };
+		6017CC99274AB59F00E17AB1 /* DTXTypedefs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DTXTypedefs.h; sourceTree = "<group>"; };
 		602F956A274528ED00BAFA74 /* DetoxSyncTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DetoxSyncTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		604A4368271F5004003B22CA /* DTXAddressInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTXAddressInfo.h; path = DTXObjectiveCHelpers/DTXAddressInfo.h; sourceTree = SOURCE_ROOT; };
 		604A4369271F5004003B22CA /* DTXAddressInfo.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = DTXAddressInfo.mm; path = DTXObjectiveCHelpers/DTXAddressInfo.mm; sourceTree = SOURCE_ROOT; };
@@ -571,6 +576,7 @@
 				60B19FB1272EFCA900AB49E3 /* NSString+SyncResource.m */,
 				60A9954727314A1700250FA6 /* NSString+SyncStatus.h */,
 				60A9954827314A1700250FA6 /* NSString+SyncStatus.m */,
+				6017CC99274AB59F00E17AB1 /* DTXTypedefs.h */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -674,6 +680,7 @@
 				39DE8FBA22F707F400780546 /* NSObject+DTXSpy.h in Headers */,
 				39DE8FB122F707F400780546 /* NSTimer+DTXSpy.h in Headers */,
 				39DE8FAC22F707F400780546 /* CAAnimation+DTXSpy.h in Headers */,
+				6017CC9B274AB59F00E17AB1 /* DTXTypedefs.h in Headers */,
 				39DE8F9522F707F400780546 /* DTXSingleEventSyncResource.h in Headers */,
 				39CC258924BE1AA70058EA64 /* NSURL+DetoxSyncUtils.h in Headers */,
 				39DE8F9222F707F400780546 /* DTXDispatchQueueSyncResource-Private.h in Headers */,
@@ -1018,6 +1025,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6017CC9F274B837700E17AB1 /* DTXJSTimerSyncResource.h in Sources */,
+				6017CC9E274B837100E17AB1 /* DTXSyncResource.h in Sources */,
+				6017CC9D274B807000E17AB1 /* DTXTypedefs.h in Sources */,
 				6097C6B42746815600612E00 /* NSString+SyncResource.h in Sources */,
 				6097C6B52746815600612E00 /* NSString+SyncResource.m in Sources */,
 				6097C6B62746815600612E00 /* NSString+SyncStatus.h in Sources */,
