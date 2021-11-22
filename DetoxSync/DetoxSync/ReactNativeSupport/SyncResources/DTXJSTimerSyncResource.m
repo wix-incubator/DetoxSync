@@ -120,12 +120,13 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
 {
 	[_syncResource
      performUpdateBlock:^ {
-      for (JSTimer *timer in _observedTimers) {
+      _observedTimers = [[_observedTimers filter:^BOOL(JSTimer *timer) {
         if (timer.timerID == aKey) {
           DTXSyncResourceVerboseLog(@"⏲ Removing observed timer: (%@)", timer);
-          [_observedTimers removeObject:timer];
+          return NO;
         }
-      }
+        return YES;
+      }] mutableCopy];
 
       return [_syncResource _busyCount];
     }

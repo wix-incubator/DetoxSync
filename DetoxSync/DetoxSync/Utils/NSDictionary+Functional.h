@@ -13,11 +13,11 @@ NS_ASSUME_NONNULL_BEGIN
 /// Category for functional methods on dictionary.
 @interface NSDictionary (Functional)
 
-/// Filters objects in the dictionary using the given \c block.
-- (NSDictionary *)filter:(FilterBlock)block;
+/// Filters objects by value in the dictionary using the given \c block.
+- (NSDictionary *)filter:(FilterBlockWithKeyValue)block;
 
-/// Maps objects in the dictionary using the given \c block.
-- (NSDictionary *)map:(MapBlock)block;
+/// Maps objects by value in the dictionary using the given \c block.
+- (NSDictionary *)map:(MapBlockWithKeyValue)block;
 
 @end
 

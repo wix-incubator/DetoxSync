@@ -11,6 +11,7 @@
 #import "DTXSingleEventSyncResource.h"
 #import "DTXOrigDispatch.h"
 #import "NSString+SyncResource.h"
+#import "NSDictionary+Functional.h"
 
 static const void* _DTXCAAnimationTrackingIdentifierKey = &_DTXCAAnimationTrackingIdentifierKey;
 
@@ -58,17 +59,9 @@ static const void* _DTXCAAnimationTrackingIdentifierKey = &_DTXCAAnimationTracki
 }
 
 - (NSDictionary<NSString *, NSNumber *> *)resourceDescription {
-  auto rawDescription = [self rawResourceDescription];
-  auto description = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
-  for (NSString *key in rawDescription) {
-    auto countValue = rawDescription[key];
-
-    if (countValue.boolValue) {
-      description[key] = countValue;
-    }
-  }
-
-  return description;
+  return [[self rawResourceDescription] filter:^BOOL(id __unused key, id value) {
+    return [value boolValue];
+  }];
 }
 
 - (NSDictionary<NSString *, NSNumber *> *)rawResourceDescription {
