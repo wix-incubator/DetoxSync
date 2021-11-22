@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSArray *)filter:(FilterBlock)block;
 
 /// Maps objects in the array using the given \c block. ------ -------s
-- (NSArray *)map:(MapBlock)block;
+- (NSArray *)map:(MapBlock)block; // todos: something
 
 @end
 
