@@ -1,7 +1,6 @@
 steps:
   - label: ":wrench: Build"
     command:
-    - "nvm install"
     - "cd DetoxSync"
     - "git submodule update --init --recursive"
     - "xcodebuild test -project DetoxSync.xcodeproj -scheme DetoxSyncTests -destination 'platform=iOS Simulator,name=iPhone 12'"
