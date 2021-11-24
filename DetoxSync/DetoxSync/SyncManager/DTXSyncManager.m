@@ -335,7 +335,7 @@ static atomic_nstimeinterval _maximumAnimationDuration = ATOMIC_VAR_INIT(1.0);
 
 + (void)_fireDelayedTimer
 {
-	if(_delayedFire != nil)ffxxx
+	if(_delayedFire != nil)ffxxxxx
 	{
 		dispatch_source_set_timer(_delayedFire, dispatch_time(DISPATCH_TIME_NOW, _useDelayedFire * NSEC_PER_SEC), 0, (1ull * NSEC_PER_SEC) / 10);
 		return;
