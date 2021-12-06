@@ -74,12 +74,12 @@ it(@"should not report native timers with repeats as busy resource", ^{
   DTXSyncStatus *status = DTXAwaitStatus();
   expect(status[NSString.dtx_appStatusKey]).to.equal(@"busy");
 
-  DTXBusyResource *resource = [status busyResourcesWithName:@"timers"].firstObject;
-  NSArray<NSNumber *> *timesUntilFire =
+  DTXBusyResource * _Nullable resource = [status busyResourcesWithName:@"timers"].firstObject;
+  NSArray<NSNumber *> * _Nullable timesUntilFire = 
       [DTXMapTimers(resource[NSString.dtx_resourceDescriptionKey][@"timers"])
        valueForKey:@"time_until_fire"];
 
-  expect(timesUntilFire).notTo.contain((@10));
+  expect(timesUntilFire ?: @[]).notTo.contain((@10));
 });
 
 it(@"should report js-timers busy resource", ^{
