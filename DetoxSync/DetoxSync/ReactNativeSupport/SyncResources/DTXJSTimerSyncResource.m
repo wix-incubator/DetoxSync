@@ -10,6 +10,7 @@
 #import "DTXSyncManager-Private.h"
 #import "NSString+SyncResource.h"
 #import "NSArray+Functional.h"
+#import "_DTXTimerTrampoline.h"
 
 @import ObjectiveC;
 
@@ -265,7 +266,7 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
 
   NSArray *flattenedObservedTimers = [observedTimers valueForKeyPath:@"@unionOfArrays.self"];
   NSArray *timersDescriptions = [flattenedObservedTimers
-      map:^NSDictionary *(DTXJSTimerSyncResource *timer) {
+      map:^NSDictionary *(_DTXTimerTrampoline *timer) {
         return [timer jsonDescription];
       }];
 

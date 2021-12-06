@@ -193,7 +193,7 @@ const void* __DTXTimerTrampolineKey = &__DTXTimerTrampolineKey;
 
 - (DTXBusyResource *)jsonDescription {
   return @{
-    @"fire_date": [_DTXTimerTrampoline._descriptionDateFormatter stringFromDate:_fireDate],
+    @"fire_date": _fireDate ? [_DTXTimerTrampoline._descriptionDateFormatter stringFromDate:_fireDate] : @"none",
     @"time_until_fire": @(_timeUntilFire),
     @"is_recurring": @(_repeats),
     @"repeat_interval": @(_ti)
