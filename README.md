@@ -8,6 +8,8 @@ DetoxSync tracks various application states (resources), such as animations, net
 
 #### Delayed Perform Selectors
 
+
+
 This sync resource tracks Objective C selectors scheduled to run in the future, using API such as `-[NSObject performSelector:withObject:afterDelay:]`. Such delayed selectors are tracked for run loops that are tracked by the system.
 
 Once all pending selectors have been called, this sync resource becomes idle.
