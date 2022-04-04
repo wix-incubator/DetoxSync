@@ -67,7 +67,7 @@
 	DTXSingleEventSyncResource* rv = [[DTXSingleEventSyncResource alloc] init];
 	rv->_description = description;
 	rv->_object = object;
-	[DTXSyncManager registerSyncResource:rv];
+//	[DTXSyncManager registerSyncResource:rv];
 	[rv resumeTracking];
 	
 	_DTXSingleUseDeallocationHelper* helper = [[_DTXSingleUseDeallocationHelper alloc] initWithSyncResource:rv];

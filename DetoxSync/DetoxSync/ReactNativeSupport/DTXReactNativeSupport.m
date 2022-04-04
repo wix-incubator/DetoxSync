@@ -172,7 +172,7 @@ static void _setupRNSupport()
 		DTXSyncResourceVerboseLog(@"Adding sync resource for JS timers");
 		
 		DTXJSTimerSyncResource* sr = [DTXJSTimerSyncResource new];
-		[DTXSyncManager registerSyncResource:sr];
+//		[DTXSyncManager registerSyncResource:sr];
 		
 		cls = NSClassFromString(@"RCTJavaScriptLoader");
 		if(cls == nil)

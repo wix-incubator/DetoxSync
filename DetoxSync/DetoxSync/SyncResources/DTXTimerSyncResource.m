@@ -84,7 +84,7 @@
 	static dispatch_once_t onceToken;
 	dispatch_once(&onceToken, ^{
 		shared = [DTXTimerSyncResource new];
-		[DTXSyncManager registerSyncResource:shared];
+//		[DTXSyncManager registerSyncResource:shared];
 	});
 	
 	return shared;

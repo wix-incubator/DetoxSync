@@ -507,7 +507,7 @@ static BOOL DTXIsSystemBusyNow(void)
 	
 	DTXDispatchQueueSyncResource* sr = [DTXDispatchQueueSyncResource dispatchQueueSyncResourceWithQueue:dispatchQueue];
 	sr.queueName = name;
-	[self registerSyncResource:sr];
+//	[self registerSyncResource:sr];
 }
 
 + (void)untrackDispatchQueue:(dispatch_queue_t)dispatchQueue
@@ -554,7 +554,7 @@ static BOOL DTXIsSystemBusyNow(void)
 	
 	sr = [DTXRunLoopSyncResource runLoopSyncResourceWithRunLoop:runLoop];
 	sr.runLoopName = name;
-	[self registerSyncResource:sr];
+//	[self registerSyncResource:sr];
 	[sr _startTracking];
 }
 

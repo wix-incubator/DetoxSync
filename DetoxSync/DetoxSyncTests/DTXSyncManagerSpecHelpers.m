@@ -78,7 +78,7 @@ NSArray<NSDictionary<NSString *,id> *> *DTXMapTimers(NSArray<NSDictionary<NSStri
 
 void DTXConnectWithJSTimerSyncResource(void) {
   DTXJSTimerSyncResource* resource = [DTXJSTimerSyncResource new];
-  [DTXSyncManager registerSyncResource:resource];
+//  [DTXSyncManager registerSyncResource:resource];
 }
 
 void DTXCreateFakeJSTimer(double callbackID, NSTimeInterval duration, double schedulingTime,
@@ -89,7 +89,7 @@ void DTXCreateFakeJSTimer(double callbackID, NSTimeInterval duration, double sch
 
 void DTXRegisterSingleEvent(NSString *event, NSString * _Nullable object) {
   id trackEvent = [DTXSyncManager trackEventWithDescription:event objectDescription:object];
-  [DTXSyncManager registerSyncResource:trackEvent];
+//  [DTXSyncManager registerSyncResource:trackEvent];
 }
 
 void DTXPerformSelectorAfterDelay(void) {
