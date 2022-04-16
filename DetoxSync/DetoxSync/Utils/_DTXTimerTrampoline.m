@@ -16,19 +16,19 @@ const void* __DTXTimerTrampolineKey = &__DTXTimerTrampolineKey;
 {
 	id _target;
 	SEL _sel;
-	
+
 	//NSTimer
 	__weak NSTimer* _timer;
 	CFRunLoopTimerCallBack _callback;
 	CFRunLoopRef _runLoop;
 	NSString* _timerDescription;
 	NSTimeInterval _timeUntilFire;
-	
+
 	//CADisplayLink
 	__weak CADisplayLink* _displayLink;
-	
+
 	BOOL _tracking;
-	
+
 #if DEBUG
 	NSString* _history;
 #endif
@@ -53,7 +53,7 @@ const void* __DTXTimerTrampolineKey = &__DTXTimerTrampolineKey;
 		_timeUntilFire = [fireDate timeIntervalSinceNow];
 		_ti = ti;
 		_repeats = rep;
-		
+
 #if DEBUG
 		_history = [NSString stringWithFormat:@"%@\n%@", NSStringFromSelector(_cmd), NSThread.callStackSymbols];
 #endif
@@ -71,7 +71,7 @@ const void* __DTXTimerTrampolineKey = &__DTXTimerTrampolineKey;
 		_timeUntilFire = [fireDate timeIntervalSinceNow];
 		_ti = ti;
 		_repeats = rep;
-		
+
 #if DEBUG
 		_history = [NSString stringWithFormat:@"%@\n%@", NSStringFromSelector(_cmd), NSThread.callStackSymbols];
 #endif
@@ -87,7 +87,7 @@ const void* __DTXTimerTrampolineKey = &__DTXTimerTrampolineKey;
 - (void)dealloc
 {
 	[self untrack];
-	
+
 	objc_setAssociatedObject(_timer, __DTXTimerTrampolineKey, nil, OBJC_ASSOCIATION_RETAIN);
 }
 
@@ -96,7 +96,7 @@ const void* __DTXTimerTrampolineKey = &__DTXTimerTrampolineKey;
 	_timer = timer;
 	_timerDescription = [[timer debugDescription] copy];
 	objc_setAssociatedObject(timer, __DTXTimerTrampolineKey, self, OBJC_ASSOCIATION_RETAIN);
-	
+
 #if DEBUG
 	_history = [NSString stringWithFormat:@"%@\n%@", _history, [timer debugDescription]];
 #endif
@@ -138,7 +138,7 @@ const void* __DTXTimerTrampolineKey = &__DTXTimerTrampolineKey;
 	{
 		return;
 	}
-	
+
 	_tracking = YES;
 	[DTXTimerSyncResource.sharedInstance trackTimerTrampoline:self];
 }
@@ -149,9 +149,9 @@ const void* __DTXTimerTrampolineKey = &__DTXTimerTrampolineKey;
 	{
 		return;
 	}
-	
+
 	//	NSLog(@"🤦‍♂️ untrack: %@", _timer);
-	
+
 	[DTXTimerSyncResource.sharedInstance untrackTimerTrampoline:self];
 	_tracking = NO;
 }
@@ -169,12 +169,12 @@ const void* __DTXTimerTrampolineKey = &__DTXTimerTrampolineKey;
 }
 
 - (DTXBusyResource *)jsonDescription {
-  return @{
-    @"fire_date": _fireDate ? [_DTXTimerTrampoline._descriptionDateFormatter stringFromDate:_fireDate] : @"none",
-    @"time_until_fire": @(_timeUntilFire),
-    @"is_recurring": @(_repeats),
-    @"repeat_interval": @(_ti)
-  };
+	return @{
+		@"fire_date": _fireDate ? [_DTXTimerTrampoline._descriptionDateFormatter stringFromDate:_fireDate] : @"none",
+		@"time_until_fire": @(_timeUntilFire),
+		@"is_recurring": @(_repeats),
+		@"repeat_interval": @(_ti)
+	};
 }
 
 #if DEBUG
