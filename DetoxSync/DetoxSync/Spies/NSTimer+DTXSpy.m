@@ -72,6 +72,9 @@ CFRunLoopTimerRef __detox_sync_CFRunLoopTimerCreate(CFAllocatorRef allocator, CF
 static CFRunLoopTimerRef (*__orig_CFRunLoopTimerCreateWithHandler)(CFAllocatorRef allocator, CFAbsoluteTime fireDate, CFTimeInterval interval, CFOptionFlags flags, CFIndex order, void (^block) (CFRunLoopTimerRef timer));
 CFRunLoopTimerRef __detox_sync_CFRunLoopTimerCreateWithHandler(CFAllocatorRef allocator, CFAbsoluteTime fireDate, CFTimeInterval interval, CFOptionFlags flags, CFIndex order, void (^block) (id timer))
 {
+	NSLog(@"🤔 CFRunLoopTimerCreateWithHandler");
+
+	// What is this doing? We don't seem to be creating a trampoline here - I feel like we should be?
 	return (__bridge_retained CFRunLoopTimerRef)[[NSTimer alloc] initWithFireDate:CFBridgingRelease(CFDateCreate(allocator, fireDate)) interval:interval repeats:interval > 0 block:block];
 }
 
