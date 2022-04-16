@@ -124,6 +124,15 @@ void __detox_sync___NSCFTimer_invalidate(NSTimer* timer)
 	[trampoline untrack];
 }
 
+- (void)dealloc
+{
+    id<DTXTimerProxy> trampoline = [DTXTimerSyncResource existingTimerProxyWithTimer:self];
+
+    if(trampoline) {
+        NSLog(@"🤦‍♂️ dealloc, but trampoline was still active: %@", self);
+        [trampoline untrack];
+    }
+}
 
 + (void)load
 {

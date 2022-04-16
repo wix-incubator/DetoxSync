@@ -86,7 +86,7 @@ const void* __DTXTimerTrampolineKey = &__DTXTimerTrampolineKey;
 
 - (void)dealloc
 {
-	[self untrack];
+	NSLog(@"🤦‍♂️ trampoline dealloc: %@ (tracking: %d)", self, _tracking);
 
 	objc_setAssociatedObject(_timer, __DTXTimerTrampolineKey, nil, OBJC_ASSOCIATION_RETAIN);
 }
