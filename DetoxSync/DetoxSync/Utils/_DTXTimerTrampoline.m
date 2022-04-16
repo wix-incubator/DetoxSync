@@ -112,47 +112,24 @@ const void* __DTXTimerTrampolineKey = &__DTXTimerTrampolineKey;
 #endif
 }
 
-- (void)fire:(id)timer
+- (void)fire
 {
-	//This is to ensure the timer is still valid after fire.
-	CFRunLoopRef runloop = CFRunLoopGetCurrent();
-	CFRunLoopMode mode = CFRunLoopCopyCurrentMode(runloop);
-	CFRunLoopPerformBlock(runloop, mode, ^{
-		if(CFRunLoopTimerIsValid((__bridge CFRunLoopTimerRef)timer) == NO)
-		{
-			[self untrack];
-			
-			CFRelease(mode);
-			
-			return;
-		}
-		
-		CFRunLoopPerformBlock(runloop, mode, ^{
-			if(CFRunLoopTimerIsValid((__bridge CFRunLoopTimerRef)timer) == NO)
-			{
-				[self untrack];
-				
-				CFRelease(mode);
-				
-				return;
-			}
-			
-			CFRelease(mode);
-		});
-	});
-	
 	if(_callback)
 	{
 		CFRunLoopTimerContext ctx;
-		CFRunLoopTimerGetContext((__bridge CFRunLoopTimerRef)timer, &ctx);
-		_callback((__bridge CFRunLoopTimerRef)timer, ctx.info);
-		return;
+		CFRunLoopTimerGetContext((__bridge CFRunLoopTimerRef)_timer, &ctx);
+		_callback((__bridge CFRunLoopTimerRef)_timer, ctx.info);
 	}
-	
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-	[_target performSelector:_sel withObject:timer];
-#pragma clang diagnostic pop
+
+	if(_target && _sel) {
+		IMP impl = [_target methodForSelector:_sel];
+		void (*func)(id, SEL, NSTimer*) = (void *)impl;
+		func(_target, _sel, _timer);
+	}
+
+	if(!_repeats) {
+		[self untrack];
+	}
 }
 
 - (void)track

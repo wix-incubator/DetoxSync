@@ -52,7 +52,7 @@ static void _DTXCFTimerTrampoline(CFRunLoopTimerRef timer, void *info)
 //	NSLog(@"❤️ %p", timer);
 	
 	id<DTXTimerProxy> tp = [DTXTimerSyncResource existingTimerProxyWithTimer:NS(timer)];
-	[tp fire:(__bridge NSTimer*)timer];
+	[tp fire];
 }
 
 static CFRunLoopTimerRef (*__orig_CFRunLoopTimerCreate)(CFAllocatorRef allocator, CFAbsoluteTime fireDate, CFTimeInterval interval, CFOptionFlags flags, CFIndex order, CFRunLoopTimerCallBack callout, CFRunLoopTimerContext *context);
