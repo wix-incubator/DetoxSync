@@ -29,11 +29,19 @@
 
 #define unlikely dtx_unlikely
 
+// With the Address Sanitizer enabled, the actual "original" `dispatch_x` are prepended with the
+// word `wrap_`.
+#if defined(__has_feature) && __has_feature(address_sanitizer)
+	#define DTX_DISPATCH_REBINDING(type) "wrap_dispatch_#type"
+#else
+	#define DTX_DISPATCH_REBINDING(type) "dispatch_#type"
+#endif
+
 DTX_ALWAYS_INLINE
 void __detox_sync_dispatch_wrapper(void (*func)(dispatch_queue_t param1, dispatch_block_t param2), NSString* name, BOOL copy, dispatch_queue_t param1, dispatch_block_t _param2)
 {
 	dispatch_block_t param2 = copy ? [_param2 copy] : (id)_param2;
-	
+
 	DTXDispatchQueueSyncResource* sr = [DTXDispatchQueueSyncResource _existingSyncResourceWithQueue:param1];
 	NSString* identifier = [sr addWorkBlock:param2 operation:name moreInfo:nil];
 	
@@ -147,18 +155,18 @@ dispatch_queue_t __detox_sync_dispatch_queue_create(const char *_Nullable label,
 	return __orig_dispatch_queue_create(label, attr);
 }
 
-
 __attribute__((constructor))
 static void _install_dispatchqueue_spy(void)
 {
 	struct rebinding r[] = (struct rebinding[]) {
-		"dispatch_async", __detox_sync_dispatch_async, (void**)&__orig_dispatch_async,
-		"dispatch_sync", __detox_sync_dispatch_sync, (void**)&__orig_dispatch_sync,
-		"dispatch_async_and_wait", __detox_sync_dispatch_async_and_wait, (void**)&__orig_dispatch_async_and_wait,
-		"dispatch_after", __detox_sync_dispatch_after, (void**)&__orig_dispatch_after,
-		"dispatch_group_async", __detox_sync_dispatch_group_async, (void**)&__orig_dispatch_group_async,
-		"dispatch_group_notify", __detox_sync_dispatch_group_notify, (void**)&__orig_dispatch_group_notify,
-		"dispatch_queue_create", __detox_sync_dispatch_queue_create, (void**)&__orig_dispatch_queue_create,
+		DTX_DISPATCH_REBINDING(async), __detox_sync_dispatch_async, (void**)&__orig_dispatch_async,
+		DTX_DISPATCH_REBINDING(sync), __detox_sync_dispatch_sync, (void**)&__orig_dispatch_sync,
+		DTX_DISPATCH_REBINDING(async_and_wait), __detox_sync_dispatch_async_and_wait, (void**)&__orig_dispatch_async_and_wait,
+		DTX_DISPATCH_REBINDING(after), __detox_sync_dispatch_after, (void**)&__orig_dispatch_after,
+		DTX_DISPATCH_REBINDING(group_async), __detox_sync_dispatch_group_async, (void**)&__orig_dispatch_group_async,
+		DTX_DISPATCH_REBINDING(group_notify), __detox_sync_dispatch_group_notify, (void**)&__orig_dispatch_group_notify,
+		DTX_DISPATCH_REBINDING(queue_create), __detox_sync_dispatch_queue_create, (void**)&__orig_dispatch_queue_create,
 	};
+
 	rebind_symbols(r, sizeof(r) / sizeof(struct rebinding));
 }
