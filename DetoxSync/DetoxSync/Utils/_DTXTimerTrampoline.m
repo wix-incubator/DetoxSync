@@ -129,6 +129,11 @@ const void* __DTXTimerTrampolineKey = &__DTXTimerTrampolineKey;
 
 	if(_timer && _target && _sel) {
 		IMP impl = [_target methodForSelector:_sel];
+
+		if(!impl) {
+			@throw @"☠️ attempted to call a selector but couldn't find the implementation!";
+		}
+
 		void (*func)(id, SEL, NSTimer*) = (void *)impl;
 		func(_target, _sel, _timer);
 	}
