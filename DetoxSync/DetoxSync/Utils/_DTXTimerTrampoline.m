@@ -120,14 +120,14 @@ const void* __DTXTimerTrampolineKey = &__DTXTimerTrampolineKey;
 
 - (void)fire
 {
-	if(_callback)
+	if(_timer && _callback)
 	{
 		CFRunLoopTimerContext ctx;
 		CFRunLoopTimerGetContext((__bridge CFRunLoopTimerRef)_timer, &ctx);
 		_callback((__bridge CFRunLoopTimerRef)_timer, ctx.info);
 	}
 
-	if(_target && _sel) {
+	if(_timer && _target && _sel) {
 		IMP impl = [_target methodForSelector:_sel];
 		void (*func)(id, SEL, NSTimer*) = (void *)impl;
 		func(_target, _sel, _timer);
