@@ -21,7 +21,6 @@ const void* __DTXTimerTrampolineKey = &__DTXTimerTrampolineKey;
 	__weak NSTimer* _timer;
 	CFRunLoopTimerCallBack _callback;
 	CFRunLoopRef _runLoop;
-	NSString* _timerDescription;
 	NSTimeInterval _timeUntilFire;
 
 	//CADisplayLink
@@ -102,7 +101,6 @@ const void* __DTXTimerTrampolineKey = &__DTXTimerTrampolineKey;
 - (void)setTimer:(NSTimer*)timer
 {
 	_timer = timer;
-	_timerDescription = [[timer debugDescription] copy];
 	objc_setAssociatedObject(timer, __DTXTimerTrampolineKey, self, OBJC_ASSOCIATION_RETAIN);
 
 #if DEBUG
