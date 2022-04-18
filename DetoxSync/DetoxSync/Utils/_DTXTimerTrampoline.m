@@ -88,7 +88,15 @@ const void* __DTXTimerTrampolineKey = &__DTXTimerTrampolineKey;
 {
 	NSLog(@"🤦‍♂️ trampoline dealloc: %@ (tracking: %d)", self, _tracking);
 
-	objc_setAssociatedObject(_timer, __DTXTimerTrampolineKey, nil, OBJC_ASSOCIATION_RETAIN);
+    if(_timer)
+    {
+        objc_setAssociatedObject(_timer, __DTXTimerTrampolineKey, nil, OBJC_ASSOCIATION_ASSIGN);
+    }
+
+    if(_displayLink)
+    {
+        objc_setAssociatedObject(_displayLink, __DTXTimerTrampolineKey, nil, OBJC_ASSOCIATION_ASSIGN);
+    }
 }
 
 - (void)setTimer:(NSTimer*)timer
@@ -105,7 +113,7 @@ const void* __DTXTimerTrampolineKey = &__DTXTimerTrampolineKey;
 - (void)setDisplayLink:(CADisplayLink*)displayLink
 {
 	_displayLink = displayLink;
-	objc_setAssociatedObject(_displayLink, __DTXTimerTrampolineKey, self, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	objc_setAssociatedObject(_displayLink, __DTXTimerTrampolineKey, self, OBJC_ASSOCIATION_RETAIN);
 
 #if DEBUG
 	_history = [NSString stringWithFormat:@"%@\n%@", _history, [displayLink debugDescription]];
