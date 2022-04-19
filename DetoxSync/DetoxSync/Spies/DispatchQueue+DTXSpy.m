@@ -32,9 +32,9 @@
 // With the Address Sanitizer enabled, the actual "original" `dispatch_x` are prepended with the
 // word `wrap_`.
 #if defined(__has_feature) && __has_feature(address_sanitizer)
-	#define DTX_DISPATCH_REBINDING(type) "wrap_dispatch_#type"
+	#define DTX_DISPATCH_REBINDING(type) "wrap_dispatch_" #type
 #else
-	#define DTX_DISPATCH_REBINDING(type) "dispatch_#type"
+	#define DTX_DISPATCH_REBINDING(type) "dispatch_" #type
 #endif
 
 DTX_ALWAYS_INLINE
