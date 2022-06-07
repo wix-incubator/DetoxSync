@@ -31,8 +31,17 @@
 		DTXSwizzleMethod(self, @selector(setNeedsLayout), @selector(__detox_sync_setNeedsLayout), &error);
 		DTXSwizzleMethod(self, @selector(setNeedsDisplay), @selector(__detox_sync_setNeedsDisplay), &error);
 		DTXSwizzleMethod(self, @selector(setNeedsDisplayInRect:), @selector(__detox_sync_setNeedsDisplayInRect:), &error);
+//    DTXSwizzleMethod(self, @selector(accessibilityIdentifier), @selector(__detox_accessibilityIdentifier), &error);
 	}
 }
+
+//- (NSString *)__detox_accessibilityIdentifier {
+//  if (self.__detox_accessibilityIdentifier == nil) {
+//    [self setAccessibilityIdentifier:[[NSUUID UUID] UUIDString]];
+//  }
+//
+//  return self.__detox_accessibilityIdentifier;
+//}
 
 + (dispatch_block_t)_failSafeTrackAnimationWithDuration:(NSTimeInterval)duration delay:(NSTimeInterval)delay completion:(id)completion
 {
