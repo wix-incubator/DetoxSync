@@ -192,8 +192,6 @@
 static NSMutableSet<NSString *>  * _Nullable identifiersStorage;
 
 - (void)__detox_sync_setAccessabilityIdentifier:(NSString *)identifier {
-  NSString *newIdentifier = identifier;
-
   static dispatch_once_t once;
   dispatch_once(&once, ^{
     if (identifiersStorage == nil) {
@@ -201,17 +199,27 @@ static NSMutableSet<NSString *>  * _Nullable identifiersStorage;
     }
   });
 
-  if (![self.accessibilityIdentifier isEqualToString:identifier]) {
-    // To avoid duplications:
-    if ([identifiersStorage containsObject:newIdentifier]) {
-      newIdentifier =
-          [NSString stringWithFormat:@"%@ [Detox:%@]",
-           newIdentifier, [NSUUID UUID].UUIDString];
-    }
 
-    [identifiersStorage addObject:newIdentifier];
+  if ([self.accessibilityIdentifier isEqualToString:identifier]) {
+    [self __detox_sync_setAccessabilityIdentifier:identifier];
+    return;
   }
 
+  if (self.accessibilityIdentifier != nil) {
+    // Remove the old identifier from storage.
+    [identifiersStorage removeObject:self.accessibilityIdentifier];
+  }
+
+  if (![identifiersStorage containsObject:identifier]) {
+    [identifiersStorage addObject:identifier];
+    [self __detox_sync_setAccessabilityIdentifier:identifier];
+    return;
+  }
+
+  NSString *uuid = [NSUUID UUID].UUIDString;
+  NSString *newIdentifier = [NSString stringWithFormat:@"%@_detox:%@", identifier, uuid];
+
+  [identifiersStorage addObject:newIdentifier];
   [self __detox_sync_setAccessabilityIdentifier:newIdentifier];
 }
 
