@@ -210,14 +210,16 @@ static NSMutableSet<NSString *>  * _Nullable identifiersStorage;
     [identifiersStorage removeObject:self.accessibilityIdentifier];
   }
 
-  if (![identifiersStorage containsObject:identifier]) {
-    [identifiersStorage addObject:identifier];
-    [self __detox_sync_setAccessabilityIdentifier:identifier];
-    return;
+  NSString *newIdentifier = identifier;
+
+  if (identifier == nil) {
+    newIdentifier = [NSUUID UUID].UUIDString;
   }
 
-  NSString *uuid = [NSUUID UUID].UUIDString;
-  NSString *newIdentifier = [NSString stringWithFormat:@"%@_detox:%@", identifier, uuid];
+  if ([identifiersStorage containsObject:newIdentifier]) {
+    NSString *uuid = [NSUUID UUID].UUIDString;
+    newIdentifier = [NSString stringWithFormat:@"%@_detox:%@", newIdentifier, uuid];
+  }
 
   [identifiersStorage addObject:newIdentifier];
   [self __detox_sync_setAccessabilityIdentifier:newIdentifier];
