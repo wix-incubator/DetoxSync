@@ -27,8 +27,10 @@
 		DTXSwizzleClassMethod(self, @selector(transitionFromView:toView:duration:options:completion:), @selector(__detox_sync_transitionFromView:toView:duration:options:completion:), &error);
 		DTXSwizzleClassMethod(self, @selector(transitionWithView:duration:options:animations:completion:), @selector(__detox_sync_transitionWithView:duration:options:animations:completion:), &error);
 		DTXSwizzleClassMethod(self, @selector(animateKeyframesWithDuration:delay:options:animations:completion:), @selector(__detox_sync_animateKeyframesWithDuration:delay:options:animations:completion:), &error);
-		
-		DTXSwizzleMethod(self, @selector(setNeedsLayout), @selector(__detox_sync_setNeedsLayout), &error);
+
+    DTXSwizzleMethod(self, @selector(setNeedsLayout), @selector(__detox_sync_setNeedsLayout), &error);
+    DTXSwizzleMethod(self, @selector(didMoveToSuperview), @selector(__detox_sync_didMoveToSuperview), &error);
+    DTXSwizzleMethod(self, @selector(didMoveToWindow), @selector(__detox_sync_didMoveToWindow), &error);
 		DTXSwizzleMethod(self, @selector(setNeedsDisplay), @selector(__detox_sync_setNeedsDisplay), &error);
 		DTXSwizzleMethod(self, @selector(setNeedsDisplayInRect:), @selector(__detox_sync_setNeedsDisplayInRect:), &error);
 //    DTXSwizzleMethod(self, @selector(accessibilityIdentifier), @selector(__detox_accessibilityIdentifier), &error);
@@ -184,6 +186,49 @@
 
 	[self __detox_sync_setNeedsDisplayInRect:rect];
 
+}
+
+static NSMutableSet<NSString *>  * _Nullable identifiersStorage;
+
+- (void)__detox_sync_setAccessabilityIdentifier:(NSString *)identifier {
+  NSString *newIdentifier = identifier;
+
+  static dispatch_once_t once;
+  dispatch_once(&once, ^{
+    if (identifiersStorage == nil) {
+      identifiersStorage = [NSMutableSet<NSString *> new];
+    }
+  });
+
+  // To avoid duplications:
+  if ([identifiersStorage containsObject:newIdentifier]) {
+    newIdentifier =
+        [NSString stringWithFormat:@"%@[Detox:%@]", newIdentifier, [NSUUID UUID].UUIDString];
+  }
+
+  [identifiersStorage addObject:newIdentifier];
+
+  [self __detox_sync_setAccessabilityIdentifier:newIdentifier];
+}
+
+
+- (void)generateAccessabilityIdentifierIfMissing {
+  NSString * _Nullable identifier = self.accessibilityIdentifier;
+
+  // In case this view has no identifier, set him one.
+  if (identifier == nil) {
+    [self setAccessibilityIdentifier:[@"Detox:" stringByAppendingString:[NSUUID UUID].UUIDString]];
+  }
+}
+
+- (void)__detox_sync_didMoveToWindow {
+  [self generateAccessabilityIdentifierIfMissing];
+  [self __detox_sync_didMoveToWindow];
+}
+
+- (void)__detox_sync_didMoveToSuperview {
+  [self generateAccessabilityIdentifierIfMissing];
+  [self __detox_sync_didMoveToSuperview];
 }
 
 @end
