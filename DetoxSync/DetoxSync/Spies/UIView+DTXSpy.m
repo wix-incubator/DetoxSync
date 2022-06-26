@@ -217,10 +217,8 @@ static NSMutableSet<NSString *>  * _Nullable identifiersStorage;
 
 
 - (void)generateAccessabilityIdentifierIfMissing {
-  NSString * _Nullable identifier = self.accessibilityIdentifier;
-
   // In case this view has no identifier, set him one.
-  if (identifier == nil) {
+  if (self.accessibilityIdentifier == nil) {
     [self setAccessibilityIdentifier:[NSUUID UUID].UUIDString];
   }
 }
