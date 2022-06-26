@@ -201,13 +201,16 @@ static NSMutableSet<NSString *>  * _Nullable identifiersStorage;
     }
   });
 
-  // To avoid duplications:
-  if ([identifiersStorage containsObject:newIdentifier]) {
-    newIdentifier =
-        [NSString stringWithFormat:@"%@[Detox:%@]", newIdentifier, [NSUUID UUID].UUIDString];
-  }
+  if (![self.accessibilityIdentifier isEqualToString:identifier]) {
+    // To avoid duplications:
+    if ([identifiersStorage containsObject:newIdentifier]) {
+      newIdentifier =
+          [NSString stringWithFormat:@"%@ [Detox:%@]",
+           newIdentifier, [NSUUID UUID].UUIDString];
+    }
 
-  [identifiersStorage addObject:newIdentifier];
+    [identifiersStorage addObject:newIdentifier];
+  }
 
   [self __detox_sync_setAccessabilityIdentifier:newIdentifier];
 }
@@ -218,7 +221,7 @@ static NSMutableSet<NSString *>  * _Nullable identifiersStorage;
 
   // In case this view has no identifier, set him one.
   if (identifier == nil) {
-    [self setAccessibilityIdentifier:[@"Detox:" stringByAppendingString:[NSUUID UUID].UUIDString]];
+    [self setAccessibilityIdentifier:[NSUUID UUID].UUIDString];
   }
 }
 
