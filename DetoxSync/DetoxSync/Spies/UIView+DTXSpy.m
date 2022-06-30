@@ -32,6 +32,7 @@
     DTXSwizzleMethod(self, @selector(setNeedsLayout), @selector(__detox_sync_setNeedsLayout), &error);
     DTXSwizzleMethod(self, @selector(didMoveToSuperview), @selector(__detox_sync_didMoveToSuperview), &error);
     DTXSwizzleMethod(self, @selector(didMoveToWindow), @selector(__detox_sync_didMoveToWindow), &error);
+  DTXSwizzleMethod(self, @selector(removeFromSuperview), @selector(__detox_sync_removeFromSuperview), &error);
 		DTXSwizzleMethod(self, @selector(setNeedsDisplay), @selector(__detox_sync_setNeedsDisplay), &error);
 		DTXSwizzleMethod(self, @selector(setNeedsDisplayInRect:), @selector(__detox_sync_setNeedsDisplayInRect:), &error);
 //    DTXSwizzleMethod(self, @selector(accessibilityIdentifier), @selector(__detox_accessibilityIdentifier), &error);
@@ -241,6 +242,20 @@ static NSMutableSet<NSString *>  * _Nullable identifiersStorage;
 - (void)__detox_sync_didMoveToSuperview {
   [self generateAccessabilityIdentifierIfMissing];
   [self __detox_sync_didMoveToSuperview];
+}
+
+
+- (void)__detox_sync_removeFromSuperview {
+  [self removeViewAndSubviewIdentifiersFromStorage];
+  [self __detox_sync_removeFromSuperview];
+}
+
+- (void)removeViewAndSubviewIdentifiersFromStorage {
+  for (UIView *subview in self.subviews) {
+    [subview removeViewAndSubviewIdentifiersFromStorage];
+  }
+
+  [identifiersStorage removeObject:self.accessibilityIdentifier];
 }
 
 @end
