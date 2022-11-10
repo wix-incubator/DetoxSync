@@ -81,3 +81,4 @@ DetoxSync comes with React Native support out of the box, automatically tracking
 ### API Documentation
 
 For most up-to-date documentation, check out the [DTXSyncManager header](https://github.com/wix/DetoxSync/blob/master/DetoxSync/DetoxSync/SyncManager/DTXSyncManager.h).
+ 
