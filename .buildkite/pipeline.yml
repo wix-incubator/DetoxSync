@@ -1,5 +1,7 @@
 steps:
   - label: ":wrench: Build"
+    command: |
+      echo 'depaz'
     command:
     - "cd DetoxSync"
     - "git submodule update --init --recursive"
