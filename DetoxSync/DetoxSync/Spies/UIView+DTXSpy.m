@@ -28,14 +28,14 @@
 		DTXSwizzleClassMethod(self, @selector(transitionWithView:duration:options:animations:completion:), @selector(__detox_sync_transitionWithView:duration:options:animations:completion:), &error);
 		DTXSwizzleClassMethod(self, @selector(animateKeyframesWithDuration:delay:options:animations:completion:), @selector(__detox_sync_animateKeyframesWithDuration:delay:options:animations:completion:), &error);
 
-    DTXSwizzleMethod(self, @selector(setAccessibilityIdentifier:), @selector(__detox_sync_setAccessabilityIdentifier:), &error);
+//    DTXSwizzleMethod(self, @selector(setAccessibilityIdentifier:), @selector(__detox_sync_setAccessabilityIdentifier:), &error);
     DTXSwizzleMethod(self, @selector(setNeedsLayout), @selector(__detox_sync_setNeedsLayout), &error);
     DTXSwizzleMethod(self, @selector(didMoveToSuperview), @selector(__detox_sync_didMoveToSuperview), &error);
     DTXSwizzleMethod(self, @selector(didMoveToWindow), @selector(__detox_sync_didMoveToWindow), &error);
-  DTXSwizzleMethod(self, @selector(removeFromSuperview), @selector(__detox_sync_removeFromSuperview), &error);
+//  DTXSwizzleMethod(self, @selector(removeFromSuperview), @selector(__detox_sync_removeFromSuperview), &error);
 		DTXSwizzleMethod(self, @selector(setNeedsDisplay), @selector(__detox_sync_setNeedsDisplay), &error);
 		DTXSwizzleMethod(self, @selector(setNeedsDisplayInRect:), @selector(__detox_sync_setNeedsDisplayInRect:), &error);
-//    DTXSwizzleMethod(self, @selector(accessibilityIdentifier), @selector(__detox_accessibilityIdentifier), &error);
+    DTXSwizzleMethod(self, @selector(accessibilityIdentifier), @selector(__detox_sync_accessibilityIdentifier), &error);
 	}
 }
 
@@ -190,46 +190,51 @@
 
 }
 
-static NSMutableSet<NSString *>  * _Nullable identifiersStorage;
+//static NSMutableSet<NSString *>  * _Nullable identifiersStorage;
+//
+//- (void)__detox_sync_setAccessabilityIdentifier:(NSString *)identifier {
+//  static dispatch_once_t once;
+//  dispatch_once(&once, ^{
+//    if (identifiersStorage == nil) {
+//      identifiersStorage = [NSMutableSet<NSString *> new];
+//    }
+//  });
+//
+//
+//  if ([self.accessibilityIdentifier isEqualToString:identifier]) {
+//    [self __detox_sync_setAccessabilityIdentifier:identifier];
+//    return;
+//  }
+//
+//  if (self.accessibilityIdentifier != nil) {
+//    // Remove the old identifier from storage.
+//    [identifiersStorage removeObject:self.accessibilityIdentifier];
+//  }
+//
+//  NSString *newIdentifier = identifier;
+//
+//  if (identifier == nil) {
+//    newIdentifier = [NSUUID UUID].UUIDString;
+//  }
+//
+//  if ([identifiersStorage containsObject:newIdentifier]) {
+//    NSString *uuid = [NSUUID UUID].UUIDString;
+//    newIdentifier = [NSString stringWithFormat:@"%@_detox:%@", newIdentifier, uuid];
+//  }
+//
+//  [identifiersStorage addObject:newIdentifier];
+//  [self __detox_sync_setAccessabilityIdentifier:newIdentifier];
+//}
 
-- (void)__detox_sync_setAccessabilityIdentifier:(NSString *)identifier {
-  static dispatch_once_t once;
-  dispatch_once(&once, ^{
-    if (identifiersStorage == nil) {
-      identifiersStorage = [NSMutableSet<NSString *> new];
-    }
-  });
-
-
-  if ([self.accessibilityIdentifier isEqualToString:identifier]) {
-    [self __detox_sync_setAccessabilityIdentifier:identifier];
-    return;
-  }
-
-  if (self.accessibilityIdentifier != nil) {
-    // Remove the old identifier from storage.
-    [identifiersStorage removeObject:self.accessibilityIdentifier];
-  }
-
-  NSString *newIdentifier = identifier;
-
-  if (identifier == nil) {
-    newIdentifier = [NSUUID UUID].UUIDString;
-  }
-
-  if ([identifiersStorage containsObject:newIdentifier]) {
-    NSString *uuid = [NSUUID UUID].UUIDString;
-    newIdentifier = [NSString stringWithFormat:@"%@_detox:%@", newIdentifier, uuid];
-  }
-
-  [identifiersStorage addObject:newIdentifier];
-  [self __detox_sync_setAccessabilityIdentifier:newIdentifier];
+- (NSString *)__detox_sync_accessibilityIdentifier {
+  [self generateAccessabilityIdentifierIfMissing];
+  return self.accessibilityIdentifier;
 }
-
 
 - (void)generateAccessabilityIdentifierIfMissing {
   // In case this view has no identifier, set him one.
-  if (self.accessibilityIdentifier == nil) {
+  // Reads the original accessability identifier (we use swizzling).
+  if (self.__detox_sync_accessibilityIdentifier == nil) {
     [self setAccessibilityIdentifier:[NSUUID UUID].UUIDString];
   }
 }
@@ -245,17 +250,17 @@ static NSMutableSet<NSString *>  * _Nullable identifiersStorage;
 }
 
 
-- (void)__detox_sync_removeFromSuperview {
-  [self removeViewAndSubviewIdentifiersFromStorage];
-  [self __detox_sync_removeFromSuperview];
-}
+//- (void)__detox_sync_removeFromSuperview {
+//  [self removeViewAndSubviewIdentifiersFromStorage];
+//  [self __detox_sync_removeFromSuperview];
+//}
 
-- (void)removeViewAndSubviewIdentifiersFromStorage {
-  for (UIView *subview in self.subviews) {
-    [subview removeViewAndSubviewIdentifiersFromStorage];
-  }
-
-  [identifiersStorage removeObject:self.accessibilityIdentifier];
-}
+//- (void)removeViewAndSubviewIdentifiersFromStorage {
+//  for (UIView *subview in self.subviews) {
+//    [subview removeViewAndSubviewIdentifiersFromStorage];
+//  }
+//
+//  [identifiersStorage removeObject:self.accessibilityIdentifier];
+//}
 
 @end
