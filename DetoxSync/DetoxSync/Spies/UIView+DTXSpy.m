@@ -12,6 +12,43 @@
 
 @import ObjectiveC;
 
+@interface ElementIdentifierAndFrame : NSObject
+- (instancetype)init NS_UNAVAILABLE;
+- (instancetype)initWithIdentifier:(NSString *)identifier andFrame:(CGRect)frame NS_DESIGNATED_INITIALIZER;
++ (instancetype)createWithIdentifier:(NSString *)identifier andFrame:(CGRect)frame;
+@property (nonatomic, readonly) NSString* identifier;
+@property (nonatomic, readonly) CGRect frame;
+@end
+
+@implementation ElementIdentifierAndFrame
+
+- (instancetype)initWithIdentifier:(NSString *)identifier andFrame:(CGRect)frame {
+  if ([super init]) {
+    _identifier = identifier;
+    _frame = frame;
+  }
+  return self;
+}
+
++ (instancetype)createWithIdentifier:(NSString *)identifier andFrame:(CGRect)frame {
+  return [[ElementIdentifierAndFrame alloc] initWithIdentifier:identifier andFrame:frame];
+}
+
+- (BOOL)isEqual:(ElementIdentifierAndFrame *)other {
+  if (other == self) {
+    return YES;
+  } else {
+    return CGRectEqualToRect(self.frame, other.frame) &&
+        [self.identifier isEqualToString:other.identifier];
+  }
+}
+
+- (NSUInteger)hash {
+  return self.identifier.hash;
+}
+
+@end
+
 @implementation UIView (DTXSpy)
 
 + (void)load
@@ -28,24 +65,16 @@
 		DTXSwizzleClassMethod(self, @selector(transitionWithView:duration:options:animations:completion:), @selector(__detox_sync_transitionWithView:duration:options:animations:completion:), &error);
 		DTXSwizzleClassMethod(self, @selector(animateKeyframesWithDuration:delay:options:animations:completion:), @selector(__detox_sync_animateKeyframesWithDuration:delay:options:animations:completion:), &error);
 
-//    DTXSwizzleMethod(self, @selector(setAccessibilityIdentifier:), @selector(__detox_sync_setAccessibilityIdentifier:), &error);
+    DTXSwizzleMethod(self, @selector(setAccessibilityIdentifier:), @selector(__detox_sync_setAccessibilityIdentifier:), &error);
     DTXSwizzleMethod(self, @selector(setNeedsLayout), @selector(__detox_sync_setNeedsLayout), &error);
     DTXSwizzleMethod(self, @selector(didMoveToSuperview), @selector(__detox_sync_didMoveToSuperview), &error);
     DTXSwizzleMethod(self, @selector(didMoveToWindow), @selector(__detox_sync_didMoveToWindow), &error);
-//  DTXSwizzleMethod(self, @selector(removeFromSuperview), @selector(__detox_sync_removeFromSuperview), &error);
+  DTXSwizzleMethod(self, @selector(removeFromSuperview), @selector(__detox_sync_removeFromSuperview), &error);
 		DTXSwizzleMethod(self, @selector(setNeedsDisplay), @selector(__detox_sync_setNeedsDisplay), &error);
 		DTXSwizzleMethod(self, @selector(setNeedsDisplayInRect:), @selector(__detox_sync_setNeedsDisplayInRect:), &error);
     DTXSwizzleMethod(self, @selector(accessibilityIdentifier), @selector(__detox_sync_accessibilityIdentifier), &error);
 	}
 }
-
-//- (NSString *)__detox_accessibilityIdentifier {
-//  if (self.__detox_accessibilityIdentifier == nil) {
-//    [self setAccessibilityIdentifier:[[NSUUID UUID] UUIDString]];
-//  }
-//
-//  return self.__detox_accessibilityIdentifier;
-//}
 
 + (dispatch_block_t)_failSafeTrackAnimationWithDuration:(NSTimeInterval)duration delay:(NSTimeInterval)delay completion:(id)completion
 {
@@ -190,41 +219,42 @@
 
 }
 
-//static NSMutableSet<NSString *>  * _Nullable identifiersStorage;
-//
-//- (void)__detox_sync_setAccessibilityIdentifier:(NSString *)identifier {
-//  static dispatch_once_t once;
-//  dispatch_once(&once, ^{
-//    if (identifiersStorage == nil) {
-//      identifiersStorage = [NSMutableSet<NSString *> new];
-//    }
-//  });
-//
-//
-//  if ([self.accessibilityIdentifier isEqualToString:identifier]) {
-//    [self __detox_sync_setAccessibilityIdentifier:identifier];
-//    return;
-//  }
-//
-//  if (self.accessibilityIdentifier != nil) {
-//    // Remove the old identifier from storage.
-//    [identifiersStorage removeObject:self.accessibilityIdentifier];
-//  }
-//
-//  NSString *newIdentifier = identifier;
-//
-//  if (identifier == nil) {
-//    newIdentifier = [NSUUID UUID].UUIDString;
-//  }
-//
-//  if ([identifiersStorage containsObject:newIdentifier]) {
-//    NSString *uuid = [NSUUID UUID].UUIDString;
-//    newIdentifier = [NSString stringWithFormat:@"%@_detox:%@", newIdentifier, uuid];
-//  }
-//
-//  [identifiersStorage addObject:newIdentifier];
-//  [self __detox_sync_setAccessibilityIdentifier:newIdentifier];
-//}
+static NSMutableSet<ElementIdentifierAndFrame *>  * _Nullable elementsStorage;
+
+- (void)__detox_sync_setAccessibilityIdentifier:(NSString *)identifier {
+  static dispatch_once_t once;
+  dispatch_once(&once, ^{
+    if (elementsStorage == nil) {
+      elementsStorage = [NSMutableSet<ElementIdentifierAndFrame *> new];
+    }
+  });
+
+
+  if ([self.accessibilityIdentifier isEqualToString:identifier]) {
+    [self __detox_sync_setAccessibilityIdentifier:identifier];
+    return;
+  }
+
+  if (self.accessibilityIdentifier != nil) {
+    // Remove the old identifier from storage.
+    [elementsStorage removeObject:[ElementIdentifierAndFrame
+                                   createWithIdentifier:self.accessibilityIdentifier
+                                   andFrame:self.frame]];
+  }
+
+  NSString *newIdentifier = identifier ?: [NSUUID UUID].UUIDString;
+
+  if ([elementsStorage
+       containsObject:[ElementIdentifierAndFrame createWithIdentifier:newIdentifier
+                                                             andFrame:self.frame]]) {
+    NSString *uuid = [NSUUID UUID].UUIDString;
+    newIdentifier = [NSString stringWithFormat:@"%@_detox:%@", newIdentifier, uuid];
+  }
+
+  [elementsStorage addObject:[ElementIdentifierAndFrame createWithIdentifier:newIdentifier
+                                                                    andFrame:self.frame]];
+  [self __detox_sync_setAccessibilityIdentifier:newIdentifier];
+}
 
 - (NSString *)__detox_sync_accessibilityIdentifier {
   [self generateAccessibilityIdentifierIfMissing];
@@ -250,17 +280,19 @@
 }
 
 
-//- (void)__detox_sync_removeFromSuperview {
-//  [self removeViewAndSubviewIdentifiersFromStorage];
-//  [self __detox_sync_removeFromSuperview];
-//}
+- (void)__detox_sync_removeFromSuperview {
+  [self removeViewAndSubviewIdentifiersFromStorage];
+  [self __detox_sync_removeFromSuperview];
+}
 
-//- (void)removeViewAndSubviewIdentifiersFromStorage {
-//  for (UIView *subview in self.subviews) {
-//    [subview removeViewAndSubviewIdentifiersFromStorage];
-//  }
-//
-//  [identifiersStorage removeObject:self.accessibilityIdentifier];
-//}
+- (void)removeViewAndSubviewIdentifiersFromStorage {
+  for (UIView *subview in self.subviews) {
+    [subview removeViewAndSubviewIdentifiersFromStorage];
+  }
+
+  [elementsStorage removeObject:[ElementIdentifierAndFrame
+                                 createWithIdentifier:self.accessibilityIdentifier
+                                 andFrame:self.frame]];
+}
 
 @end
