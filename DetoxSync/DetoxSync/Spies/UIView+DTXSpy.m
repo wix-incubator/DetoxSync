@@ -28,7 +28,7 @@
 		DTXSwizzleClassMethod(self, @selector(transitionWithView:duration:options:animations:completion:), @selector(__detox_sync_transitionWithView:duration:options:animations:completion:), &error);
 		DTXSwizzleClassMethod(self, @selector(animateKeyframesWithDuration:delay:options:animations:completion:), @selector(__detox_sync_animateKeyframesWithDuration:delay:options:animations:completion:), &error);
 
-//    DTXSwizzleMethod(self, @selector(setAccessibilityIdentifier:), @selector(__detox_sync_setAccessabilityIdentifier:), &error);
+//    DTXSwizzleMethod(self, @selector(setAccessibilityIdentifier:), @selector(__detox_sync_setAccessibilityIdentifier:), &error);
     DTXSwizzleMethod(self, @selector(setNeedsLayout), @selector(__detox_sync_setNeedsLayout), &error);
     DTXSwizzleMethod(self, @selector(didMoveToSuperview), @selector(__detox_sync_didMoveToSuperview), &error);
     DTXSwizzleMethod(self, @selector(didMoveToWindow), @selector(__detox_sync_didMoveToWindow), &error);
@@ -192,7 +192,7 @@
 
 //static NSMutableSet<NSString *>  * _Nullable identifiersStorage;
 //
-//- (void)__detox_sync_setAccessabilityIdentifier:(NSString *)identifier {
+//- (void)__detox_sync_setAccessibilityIdentifier:(NSString *)identifier {
 //  static dispatch_once_t once;
 //  dispatch_once(&once, ^{
 //    if (identifiersStorage == nil) {
@@ -202,7 +202,7 @@
 //
 //
 //  if ([self.accessibilityIdentifier isEqualToString:identifier]) {
-//    [self __detox_sync_setAccessabilityIdentifier:identifier];
+//    [self __detox_sync_setAccessibilityIdentifier:identifier];
 //    return;
 //  }
 //
@@ -223,29 +223,29 @@
 //  }
 //
 //  [identifiersStorage addObject:newIdentifier];
-//  [self __detox_sync_setAccessabilityIdentifier:newIdentifier];
+//  [self __detox_sync_setAccessibilityIdentifier:newIdentifier];
 //}
 
 - (NSString *)__detox_sync_accessibilityIdentifier {
-  [self generateAccessabilityIdentifierIfMissing];
-  return self.accessibilityIdentifier;
+  [self generateAccessibilityIdentifierIfMissing];
+  return self.__detox_sync_accessibilityIdentifier;
 }
 
-- (void)generateAccessabilityIdentifierIfMissing {
+- (void)generateAccessibilityIdentifierIfMissing {
   // In case this view has no identifier, set him one.
-  // Reads the original accessability identifier (we use swizzling).
+  // Reads the original accessibility identifier (we use swizzling).
   if (self.__detox_sync_accessibilityIdentifier == nil) {
     [self setAccessibilityIdentifier:[NSUUID UUID].UUIDString];
   }
 }
 
 - (void)__detox_sync_didMoveToWindow {
-  [self generateAccessabilityIdentifierIfMissing];
+  [self generateAccessibilityIdentifierIfMissing];
   [self __detox_sync_didMoveToWindow];
 }
 
 - (void)__detox_sync_didMoveToSuperview {
-  [self generateAccessabilityIdentifierIfMissing];
+  [self generateAccessibilityIdentifierIfMissing];
   [self __detox_sync_didMoveToSuperview];
 }
 
