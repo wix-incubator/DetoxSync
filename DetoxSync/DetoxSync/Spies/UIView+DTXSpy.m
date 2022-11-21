@@ -230,17 +230,12 @@ static NSMutableSet<ElementIdentifierAndFrame *>  * _Nullable elementsStorage;
   });
 
 
-  if ([self.accessibilityIdentifier isEqualToString:identifier]) {
+  if ([self.__detox_sync_accessibilityIdentifier isEqualToString:identifier]) {
     [self __detox_sync_setAccessibilityIdentifier:identifier];
     return;
   }
 
-  if (self.accessibilityIdentifier != nil) {
-    // Remove the old identifier from storage.
-    [elementsStorage removeObject:[ElementIdentifierAndFrame
-                                   createWithIdentifier:self.accessibilityIdentifier
-                                   andFrame:self.frame]];
-  }
+  [self removeViewIdentifiersFromStorage];
 
   NSString *newIdentifier = identifier ?: [NSUUID UUID].UUIDString;
 
@@ -264,7 +259,8 @@ static NSMutableSet<ElementIdentifierAndFrame *>  * _Nullable elementsStorage;
 - (void)generateAccessibilityIdentifierIfMissing {
   // In case this view has no identifier, set him one.
   // Reads the original accessibility identifier (we use swizzling).
-  if (self.__detox_sync_accessibilityIdentifier == nil) {
+  if (self.__detox_sync_accessibilityIdentifier == nil ||
+      [self.__detox_sync_accessibilityIdentifier isEqualToString:@""]) {
     [self setAccessibilityIdentifier:[NSUUID UUID].UUIDString];
   }
 }
@@ -290,8 +286,17 @@ static NSMutableSet<ElementIdentifierAndFrame *>  * _Nullable elementsStorage;
     [subview removeViewAndSubviewIdentifiersFromStorage];
   }
 
+  [self removeViewIdentifiersFromStorage];
+}
+
+- (void)removeViewIdentifiersFromStorage {
+  if (self.__detox_sync_accessibilityIdentifier == nil ||
+      [self.__detox_sync_accessibilityIdentifier isEqualToString:@""]) {
+    return;
+  }
+
   [elementsStorage removeObject:[ElementIdentifierAndFrame
-                                 createWithIdentifier:self.accessibilityIdentifier
+                                 createWithIdentifier:self.__detox_sync_accessibilityIdentifier
                                  andFrame:self.frame]];
 }
 
