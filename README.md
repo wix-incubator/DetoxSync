@@ -1,5 +1,5 @@
 # DetoxSync
-
+blabla
 DetoxSync is a synchronization framework for Detox and other testing frameworks, where there app synchronization is needed. 
 
 DetoxSync tracks various application states (resources), such as animations, network requests and dispatch queues, and is able to execute blocks whenever the system is deemed idle. The idle status of the system can be queried using a dedicated API. The system also provides a detailed event reporting through its delegate methods.
