@@ -3,4 +3,4 @@ steps:
     command:
     - "cd DetoxSync"
     - "git submodule update --init --recursive"
-    - "xcodebuild test -project DetoxSync.xcodeproj -scheme DetoxSyncTests -destination 'platform=iOS Simulator,name=iPhone 12'"
+    - "xcodebuild test -project DetoxSync.xcodeproj -scheme DetoxSyncTests -destination 'platform=iOS Simulator,name=iPhone 14'"
