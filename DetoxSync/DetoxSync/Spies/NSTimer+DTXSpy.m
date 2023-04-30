@@ -15,7 +15,7 @@
 
 @implementation NSTimer (DTXSpy)
 
-static NSString* failuireReasonForTrampoline(id<DTXTimerProxy> trampoline, CFRunLoopRef rl)
+static NSString* failureReasonForTrampoline(id<DTXTimerProxy> trampoline, CFRunLoopRef rl)
 {
 	if([DTXSyncManager isRunLoopTracked:rl] == NO)
 	{
@@ -27,7 +27,9 @@ static NSString* failuireReasonForTrampoline(id<DTXTimerProxy> trampoline, CFRun
 	}
 	else if([trampoline.fireDate timeIntervalSinceNow] > DTXSyncManager.maximumTimerIntervalTrackingDuration)
 	{
-		return [NSString stringWithFormat:@"duration>%@", @([trampoline.fireDate timeIntervalSinceNow])];
+    return [NSString stringWithFormat:@"duration(%@)>%@",
+            @([trampoline.fireDate timeIntervalSinceNow]),
+            @(DTXSyncManager.maximumTimerIntervalTrackingDuration)];
 	}
 	
 	return @"";
@@ -42,7 +44,7 @@ static BOOL _DTXTrackTimerTrampolineIfNeeded(id<DTXTimerProxy> trampoline, CFRun
 	}
 	
 	
-	DTXSyncResourceVerboseLog(@"⏲ Ignoring timer “%@”; failure reason: \"%@\"", trampoline.timer, failuireReasonForTrampoline(trampoline, rl));
+	DTXSyncResourceVerboseLog(@"⏲ Ignoring timer “%@”; failure reason: \"%@\"", trampoline.timer, failureReasonForTrampoline(trampoline, rl));
 	
 	return NO;
 }
