@@ -151,7 +151,7 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
 	return (id)_observations;
 }
 
-- (NSString*)failuireReasonForDuration:(NSTimeInterval)duration repeats:(BOOL)repeats
+- (NSString*)failureReasonForDuration:(NSTimeInterval)duration repeats:(BOOL)repeats
 {
 	if(duration == 0)
 	{
@@ -163,7 +163,9 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
 	}
 	else if(duration > DTXSyncManager.maximumTimerIntervalTrackingDuration)
 	{
-		return [NSString stringWithFormat:@"duration>%@", @(DTXSyncManager.maximumTimerIntervalTrackingDuration)];
+		return [NSString stringWithFormat:@"duration(%@)>%@",
+            @(duration),
+            @(DTXSyncManager.maximumTimerIntervalTrackingDuration)];
 	}
 	
 	return @"";
@@ -242,7 +244,7 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
 		}
 		else
 		{
-			DTXSyncResourceVerboseLog(@"⏲ Ignoring timer “%@” failure reason: \"%@\"", timerID, [self failuireReasonForDuration:duration repeats:repeats]);
+			DTXSyncResourceVerboseLog(@"⏲ Ignoring timer “%@” failure reason: \"%@\"", timerID, [self failureReasonForDuration:duration repeats:repeats]);
 		}
 
 		return [self _busyCount];
