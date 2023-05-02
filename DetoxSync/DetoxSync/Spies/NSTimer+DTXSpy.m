@@ -46,9 +46,8 @@ static BOOL _DTXTrackTimerTrampolineIfNeeded(id<DTXTimerProxy> trampoline, CFRun
 
   DTXSyncResourceVerboseLog(@"⏲ Ignoring native timer (“%@”: %@); failure reason: \"%@\"",
                             trampoline.timer,
-                            [NSString stringWithFormat:@"Timer Info:\nName: %@\nFire Date: %@\nInterval: %f\nRepeats: %@\nNSTimer:\n\tTimer: %@\n\tRunLoop: %@\nCADisplayLink:\n\tDisplay Link: %@\n",
+                            [NSString stringWithFormat:@"Name: %@, Interval: %f, Repeats: %@, NSTimer: \tTimer: %@, RunLoop: %@, CADisplayLink:: %@",
                              trampoline.name,
-                             trampoline.fireDate,
                              trampoline.interval,
                              trampoline.repeats ? @"YES" : @"NO",
                              trampoline.timer,

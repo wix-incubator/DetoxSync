@@ -244,7 +244,8 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
 		}
 		else
 		{
-			DTXSyncResourceVerboseLog(@"⏲ Ignoring timer “%@” failure reason: \"%@\"", timerID, [self failureReasonForDuration:duration repeats:repeats]);
+      DTXSyncResourceVerboseLog(@"⏲ Ignoring timer (id: %@, duration: %f repeats: %@) failure reason: \"%@\"",
+                                timerID, duration, repeats ? @"YES" : @"NO", [self failureReasonForDuration:duration repeats:repeats]);
 		}
 
 		return [self _busyCount];
