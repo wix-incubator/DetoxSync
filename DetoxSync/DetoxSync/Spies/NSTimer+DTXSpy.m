@@ -42,9 +42,20 @@ static BOOL _DTXTrackTimerTrampolineIfNeeded(id<DTXTimerProxy> trampoline, CFRun
 		[trampoline track];
 		return YES;
 	}
-	
-	
-	DTXSyncResourceVerboseLog(@"⏲ Ignoring timer “%@”; failure reason: \"%@\"", trampoline.timer, failureReasonForTrampoline(trampoline, rl));
+
+
+  DTXSyncResourceVerboseLog(@"⏲ Ignoring native timer (“%@”: %@); failure reason: \"%@\"",
+                            trampoline.timer,
+                            [NSString stringWithFormat:@"Timer Info:\nName: %@\nFire Date: %@\nInterval: %f\nRepeats: %@\nNSTimer:\n\tTimer: %@\n\tRunLoop: %@\nCADisplayLink:\n\tDisplay Link: %@\n",
+                             trampoline.name,
+                             trampoline.fireDate,
+                             trampoline.interval,
+                             trampoline.repeats ? @"YES" : @"NO",
+                             trampoline.timer,
+                             trampoline.runLoop,
+                             trampoline.displayLink],
+                            failureReasonForTrampoline(trampoline, rl)
+                            );
 	
 	return NO;
 }
