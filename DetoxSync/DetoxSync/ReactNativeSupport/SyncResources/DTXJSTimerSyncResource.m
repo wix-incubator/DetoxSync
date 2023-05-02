@@ -234,13 +234,13 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
 			[self->_observations setObject:_observationWrapper forKey:_self];
 		}
 
-		if(duration >= 0 && duration <= DTXSyncManager.maximumTimerIntervalTrackingDuration && repeats == NO)
+		if(duration > 0 && duration <= DTXSyncManager.maximumTimerIntervalTrackingDuration && repeats == NO)
 		{
 			DTXSyncResourceVerboseLog(@"⏲ Observing timer “%@” duration: %@ repeats: %@", timerID, @(duration), @(repeats));
 
 			[_observationWrapper addObservedTimer:[[JSTimer alloc] initWithTimerID:timerID
-                                                                    duration:duration
-                                                                 isReccuring:repeats]];
+                                                                          duration:duration
+                                                                       isReccuring:repeats]];
 		}
 		else
 		{
