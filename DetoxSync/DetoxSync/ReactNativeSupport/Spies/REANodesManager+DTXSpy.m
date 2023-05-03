@@ -25,7 +25,6 @@
 
     Class REANodesManagerClass = NSClassFromString(@"REANodesManager");
 
-
     DTXSyncResourceVerboseLog(@"REANodesManager class exists: %@", REANodesManagerClass != nil ? @"YES" : @"NO");
 
     if (REANodesManagerClass == nil) {
