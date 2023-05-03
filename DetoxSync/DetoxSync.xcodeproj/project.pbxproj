@@ -93,6 +93,8 @@
 		602F956E274528ED00BAFA74 /* DetoxSync.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 39DE8F5222F707DD00780546 /* DetoxSync.framework */; };
 		6030DB8B2A015FAE0020D2AD /* REASyncUpdateObserver+DTXSpy.h in Headers */ = {isa = PBXBuildFile; fileRef = 6030DB892A015FAE0020D2AD /* REASyncUpdateObserver+DTXSpy.h */; };
 		6030DB8C2A015FAE0020D2AD /* REASyncUpdateObserver+DTXSpy.m in Sources */ = {isa = PBXBuildFile; fileRef = 6030DB8A2A015FAE0020D2AD /* REASyncUpdateObserver+DTXSpy.m */; };
+		6030DBA12A0285100020D2AD /* REANodesManager+DTXSpy.h in Headers */ = {isa = PBXBuildFile; fileRef = 6030DB9F2A0285100020D2AD /* REANodesManager+DTXSpy.h */; };
+		6030DBA22A0285100020D2AD /* REANodesManager+DTXSpy.m in Sources */ = {isa = PBXBuildFile; fileRef = 6030DBA02A0285100020D2AD /* REANodesManager+DTXSpy.m */; };
 		604A436B271F5004003B22CA /* DTXAddressInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 604A4368271F5004003B22CA /* DTXAddressInfo.h */; };
 		604A436C271F5004003B22CA /* DTXAddressInfo.mm in Sources */ = {isa = PBXBuildFile; fileRef = 604A4369271F5004003B22CA /* DTXAddressInfo.mm */; };
 		604A436D271F5004003B22CA /* Swiftier.h in Headers */ = {isa = PBXBuildFile; fileRef = 604A436A271F5004003B22CA /* Swiftier.h */; };
@@ -382,6 +384,8 @@
 		602F956A274528ED00BAFA74 /* DetoxSyncTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DetoxSyncTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6030DB892A015FAE0020D2AD /* REASyncUpdateObserver+DTXSpy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "REASyncUpdateObserver+DTXSpy.h"; sourceTree = "<group>"; };
 		6030DB8A2A015FAE0020D2AD /* REASyncUpdateObserver+DTXSpy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "REASyncUpdateObserver+DTXSpy.m"; sourceTree = "<group>"; };
+		6030DB9F2A0285100020D2AD /* REANodesManager+DTXSpy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "REANodesManager+DTXSpy.h"; sourceTree = "<group>"; };
+		6030DBA02A0285100020D2AD /* REANodesManager+DTXSpy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "REANodesManager+DTXSpy.m"; sourceTree = "<group>"; };
 		604A4368271F5004003B22CA /* DTXAddressInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTXAddressInfo.h; path = DTXObjectiveCHelpers/DTXAddressInfo.h; sourceTree = SOURCE_ROOT; };
 		604A4369271F5004003B22CA /* DTXAddressInfo.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = DTXAddressInfo.mm; path = DTXObjectiveCHelpers/DTXAddressInfo.mm; sourceTree = SOURCE_ROOT; };
 		604A436A271F5004003B22CA /* Swiftier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Swiftier.h; path = DTXObjectiveCHelpers/Swiftier.h; sourceTree = SOURCE_ROOT; };
@@ -428,10 +432,12 @@
 		392250E123047150008E811D /* Spies */ = {
 			isa = PBXGroup;
 			children = (
-				6030DB892A015FAE0020D2AD /* REASyncUpdateObserver+DTXSpy.h */,
-				6030DB8A2A015FAE0020D2AD /* REASyncUpdateObserver+DTXSpy.m */,
 				392250E223047161008E811D /* RCTNativeAnimatedNodesManager+DTXSpy.h */,
 				392250E323047179008E811D /* RCTNativeAnimatedNodesManager+DTXSpy.m */,
+				6030DB9F2A0285100020D2AD /* REANodesManager+DTXSpy.h */,
+				6030DBA02A0285100020D2AD /* REANodesManager+DTXSpy.m */,
+				6030DB892A015FAE0020D2AD /* REASyncUpdateObserver+DTXSpy.h */,
+				6030DB8A2A015FAE0020D2AD /* REASyncUpdateObserver+DTXSpy.m */,
 			);
 			path = Spies;
 			sourceTree = "<group>";
@@ -716,6 +722,7 @@
 				39CC258924BE1AA70058EA64 /* NSURL+DetoxSyncUtils.h in Headers */,
 				39DE8F9222F707F400780546 /* DTXDispatchQueueSyncResource-Private.h in Headers */,
 				604A436F271F506F003B22CA /* DTXSwizzlingHelper.h in Headers */,
+				6030DBA12A0285100020D2AD /* REANodesManager+DTXSpy.h in Headers */,
 				6017CCA8274BA0C200E17AB1 /* NSArray+Functional.h in Headers */,
 				396C8B1623038CED00979E86 /* CADisplayLink+DTXSpy.h in Headers */,
 				396C8B842304424E00979E86 /* ReactNativeHeaders.h in Headers */,
@@ -1013,6 +1020,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6030DBA22A0285100020D2AD /* REANodesManager+DTXSpy.m in Sources */,
 				39DE8FA922F707F400780546 /* NSTimer+DTXSpy.m in Sources */,
 				399678CF22F9C90400BAF0A8 /* _DTXObjectDeallocHelper.m in Sources */,
 				39DE8FB722F707F400780546 /* DispatchQueue+DTXSpy.m in Sources */,
