@@ -125,7 +125,7 @@ static void _DTXTrackUIManagerQueue(void)
 }
 
 __attribute__((constructor))
-static void _setupRNSupport()
+static void _setupRNSupport(void)
 {
   @autoreleasepool
   {
