@@ -73,6 +73,7 @@
     DTXSwizzleMethod(self, @selector(setNeedsDisplay), @selector(__detox_sync_setNeedsDisplay), &error);
     DTXSwizzleMethod(self, @selector(setNeedsDisplayInRect:), @selector(__detox_sync_setNeedsDisplayInRect:), &error);
     DTXSwizzleMethod(self, @selector(accessibilityIdentifier), @selector(__detox_sync_accessibilityIdentifier), &error);
+    DTXSwizzleMethod(self, @selector(layoutSubviews), @selector(__detox_sync_layoutSubviews), &error);
   }
 }
 
@@ -275,10 +276,29 @@ static NSMutableSet<ElementIdentifierAndFrame *>  * _Nullable elementsStorage;
   [self __detox_sync_didMoveToSuperview];
 }
 
-
 - (void)__detox_sync_removeFromSuperview {
   [self removeViewAndSubviewIdentifiersFromStorage];
   [self __detox_sync_removeFromSuperview];
+}
+
+- (void)__detox_sync_layoutSubviews {
+  [self generateAccessibilityIdentifierIfMissing];
+  auto identifierAndFrame = [ElementIdentifierAndFrame
+                             createWithIdentifier:self.__detox_sync_accessibilityIdentifier
+                             andFrame:self.frame];
+
+  for (ElementIdentifierAndFrame *element in elementsStorage) {
+    // Update in case the frame has changed.
+    if ([element.identifier isEqualToString:identifierAndFrame.identifier]
+        && ![element isEqual:identifierAndFrame]) {
+      [elementsStorage removeObject:element];
+      [elementsStorage addObject:identifierAndFrame];
+
+      break;
+    }
+  }
+
+  [self __detox_sync_layoutSubviews];
 }
 
 - (void)removeViewAndSubviewIdentifiersFromStorage {
@@ -295,9 +315,12 @@ static NSMutableSet<ElementIdentifierAndFrame *>  * _Nullable elementsStorage;
     return;
   }
 
-  [elementsStorage removeObject:[ElementIdentifierAndFrame
-                                 createWithIdentifier:self.__detox_sync_accessibilityIdentifier
-                                 andFrame:self.frame]];
+  for (ElementIdentifierAndFrame *element in elementsStorage) {
+    // In case the frame has changed
+    if ([element.identifier isEqualToString:self.__detox_sync_accessibilityIdentifier]) {
+      [elementsStorage removeObject:element];
+    }
+  }
 }
 
 @end
