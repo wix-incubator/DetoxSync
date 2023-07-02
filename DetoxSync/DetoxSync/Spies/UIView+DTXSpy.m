@@ -237,17 +237,17 @@ static NSMutableSet<ElementIdentifierAndFrame *>  * _Nullable elementsStorage;
 
   [self removeViewIdentifiersFromStorage];
 
-  NSString *newIdentifier = identifier ?: [NSUUID UUID].UUIDString;
+  NSString *newIdentifier = identifier ?: [NSString stringWithFormat:@"%p", self];
 
   if ([elementsStorage
        containsObject:[ElementIdentifierAndFrame createWithIdentifier:newIdentifier
                                                              andFrame:self.frame]]) {
-    NSString *uuid = [NSUUID UUID].UUIDString;
-    newIdentifier = [NSString stringWithFormat:@"%@_detox:%@", newIdentifier, uuid];
+    newIdentifier = [NSString stringWithFormat:@"%@_detox:%p", newIdentifier, self];
   }
 
   [elementsStorage addObject:[ElementIdentifierAndFrame createWithIdentifier:newIdentifier
                                                                     andFrame:self.frame]];
+
   [self __detox_sync_setAccessibilityIdentifier:newIdentifier];
 }
 
@@ -261,7 +261,7 @@ static NSMutableSet<ElementIdentifierAndFrame *>  * _Nullable elementsStorage;
   // Reads the original accessibility identifier (we use swizzling).
   if (self.__detox_sync_accessibilityIdentifier == nil ||
       [self.__detox_sync_accessibilityIdentifier isEqualToString:@""]) {
-    [self setAccessibilityIdentifier:[NSUUID UUID].UUIDString];
+    [self setAccessibilityIdentifier:[NSString stringWithFormat:@"%p", self]];
   }
 }
 
@@ -274,7 +274,6 @@ static NSMutableSet<ElementIdentifierAndFrame *>  * _Nullable elementsStorage;
   [self generateAccessibilityIdentifierIfMissing];
   [self __detox_sync_didMoveToSuperview];
 }
-
 
 - (void)__detox_sync_removeFromSuperview {
   [self removeViewAndSubviewIdentifiersFromStorage];
