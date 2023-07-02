@@ -73,7 +73,6 @@
     DTXSwizzleMethod(self, @selector(setNeedsDisplay), @selector(__detox_sync_setNeedsDisplay), &error);
     DTXSwizzleMethod(self, @selector(setNeedsDisplayInRect:), @selector(__detox_sync_setNeedsDisplayInRect:), &error);
     DTXSwizzleMethod(self, @selector(accessibilityIdentifier), @selector(__detox_sync_accessibilityIdentifier), &error);
-    DTXSwizzleMethod(self, @selector(layoutSubviews), @selector(__detox_sync_layoutSubviews), &error);
   }
 }
 
@@ -238,17 +237,17 @@ static NSMutableSet<ElementIdentifierAndFrame *>  * _Nullable elementsStorage;
 
   [self removeViewIdentifiersFromStorage];
 
-  NSString *newIdentifier = identifier ?: [NSUUID UUID].UUIDString;
+  NSString *newIdentifier = identifier ?: [NSString stringWithFormat:@"%p", self];
 
   if ([elementsStorage
        containsObject:[ElementIdentifierAndFrame createWithIdentifier:newIdentifier
                                                              andFrame:self.frame]]) {
-    NSString *uuid = [NSUUID UUID].UUIDString;
-    newIdentifier = [NSString stringWithFormat:@"%@_detox:%@", newIdentifier, uuid];
+    newIdentifier = [NSString stringWithFormat:@"%@_detox:%p", newIdentifier, self];
   }
 
   [elementsStorage addObject:[ElementIdentifierAndFrame createWithIdentifier:newIdentifier
                                                                     andFrame:self.frame]];
+
   [self __detox_sync_setAccessibilityIdentifier:newIdentifier];
 }
 
@@ -262,7 +261,7 @@ static NSMutableSet<ElementIdentifierAndFrame *>  * _Nullable elementsStorage;
   // Reads the original accessibility identifier (we use swizzling).
   if (self.__detox_sync_accessibilityIdentifier == nil ||
       [self.__detox_sync_accessibilityIdentifier isEqualToString:@""]) {
-    [self setAccessibilityIdentifier:[NSUUID UUID].UUIDString];
+    [self setAccessibilityIdentifier:[NSString stringWithFormat:@"%p", self]];
   }
 }
 
@@ -281,26 +280,6 @@ static NSMutableSet<ElementIdentifierAndFrame *>  * _Nullable elementsStorage;
   [self __detox_sync_removeFromSuperview];
 }
 
-- (void)__detox_sync_layoutSubviews {
-  [self generateAccessibilityIdentifierIfMissing];
-  auto identifierAndFrame = [ElementIdentifierAndFrame
-                             createWithIdentifier:self.__detox_sync_accessibilityIdentifier
-                             andFrame:self.frame];
-
-  for (ElementIdentifierAndFrame *element in elementsStorage) {
-    // Update in case the frame has changed.
-    if ([element.identifier isEqualToString:identifierAndFrame.identifier]
-        && ![element isEqual:identifierAndFrame]) {
-      [elementsStorage removeObject:element];
-      [elementsStorage addObject:identifierAndFrame];
-
-      break;
-    }
-  }
-
-  [self __detox_sync_layoutSubviews];
-}
-
 - (void)removeViewAndSubviewIdentifiersFromStorage {
   for (UIView *subview in self.subviews) {
     [subview removeViewAndSubviewIdentifiersFromStorage];
@@ -315,12 +294,9 @@ static NSMutableSet<ElementIdentifierAndFrame *>  * _Nullable elementsStorage;
     return;
   }
 
-  for (ElementIdentifierAndFrame *element in elementsStorage) {
-    // In case the frame has changed
-    if ([element.identifier isEqualToString:self.__detox_sync_accessibilityIdentifier]) {
-      [elementsStorage removeObject:element];
-    }
-  }
+  [elementsStorage removeObject:[ElementIdentifierAndFrame
+                                 createWithIdentifier:self.__detox_sync_accessibilityIdentifier
+                                 andFrame:self.frame]];
 }
 
 @end
