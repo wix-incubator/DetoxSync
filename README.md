@@ -6,12 +6,6 @@ DetoxSync tracks various application states (resources), such as animations, net
 
 ### Tracked Resources
 
-#### Delayed Perform Selectors
-
-This sync resource tracks Objective C selectors scheduled to run in the future, using API such as `-[NSObject performSelector:withObject:afterDelay:]`. Such delayed selectors are tracked for run loops that are tracked by the system.
-
-Once all pending selectors have been called, this sync resource becomes idle.
-
 #### Dispatch Queues
 
 This sync resource tracks [dispatch queues](https://developer.apple.com/documentation/dispatch/dispatch_queue?language=objc) and their [work items](https://developer.apple.com/documentation/dispatch/dispatch_work_item?language=objc). Once a work item is submitted to a tracked dispatch queue, the sync resource is considered busy.
