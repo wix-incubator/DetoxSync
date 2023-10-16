@@ -41,11 +41,9 @@
 		39DE8F9522F707F400780546 /* DTXSingleEventSyncResource.h in Headers */ = {isa = PBXBuildFile; fileRef = 39DE8F6722F707F400780546 /* DTXSingleEventSyncResource.h */; };
 		39DE8F9622F707F400780546 /* DTXSyncResource.h in Headers */ = {isa = PBXBuildFile; fileRef = 39DE8F6822F707F400780546 /* DTXSyncResource.h */; };
 		39DE8F9722F707F400780546 /* DTXTimerSyncResource.m in Sources */ = {isa = PBXBuildFile; fileRef = 39DE8F6922F707F400780546 /* DTXTimerSyncResource.m */; };
-		39DE8F9822F707F400780546 /* DTXDelayedPerformSelectorSyncResource.m in Sources */ = {isa = PBXBuildFile; fileRef = 39DE8F6A22F707F400780546 /* DTXDelayedPerformSelectorSyncResource.m */; };
 		39DE8F9922F707F400780546 /* DTXSyncResource.m in Sources */ = {isa = PBXBuildFile; fileRef = 39DE8F6B22F707F400780546 /* DTXSyncResource.m */; };
 		39DE8F9A22F707F400780546 /* DTXSingleEventSyncResource.m in Sources */ = {isa = PBXBuildFile; fileRef = 39DE8F6C22F707F400780546 /* DTXSingleEventSyncResource.m */; };
 		39DE8F9B22F707F400780546 /* DTXDispatchQueueSyncResource.m in Sources */ = {isa = PBXBuildFile; fileRef = 39DE8F6D22F707F400780546 /* DTXDispatchQueueSyncResource.m */; };
-		39DE8F9C22F707F400780546 /* DTXDelayedPerformSelectorSyncResource.h in Headers */ = {isa = PBXBuildFile; fileRef = 39DE8F6E22F707F400780546 /* DTXDelayedPerformSelectorSyncResource.h */; };
 		39DE8F9D22F707F400780546 /* DTXTimerSyncResource.h in Headers */ = {isa = PBXBuildFile; fileRef = 39DE8F6F22F707F400780546 /* DTXTimerSyncResource.h */; };
 		39DE8F9E22F707F400780546 /* DTXSyncManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 39DE8F7122F707F400780546 /* DTXSyncManager.m */; };
 		39DE8F9F22F707F400780546 /* DTXSyncManager-Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 39DE8F7222F707F400780546 /* DTXSyncManager-Private.h */; };
@@ -337,11 +335,9 @@
 		39DE8F6722F707F400780546 /* DTXSingleEventSyncResource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DTXSingleEventSyncResource.h; sourceTree = "<group>"; };
 		39DE8F6822F707F400780546 /* DTXSyncResource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DTXSyncResource.h; sourceTree = "<group>"; };
 		39DE8F6922F707F400780546 /* DTXTimerSyncResource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DTXTimerSyncResource.m; sourceTree = "<group>"; };
-		39DE8F6A22F707F400780546 /* DTXDelayedPerformSelectorSyncResource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DTXDelayedPerformSelectorSyncResource.m; sourceTree = "<group>"; };
 		39DE8F6B22F707F400780546 /* DTXSyncResource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DTXSyncResource.m; sourceTree = "<group>"; };
 		39DE8F6C22F707F400780546 /* DTXSingleEventSyncResource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DTXSingleEventSyncResource.m; sourceTree = "<group>"; };
 		39DE8F6D22F707F400780546 /* DTXDispatchQueueSyncResource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DTXDispatchQueueSyncResource.m; sourceTree = "<group>"; };
-		39DE8F6E22F707F400780546 /* DTXDelayedPerformSelectorSyncResource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DTXDelayedPerformSelectorSyncResource.h; sourceTree = "<group>"; };
 		39DE8F6F22F707F400780546 /* DTXTimerSyncResource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DTXTimerSyncResource.h; sourceTree = "<group>"; };
 		39DE8F7122F707F400780546 /* DTXSyncManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DTXSyncManager.m; sourceTree = "<group>"; };
 		39DE8F7222F707F400780546 /* DTXSyncManager-Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DTXSyncManager-Private.h"; sourceTree = "<group>"; };
@@ -496,8 +492,6 @@
 		39DE8F6322F707F400780546 /* SyncResources */ = {
 			isa = PBXGroup;
 			children = (
-				39DE8F6E22F707F400780546 /* DTXDelayedPerformSelectorSyncResource.h */,
-				39DE8F6A22F707F400780546 /* DTXDelayedPerformSelectorSyncResource.m */,
 				39DE8F6422F707F400780546 /* DTXDispatchQueueSyncResource-Private.h */,
 				39DE8F6522F707F400780546 /* DTXDispatchQueueSyncResource.h */,
 				39DE8F6D22F707F400780546 /* DTXDispatchQueueSyncResource.m */,
@@ -743,7 +737,6 @@
 				604A436D271F5004003B22CA /* Swiftier.h in Headers */,
 				39DE8FB822F707F400780546 /* UIViewController+DTXSpy.h in Headers */,
 				60B19FB2272EFCA900AB49E3 /* NSString+SyncResource.h in Headers */,
-				39DE8F9C22F707F400780546 /* DTXDelayedPerformSelectorSyncResource.h in Headers */,
 				6030DB8B2A015FAE0020D2AD /* REASyncUpdateObserver+DTXSpy.h in Headers */,
 				39DE8FAE22F707F400780546 /* UIGestureRecognizer+DTXSpy.h in Headers */,
 			);
@@ -1047,7 +1040,6 @@
 				39DE8F9722F707F400780546 /* DTXTimerSyncResource.m in Sources */,
 				39DC982E24BB5BB400FFB224 /* dispatch_time.c in Sources */,
 				60B19FB3272EFCA900AB49E3 /* NSString+SyncResource.m in Sources */,
-				39DE8F9822F707F400780546 /* DTXDelayedPerformSelectorSyncResource.m in Sources */,
 				39DE8FAB22F707F400780546 /* UIViewController+DTXSpy.m in Sources */,
 				395AD82524B784BB002B382B /* _DTXTimerTrampoline.m in Sources */,
 				39DE8FA122F707F400780546 /* UIGestureRecognizer+DTXSpy.m in Sources */,
