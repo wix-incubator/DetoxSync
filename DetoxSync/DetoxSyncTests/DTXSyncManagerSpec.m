@@ -15,23 +15,6 @@
 
 SpecBegin(DTXSyncManager)
 
-it(@"should report delayed perform selector busy resource", ^{
-  DTXPerformSelectorAfterDelay();
-  DTXPerformSelectorAfterDelay();
-
-  DTXSyncStatus *status = DTXAwaitStatus();
-  expect(status[NSString.dtx_appStatusKey]).to.equal(@"busy");
-
-  NSString *resourceName = @"delayed_perform_selector";
-  NSArray *resources = [status busyResourcesWithName:resourceName];
-  expect(resources).to.contain((@{
-    NSString.dtx_resourceNameKey: resourceName,
-    NSString.dtx_resourceDescriptionKey: @{
-      @"pending_selectors": @2
-    }
-  }));
-});
-
 it(@"should report dispatch queue busy resource", ^{
   __block DTXSyncStatus *status;
   DTXDispatcSyncOnArbitraryQueue(^{

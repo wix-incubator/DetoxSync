@@ -92,12 +92,6 @@ void DTXRegisterSingleEvent(NSString *event, NSString * _Nullable object) {
   [DTXSyncManager registerSyncResource:trackEvent];
 }
 
-void DTXPerformSelectorAfterDelay(void) {
-  NSNumber *dummyObject = @1;
-  SEL dummySelector = @selector(floatValue);
-  [dummyObject performSelector:dummySelector withObject:nil afterDelay:20];
-}
-
 void DTXDispatcSyncOnArbitraryQueue(void (^block)(void)) {
   static dispatch_queue_t dummyQueue;
   static dispatch_once_t onceToken;

@@ -59,7 +59,6 @@
 		39DE8FA722F707F400780546 /* UIApplication+DTXSpy.h in Headers */ = {isa = PBXBuildFile; fileRef = 39DE8F7B22F707F400780546 /* UIApplication+DTXSpy.h */; };
 		39DE8FA822F707F400780546 /* UIScrollView+DTXSpy.h in Headers */ = {isa = PBXBuildFile; fileRef = 39DE8F7C22F707F400780546 /* UIScrollView+DTXSpy.h */; };
 		39DE8FA922F707F400780546 /* NSTimer+DTXSpy.m in Sources */ = {isa = PBXBuildFile; fileRef = 39DE8F7D22F707F400780546 /* NSTimer+DTXSpy.m */; };
-		39DE8FAA22F707F400780546 /* NSObject+DTXSpy.m in Sources */ = {isa = PBXBuildFile; fileRef = 39DE8F7E22F707F400780546 /* NSObject+DTXSpy.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		39DE8FAB22F707F400780546 /* UIViewController+DTXSpy.m in Sources */ = {isa = PBXBuildFile; fileRef = 39DE8F7F22F707F400780546 /* UIViewController+DTXSpy.m */; };
 		39DE8FAC22F707F400780546 /* CAAnimation+DTXSpy.h in Headers */ = {isa = PBXBuildFile; fileRef = 39DE8F8022F707F400780546 /* CAAnimation+DTXSpy.h */; };
 		39DE8FAD22F707F400780546 /* DispatchQueue+DTXSpy.h in Headers */ = {isa = PBXBuildFile; fileRef = 39DE8F8122F707F400780546 /* DispatchQueue+DTXSpy.h */; };
@@ -75,7 +74,6 @@
 		39DE8FB722F707F400780546 /* DispatchQueue+DTXSpy.m in Sources */ = {isa = PBXBuildFile; fileRef = 39DE8F8B22F707F400780546 /* DispatchQueue+DTXSpy.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		39DE8FB822F707F400780546 /* UIViewController+DTXSpy.h in Headers */ = {isa = PBXBuildFile; fileRef = 39DE8F8C22F707F400780546 /* UIViewController+DTXSpy.h */; };
 		39DE8FB922F707F400780546 /* CAAnimation+DTXSpy.m in Sources */ = {isa = PBXBuildFile; fileRef = 39DE8F8D22F707F400780546 /* CAAnimation+DTXSpy.m */; };
-		39DE8FBA22F707F400780546 /* NSObject+DTXSpy.h in Headers */ = {isa = PBXBuildFile; fileRef = 39DE8F8E22F707F400780546 /* NSObject+DTXSpy.h */; };
 		39DE8FBB22F707F400780546 /* DTXOrigDispatch.m in Sources */ = {isa = PBXBuildFile; fileRef = 39DE8F9022F707F400780546 /* DTXOrigDispatch.m */; };
 		39DE8FBC22F707F400780546 /* DTXOrigDispatch.h in Headers */ = {isa = PBXBuildFile; fileRef = 39DE8F9122F707F400780546 /* DTXOrigDispatch.h */; };
 		6017CC9B274AB59F00E17AB1 /* DTXTypedefs.h in Headers */ = {isa = PBXBuildFile; fileRef = 6017CC99274AB59F00E17AB1 /* DTXTypedefs.h */; };
@@ -357,7 +355,6 @@
 		39DE8F7B22F707F400780546 /* UIApplication+DTXSpy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIApplication+DTXSpy.h"; sourceTree = "<group>"; };
 		39DE8F7C22F707F400780546 /* UIScrollView+DTXSpy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIScrollView+DTXSpy.h"; sourceTree = "<group>"; };
 		39DE8F7D22F707F400780546 /* NSTimer+DTXSpy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSTimer+DTXSpy.m"; sourceTree = "<group>"; };
-		39DE8F7E22F707F400780546 /* NSObject+DTXSpy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+DTXSpy.m"; sourceTree = "<group>"; };
 		39DE8F7F22F707F400780546 /* UIViewController+DTXSpy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+DTXSpy.m"; sourceTree = "<group>"; };
 		39DE8F8022F707F400780546 /* CAAnimation+DTXSpy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CAAnimation+DTXSpy.h"; sourceTree = "<group>"; };
 		39DE8F8122F707F400780546 /* DispatchQueue+DTXSpy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DispatchQueue+DTXSpy.h"; sourceTree = "<group>"; };
@@ -373,7 +370,6 @@
 		39DE8F8B22F707F400780546 /* DispatchQueue+DTXSpy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "DispatchQueue+DTXSpy.m"; sourceTree = "<group>"; };
 		39DE8F8C22F707F400780546 /* UIViewController+DTXSpy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+DTXSpy.h"; sourceTree = "<group>"; };
 		39DE8F8D22F707F400780546 /* CAAnimation+DTXSpy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "CAAnimation+DTXSpy.m"; sourceTree = "<group>"; };
-		39DE8F8E22F707F400780546 /* NSObject+DTXSpy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+DTXSpy.h"; sourceTree = "<group>"; };
 		39DE8F9022F707F400780546 /* DTXOrigDispatch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DTXOrigDispatch.m; sourceTree = "<group>"; };
 		39DE8F9122F707F400780546 /* DTXOrigDispatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DTXOrigDispatch.h; sourceTree = "<group>"; };
 		6017CC99274AB59F00E17AB1 /* DTXTypedefs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DTXTypedefs.h; sourceTree = "<group>"; };
@@ -544,8 +540,6 @@
 				39DE8F8622F707F400780546 /* CALayer+DTXSpy.m */,
 				39DE8F8122F707F400780546 /* DispatchQueue+DTXSpy.h */,
 				39DE8F8B22F707F400780546 /* DispatchQueue+DTXSpy.m */,
-				39DE8F8E22F707F400780546 /* NSObject+DTXSpy.h */,
-				39DE8F7E22F707F400780546 /* NSObject+DTXSpy.m */,
 				39725B3F2304870900B991ED /* NSRunLoop+DTXSpy.h */,
 				39725B402304870900B991ED /* NSRunLoop+DTXSpy.m */,
 				39DE8F8522F707F400780546 /* NSTimer+DTXSpy.h */,
@@ -714,7 +708,6 @@
 				39DE8F9622F707F400780546 /* DTXSyncResource.h in Headers */,
 				395AD82424B784BB002B382B /* _DTXTimerTrampoline.h in Headers */,
 				6017CCAE274BA83B00E17AB1 /* NSDictionary+Functional.h in Headers */,
-				39DE8FBA22F707F400780546 /* NSObject+DTXSpy.h in Headers */,
 				39DE8FB122F707F400780546 /* NSTimer+DTXSpy.h in Headers */,
 				39DE8FAC22F707F400780546 /* CAAnimation+DTXSpy.h in Headers */,
 				6017CC9B274AB59F00E17AB1 /* DTXTypedefs.h in Headers */,
@@ -1048,7 +1041,6 @@
 				39DE8FB622F707F400780546 /* UIAnimation+DTXSpy.m in Sources */,
 				6017CCAF274BA83B00E17AB1 /* NSDictionary+Functional.m in Sources */,
 				397CA5FD22F9F9A1005024D0 /* DTXLogging.m in Sources */,
-				39DE8FAA22F707F400780546 /* NSObject+DTXSpy.m in Sources */,
 				60A9954A27314A1700250FA6 /* NSString+SyncStatus.m in Sources */,
 				6030DB8C2A015FAE0020D2AD /* REASyncUpdateObserver+DTXSpy.m in Sources */,
 				39DE8FB322F707F400780546 /* UIApplication+DTXSpy.m in Sources */,
