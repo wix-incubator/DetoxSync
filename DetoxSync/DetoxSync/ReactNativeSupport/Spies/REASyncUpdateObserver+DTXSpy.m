@@ -50,9 +50,13 @@ static const void* _DTXREASyncUpdateObserverSRKey = &_DTXREASyncUpdateObserverSR
   // Swizzle the original _mounting block to end tracking when it's called
   __weak typeof(self) weakSelf = self;
   swizzledMountingBlock = ^{
+    // Restore the original _mounting block
+    [weakSelf setValue:originalMountingBlock forKey:@"_mounting"];
+
     if (originalMountingBlock) {
       originalMountingBlock();
     }
+
     DTXSingleEventSyncResource* sr = objc_getAssociatedObject(weakSelf, _DTXREASyncUpdateObserverSRKey);
     [sr endTracking];
     objc_setAssociatedObject(weakSelf, _DTXREASyncUpdateObserverSRKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
@@ -62,9 +66,6 @@ static const void* _DTXREASyncUpdateObserverSRKey = &_DTXREASyncUpdateObserverSR
   [self setValue:swizzledMountingBlock forKey:@"_mounting"];
 
   [self __detox_sync_waitAndMountWithTimeout:timeout];
-
-  // Restore the original _mounting block
-  [self setValue:originalMountingBlock forKey:@"_mounting"];
 }
 
 @end
