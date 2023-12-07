@@ -191,9 +191,10 @@ static atomic_nstimeinterval _maximumAnimationDuration = ATOMIC_VAR_INIT(1.0);
 		_pendingIdleBlocks = [NSMutableArray new];
 		
 		_trackedThreads = [NSMapTable weakToStrongObjectsMapTable];
-		[_trackedThreads setObject:@{@"name": @"Main Thread"} forKey:[NSThread mainThread]];
-		
-		[self _trackCFRunLoop:CFRunLoopGetMain() name:@"Main RunLoop"];
+    // TODO: disable main run-loop sync, due to excessive activity on the main thread.
+//		[_trackedThreads setObject:@{@"name": @"Main Thread"} forKey:[NSThread mainThread]];
+//		
+//		[self _trackCFRunLoop:CFRunLoopGetMain() name:@"Main RunLoop"];
 		_systemWasBusy = DTXIsSystemBusyNow();
 	}
 }
