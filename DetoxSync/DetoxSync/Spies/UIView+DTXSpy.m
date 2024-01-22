@@ -73,6 +73,7 @@
     DTXSwizzleMethod(self, @selector(setNeedsDisplay), @selector(__detox_sync_setNeedsDisplay), &error);
     DTXSwizzleMethod(self, @selector(setNeedsDisplayInRect:), @selector(__detox_sync_setNeedsDisplayInRect:), &error);
     DTXSwizzleMethod(self, @selector(accessibilityIdentifier), @selector(__detox_sync_accessibilityIdentifier), &error);
+    DTXSwizzleMethod(self, @selector(accessibilityElementIsFocused), @selector(__detox_sync_accessibilityElementIsFocused), &error);
   }
 }
 
@@ -263,6 +264,10 @@ static NSMutableSet<ElementIdentifierAndFrame *>  * _Nullable elementsStorage;
       [self.__detox_sync_accessibilityIdentifier isEqualToString:@""]) {
     [self setAccessibilityIdentifier:[NSString stringWithFormat:@"%p", self]];
   }
+}
+
+- (BOOL)__detox_sync_accessibilityElementIsFocused {
+  return self.isFirstResponder || self.isFocused || self.__detox_sync_accessibilityElementIsFocused;
 }
 
 - (void)__detox_sync_didMoveToWindow {
