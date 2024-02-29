@@ -40,9 +40,9 @@
 
 - (void)__detox_sync_startUpdatingOnAnimationFrame {
   NSLog(@"[DTXSpy] REANodesManager - startUpdatingOnAnimationFrame called");
-  [DTXSyncManager trackDisplayLink:[self valueForKey:@"displayLink"] name:@"React Native Reanimated Animations Display Link"];
-
   [self __detox_sync_startUpdatingOnAnimationFrame];
+
+  [DTXSyncManager trackDisplayLink:[self valueForKey:@"displayLink"] name:@"React Native Reanimated Animations Display Link"];
 }
 
 - (void)__detox_sync_stopUpdatingOnAnimationFrame {
