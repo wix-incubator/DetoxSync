@@ -86,30 +86,16 @@
 		shared = [DTXTimerSyncResource new];
 		[DTXSyncManager registerSyncResource:shared];
 	});
-	
-	return shared;
-}
 
-/// Ugly hack for rare occasions where NSTimer gets released, but its associated objects are not released.
-static NSUInteger _DTXCleanTimersAndReturnCount(NSMutableSet* _timers, NSMutableArray<NSString*(^)(void)>* eventIdentifiers)
-{	
-	for (_DTXTimerTrampoline* trampoline in _timers.copy) {
-		if(trampoline.isDead)
-		{
-			[eventIdentifiers addObject:_DTXStringReturningBlock([NSString stringWithFormat:@"%p", trampoline])];
-			[_timers removeObject:trampoline];
-		}
-	}
-	
-	return _timers.count;
+	return shared;
 }
 
 - (void)clearTimerTrampolinesForCFRunLoop:(CFRunLoopRef)cfRunLoop
 {
 	__block NSMutableArray<NSString*(^)(void)>* eventIdentifiers = [NSMutableArray new];
-	
+
 	[self performMultipleUpdateBlock:^{
-		return _DTXCleanTimersAndReturnCount(_timers, eventIdentifiers);
+		return _timers.count;
 	} eventIdentifiers:_DTXObjectReturningBlock(eventIdentifiers)
 				   eventDescriptions:nil
 				  objectDescriptions:nil
@@ -131,7 +117,7 @@ static NSUInteger _DTXCleanTimersAndReturnCount(NSMutableSet* _timers, NSMutable
                                                               trampoline.jsonDescription])];
       [_timers addObject:trampoline];
 
-      return _DTXCleanTimersAndReturnCount(_timers, eventIdentifiers);
+      return _timers.count;
 	}
      eventIdentifiers:_DTXObjectReturningBlock(eventIdentifiers)
      eventDescriptions:_DTXObjectReturningBlock(eventDescriptions)
@@ -142,11 +128,11 @@ static NSUInteger _DTXCleanTimersAndReturnCount(NSMutableSet* _timers, NSMutable
 - (void)untrackTimerTrampoline:(_DTXTimerTrampoline *)trampoline
 {
 	__block NSMutableArray<NSString*(^)(void)>* eventIdentifiers = [NSMutableArray new];
-	
+
 	[self performMultipleUpdateBlock:^{
 		[eventIdentifiers addObject:_DTXStringReturningBlock([NSString stringWithFormat:@"%p", trampoline])];
 		[_timers removeObject:trampoline];
-		return _DTXCleanTimersAndReturnCount(_timers, eventIdentifiers);
+		return _timers.count;
 	} eventIdentifiers:_DTXObjectReturningBlock(eventIdentifiers)
 				   eventDescriptions:nil
 				  objectDescriptions:nil

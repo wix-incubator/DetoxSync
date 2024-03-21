@@ -113,45 +113,45 @@ static const void* _DTXCAAnimationTrackingIdentifierKey = &_DTXCAAnimationTracki
 - (void)trackViewNeedsLayout:(UIView *)view
 {
 	NSString* identifier = [self _trackForParam:&_viewNeedsLayoutCount eventDescription:_DTXStringReturningBlock(@"View Layout") objectDescription:_DTXStringReturningBlock(view.__detox_sync_safeDescription)];
-	
+
 	__detox_sync_orig_dispatch_async(dispatch_get_main_queue(), ^ {
-		[self _untrackForParam:&_viewNeedsLayoutCount eventIdentifier:_DTXStringReturningBlock(identifier)];
+		[self _untrackForParam:&self->_viewNeedsLayoutCount eventIdentifier:_DTXStringReturningBlock(identifier)];
 	});
 }
 
 - (void)trackViewNeedsDisplay:(UIView *)view
 {
 	NSString* identifier = [self _trackForParam:&_viewNeedsDisplayCount eventDescription:_DTXStringReturningBlock(@"View Display") objectDescription:_DTXStringReturningBlock(view.__detox_sync_safeDescription)];
-	
+
 	__detox_sync_orig_dispatch_async(dispatch_get_main_queue(), ^ {
-		[self _untrackForParam:&_viewNeedsDisplayCount eventIdentifier:_DTXStringReturningBlock(identifier)];
+		[self _untrackForParam:&self->_viewNeedsDisplayCount eventIdentifier:_DTXStringReturningBlock(identifier)];
 	});
 }
 
 - (void)trackLayerNeedsLayout:(CALayer *)layer
 {
 	NSString* identifier = [self _trackForParam:&_layerNeedsLayoutCount eventDescription:_DTXStringReturningBlock(@"Layer Layout") objectDescription:_DTXStringReturningBlock(layer.description)];
-	
+
 	__detox_sync_orig_dispatch_async(dispatch_get_main_queue(), ^ {
-		[self _untrackForParam:&_layerNeedsLayoutCount eventIdentifier:_DTXStringReturningBlock(identifier)];
+		[self _untrackForParam:&self->_layerNeedsLayoutCount eventIdentifier:_DTXStringReturningBlock(identifier)];
 	});
 }
 
 - (void)trackLayerNeedsDisplay:(CALayer *)layer
 {
 	NSString* identifier = [self _trackForParam:&_layerNeedsDisplayCount eventDescription:_DTXStringReturningBlock(@"Layer Display") objectDescription:_DTXStringReturningBlock(layer.description)];
-	
+
 	__detox_sync_orig_dispatch_async(dispatch_get_main_queue(), ^ {
-		[self _untrackForParam:&_layerNeedsDisplayCount eventIdentifier:_DTXStringReturningBlock(identifier)];
+		[self _untrackForParam:&self->_layerNeedsDisplayCount eventIdentifier:_DTXStringReturningBlock(identifier)];
 	});
 }
 
 - (void)trackLayerPendingAnimation:(CALayer*)layer
 {
 	NSString* identifier = [self _trackForParam:&_layerPendingAnimationCount eventDescription:_DTXStringReturningBlock(@"Layer Pending Animation") objectDescription:_DTXStringReturningBlock(layer.description)];
-	
+
 	__detox_sync_orig_dispatch_async(dispatch_get_main_queue(), ^ {
-		[self _untrackForParam:&_layerPendingAnimationCount eventIdentifier:_DTXStringReturningBlock(identifier)];
+		[self _untrackForParam:&self->_layerPendingAnimationCount eventIdentifier:_DTXStringReturningBlock(identifier)];
 	});
 }
 
@@ -160,9 +160,9 @@ static const void* _DTXCAAnimationTrackingIdentifierKey = &_DTXCAAnimationTracki
 	if(vc.transitionCoordinator)
 	{
 		NSString* identifier = [self _trackForParam:&_viewControllerWillAppearCount eventDescription:_DTXStringReturningBlock(@"View Layout") objectDescription:_DTXStringReturningBlock(vc.description)];
-		
+
 		[vc.transitionCoordinator animateAlongsideTransition:nil completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
-			[self _untrackForParam:&_viewControllerWillAppearCount eventIdentifier:_DTXStringReturningBlock(identifier)];
+			[self _untrackForParam:&self->_viewControllerWillAppearCount eventIdentifier:_DTXStringReturningBlock(identifier)];
 		}];
 	}
 }
@@ -172,9 +172,9 @@ static const void* _DTXCAAnimationTrackingIdentifierKey = &_DTXCAAnimationTracki
 	if(vc.transitionCoordinator)
 	{
 		NSString* identifier = [self _trackForParam:&_viewControllerWillDisappearCount eventDescription:_DTXStringReturningBlock(@"View Layout") objectDescription:_DTXStringReturningBlock(vc.description)];
-		
+
 		[vc.transitionCoordinator animateAlongsideTransition:nil completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
-			[self _untrackForParam:&_viewControllerWillDisappearCount eventIdentifier:_DTXStringReturningBlock(identifier)];
+			[self _untrackForParam:&self->_viewControllerWillDisappearCount eventIdentifier:_DTXStringReturningBlock(identifier)];
 		}];
 	}
 }
