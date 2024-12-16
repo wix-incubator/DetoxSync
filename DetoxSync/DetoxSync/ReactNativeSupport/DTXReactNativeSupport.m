@@ -205,7 +205,8 @@ static void _setupRNSupport(void)
 
 + (BOOL)hasReactNative
 {
-  return (NSClassFromString(@"RCTBridge") != nil);
+    // Check existence of one of the oldest classes in RN
+    return (NSClassFromString(@"RCTView") != nil);
 }
 
 + (void)waitForReactNativeLoadWithCompletionHandler:(void (^)(void))handler
