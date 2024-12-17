@@ -205,7 +205,8 @@ static void _setupRNSupport(void)
 
 + (BOOL)hasReactNative
 {
-  return (NSClassFromString(@"RCTBridge") != nil);
+    // Check existence of one of the oldest classes in RN
+    return (NSClassFromString(@"RCTView") != nil);
 }
 
 + (void)waitForReactNativeLoadWithCompletionHandler:(void (^)(void))handler
@@ -215,22 +216,21 @@ static void _setupRNSupport(void)
   __block __weak id observer;
   __block __weak id observer2;
 
-  observer = [[NSNotificationCenter defaultCenter] addObserverForName:@"RCTJavaScriptDidLoadNotification" object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
+  observer = [[NSNotificationCenter defaultCenter] addObserverForName:@"RCTContentDidAppearNotification" object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
     [[NSNotificationCenter defaultCenter] removeObserver:observer];
-    [[NSNotificationCenter defaultCenter] removeObserver:observer2];
 
-    observer = [[NSNotificationCenter defaultCenter] addObserverForName:@"RCTContentDidAppearNotification" object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
-      [[NSNotificationCenter defaultCenter] removeObserver:observer];
-
+    dispatch_async(dispatch_get_main_queue(), ^{
       handler();
-    }];
+    });
   }];
 
   observer2 = [[NSNotificationCenter defaultCenter] addObserverForName:@"RCTJavaScriptDidFailToLoadNotification" object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
     [[NSNotificationCenter defaultCenter] removeObserver:observer];
     [[NSNotificationCenter defaultCenter] removeObserver:observer2];
 
-    handler();
+    dispatch_async(dispatch_get_main_queue(), ^{
+      handler();
+    });
   }];
 }
 
