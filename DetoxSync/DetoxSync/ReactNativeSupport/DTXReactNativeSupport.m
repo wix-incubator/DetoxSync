@@ -219,14 +219,18 @@ static void _setupRNSupport(void)
   observer = [[NSNotificationCenter defaultCenter] addObserverForName:@"RCTContentDidAppearNotification" object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
     [[NSNotificationCenter defaultCenter] removeObserver:observer];
 
-    handler();
+    dispatch_async(dispatch_get_main_queue(), ^{
+      handler();
+    });
   }];
 
   observer2 = [[NSNotificationCenter defaultCenter] addObserverForName:@"RCTJavaScriptDidFailToLoadNotification" object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
     [[NSNotificationCenter defaultCenter] removeObserver:observer];
     [[NSNotificationCenter defaultCenter] removeObserver:observer2];
 
-    handler();
+    dispatch_async(dispatch_get_main_queue(), ^{
+      handler();
+    });
   }];
 }
 
