@@ -53,11 +53,8 @@ static const void* _DTXScrollViewSRKey = &_DTXScrollViewSRKey;
 - (void)__detox_sync__scrollViewDidEndDraggingWithDeceleration:(bool)arg1
 {
 	[self __detox_sync__scrollViewDidEndDraggingWithDeceleration:arg1];
-	
-	if(arg1 == NO)
-	{
-		[self __detox_sync_resetSyncResource];
-	}
+
+    [self __detox_sync_resetSyncResource];
 }
 
 - (void)__detox_sync__scrollViewDidEndDecelerating
