@@ -67,16 +67,20 @@ static int __detox_sync_UIApplication_run(id self, SEL _cmd)
   else
     {
     //Modern RN
+#if RCT_NEW_ARCH_ENABLED
     cls = NSClassFromString(@"RCTCxxBridge");
+#else
+    cls = NSClassFromString(@"RCTJSThreadManager");
+#endif
     m = class_getClassMethod(cls, NSSelectorFromString(@"runRunLoop"));
     if(m == NULL)
       {
       m = class_getInstanceMethod(cls, NSSelectorFromString(@"runJSRunLoop"));
-      dtx_log_info(@"Found modern class RCTCxxBridge, method runJSRunLoop");
+        dtx_log_info(@"Found modern class %@, method runJSRunLoop", NSStringFromClass(cls));
       }
     else
       {
-      dtx_log_info(@"Found modern class RCTCxxBridge, method runRunLoop");
+      dtx_log_info(@"Found modern class %@, method runRunLoop", NSStringFromClass(cls));
       }
     }
 
