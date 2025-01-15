@@ -99,10 +99,6 @@
 		604A436C271F5004003B22CA /* DTXAddressInfo.mm in Sources */ = {isa = PBXBuildFile; fileRef = 604A4369271F5004003B22CA /* DTXAddressInfo.mm */; };
 		604A436D271F5004003B22CA /* Swiftier.h in Headers */ = {isa = PBXBuildFile; fileRef = 604A436A271F5004003B22CA /* Swiftier.h */; };
 		604A436F271F506F003B22CA /* DTXSwizzlingHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 604A436E271F506F003B22CA /* DTXSwizzlingHelper.h */; };
-		605122AE2D377A6E00781AE2 /* DTXSignpostSyncResource.m in Sources */ = {isa = PBXBuildFile; fileRef = 605122AD2D377A6E00781AE2 /* DTXSignpostSyncResource.m */; };
-		605122AF2D377A6E00781AE2 /* DTXSignpostSyncResource.h in Headers */ = {isa = PBXBuildFile; fileRef = 605122AC2D377A6E00781AE2 /* DTXSignpostSyncResource.h */; };
-		605122C42D377B4600781AE2 /* DTXSignpostSpy.m in Sources */ = {isa = PBXBuildFile; fileRef = 605122C32D377B4600781AE2 /* DTXSignpostSpy.m */; };
-		605122C52D377B4600781AE2 /* DTXSignpostSpy.h in Headers */ = {isa = PBXBuildFile; fileRef = 605122C22D377B4600781AE2 /* DTXSignpostSpy.h */; };
 		6066775F271EFB000008A2C6 /* fishhook.c in Sources */ = {isa = PBXBuildFile; fileRef = 6066775D271EFB000008A2C6 /* fishhook.c */; };
 		60667760271EFB000008A2C6 /* fishhook.h in Headers */ = {isa = PBXBuildFile; fileRef = 6066775E271EFB000008A2C6 /* fishhook.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6097C6AC27467D5D00612E00 /* RCTFakes.m in Sources */ = {isa = PBXBuildFile; fileRef = 6097C6AB27467D5D00612E00 /* RCTFakes.m */; };
@@ -394,10 +390,6 @@
 		604A4369271F5004003B22CA /* DTXAddressInfo.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = DTXAddressInfo.mm; path = DTXObjectiveCHelpers/DTXAddressInfo.mm; sourceTree = SOURCE_ROOT; };
 		604A436A271F5004003B22CA /* Swiftier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Swiftier.h; path = DTXObjectiveCHelpers/Swiftier.h; sourceTree = SOURCE_ROOT; };
 		604A436E271F506F003B22CA /* DTXSwizzlingHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTXSwizzlingHelper.h; path = DTXObjectiveCHelpers/DTXSwizzlingHelper.h; sourceTree = SOURCE_ROOT; };
-		605122AC2D377A6E00781AE2 /* DTXSignpostSyncResource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DTXSignpostSyncResource.h; sourceTree = "<group>"; };
-		605122AD2D377A6E00781AE2 /* DTXSignpostSyncResource.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DTXSignpostSyncResource.m; sourceTree = "<group>"; };
-		605122C22D377B4600781AE2 /* DTXSignpostSpy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DTXSignpostSpy.h; sourceTree = "<group>"; };
-		605122C32D377B4600781AE2 /* DTXSignpostSpy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DTXSignpostSpy.m; sourceTree = "<group>"; };
 		6066775D271EFB000008A2C6 /* fishhook.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = fishhook.c; path = fishhook/fishhook.c; sourceTree = SOURCE_ROOT; };
 		6066775E271EFB000008A2C6 /* fishhook.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fishhook.h; path = fishhook/fishhook.h; sourceTree = SOURCE_ROOT; };
 		6097C6AA27467D5D00612E00 /* RCTFakes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCTFakes.h; sourceTree = "<group>"; };
@@ -526,8 +518,6 @@
 				39DE8F6922F707F400780546 /* DTXTimerSyncResource.m */,
 				3946CD582567145F000A3606 /* DTXUISyncResource.h */,
 				3946CD592567145F000A3606 /* DTXUISyncResource.m */,
-				605122AC2D377A6E00781AE2 /* DTXSignpostSyncResource.h */,
-				605122AD2D377A6E00781AE2 /* DTXSignpostSyncResource.m */,
 			);
 			path = SyncResources;
 			sourceTree = "<group>";
@@ -578,8 +568,6 @@
 				39DE8F7922F707F400780546 /* UIView+DTXSpy.m */,
 				39DE8F8C22F707F400780546 /* UIViewController+DTXSpy.h */,
 				39DE8F7F22F707F400780546 /* UIViewController+DTXSpy.m */,
-				605122C22D377B4600781AE2 /* DTXSignpostSpy.h */,
-				605122C32D377B4600781AE2 /* DTXSignpostSpy.m */,
 			);
 			path = Spies;
 			sourceTree = "<group>";
@@ -724,7 +712,6 @@
 				604A436B271F5004003B22CA /* DTXAddressInfo.h in Headers */,
 				39DE8F9322F707F400780546 /* DTXDispatchQueueSyncResource.h in Headers */,
 				39DE8F9622F707F400780546 /* DTXSyncResource.h in Headers */,
-				605122AF2D377A6E00781AE2 /* DTXSignpostSyncResource.h in Headers */,
 				395AD82424B784BB002B382B /* _DTXTimerTrampoline.h in Headers */,
 				6017CCAE274BA83B00E17AB1 /* NSDictionary+Functional.h in Headers */,
 				39DE8FBA22F707F400780546 /* NSObject+DTXSpy.h in Headers */,
@@ -756,7 +743,6 @@
 				39DE8FA222F707F400780546 /* NSURLSession+DTXSpy.h in Headers */,
 				39DE8FA822F707F400780546 /* UIScrollView+DTXSpy.h in Headers */,
 				39DE8FA422F707F400780546 /* UIAnimation+DTXSpy.h in Headers */,
-				605122C52D377B4600781AE2 /* DTXSignpostSpy.h in Headers */,
 				39DE8FB522F707F400780546 /* UIView+DTXSpy.h in Headers */,
 				3946CD5A2567145F000A3606 /* DTXUISyncResource.h in Headers */,
 				39DE8FA622F707F400780546 /* CALayer+DTXSpy.h in Headers */,
@@ -1051,7 +1037,6 @@
 				39DE8FAF22F707F400780546 /* NSURLSessionTask+DTXSpy.m in Sources */,
 				6017CCA9274BA0C200E17AB1 /* NSArray+Functional.m in Sources */,
 				399AE33923B27B2000BF1318 /* CFRunLoopDescription.m in Sources */,
-				605122AE2D377A6E00781AE2 /* DTXSignpostSyncResource.m in Sources */,
 				39DE8F9E22F707F400780546 /* DTXSyncManager.m in Sources */,
 				3946CD5B2567145F000A3606 /* DTXUISyncResource.m in Sources */,
 				39DE8FA522F707F400780546 /* UIView+DTXSpy.m in Sources */,
@@ -1076,7 +1061,6 @@
 				39DE8FA122F707F400780546 /* UIGestureRecognizer+DTXSpy.m in Sources */,
 				39DE8F9B22F707F400780546 /* DTXDispatchQueueSyncResource.m in Sources */,
 				39DE8FB222F707F400780546 /* CALayer+DTXSpy.m in Sources */,
-				605122C42D377B4600781AE2 /* DTXSignpostSpy.m in Sources */,
 				39DE8FB422F707F400780546 /* UIScrollView+DTXSpy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
