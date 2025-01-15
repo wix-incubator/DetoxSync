@@ -110,7 +110,13 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
 #pragma mark Timer Observation Methods
 
 - (void)addObservedTimer:(JSTimer *)timer {
-    [_activeTimers addObject:timer];
+    [_syncResource performUpdateBlock:^NSUInteger{
+        [_activeTimers addObject:timer];
+        return [self.syncResource _busyCount];
+    } eventIdentifier:_DTXStringReturningBlock([timer.timerID stringValue])
+                     eventDescription:_DTXStringReturningBlock([self.syncResource resourceName])
+                    objectDescription:_DTXStringReturningBlock(_prettyTimerDescription(timer.timerID))
+                additionalDescription:nil];
 }
 
 - (void)removeObservedTimer:(NSNumber *)timerID {
