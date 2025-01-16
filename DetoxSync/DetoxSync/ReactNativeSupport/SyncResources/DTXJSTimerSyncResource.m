@@ -208,6 +208,8 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
 
     void (*orig_deleteTimer)(id, SEL, double) = (void*)method_getImplementation(deleteTimerMethod);
     method_setImplementation(deleteTimerMethod, imp_implementationWithBlock(^(id _self, double timerID) {
+        orig_deleteTimer(_self, deleteTimerSel, timerID);
+
         __strong __typeof(weakSelf) strongSelf = weakSelf;
         if (strongSelf != nil) {
             TimerDictionary *timerDict = [strongSelf.observations objectForKey:_self];
@@ -215,8 +217,6 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
                 [timerDict removeObservedTimer:@(timerID)];
             }
         }
-
-        orig_deleteTimer(_self, deleteTimerSel, timerID);
     }));
 }
 
