@@ -230,7 +230,7 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
         [instance setValue:timerDict forKey:@"_timers"];
         [_observations setObject:timerDict forKey:instance];
     }
-    if(duration > 0 && duration <= DTXSyncManager.maximumTimerIntervalTrackingDuration && repeats == NO) {
+    if(duration >= 0.018 && duration <= DTXSyncManager.maximumTimerIntervalTrackingDuration && repeats == NO) {
         DTXSyncResourceVerboseLog(@"⏲ Observing timer \"%@\" duration: %@ repeats: %@", timerID, @(duration), @(repeats));
 
         [timerDict addObservedTimer:[[JSTimer alloc] initWithTimerID:timerID duration:duration isRecurring:repeats]];
@@ -240,8 +240,8 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
 }
 
 - (NSString*)failureReasonForDuration:(NSTimeInterval)duration repeats:(BOOL)repeats {
-    if(duration == 0) {
-        return @"duration==0";
+    if(duration < 0.018) {
+        return [NSString stringWithFormat:@"duration(%@)<0.018", @(duration)];
     } else if(repeats == YES) {
         return @"repeats==true";
     } else if(duration > DTXSyncManager.maximumTimerIntervalTrackingDuration) {
