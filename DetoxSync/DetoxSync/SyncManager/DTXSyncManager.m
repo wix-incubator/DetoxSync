@@ -66,6 +66,7 @@ static BOOL _delegate_syncSystemDidEndTrackingEventWithDescription = NO;
 
 static atomic_nstimeinterval _maximumAllowedDelayedActionTrackingDuration = ATOMIC_VAR_INIT(__builtin_inf());
 static atomic_nstimeinterval _maximumTimerIntervalTrackingDuration = ATOMIC_VAR_INIT(__builtin_inf());
+static atomic_nstimeinterval _minimumTimerIntervalTrackingDuration = ATOMIC_VAR_INIT(0.018);
 static atomic_bool _synchronizationDisabled = ATOMIC_VAR_INIT(NO);
 static atomic_voidptr _URLBlacklist = ATOMIC_VAR_INIT(NULL);
 static atomic_bool _modifyAnimations = ATOMIC_VAR_INIT(YES);
@@ -101,6 +102,16 @@ static atomic_nstimeinterval _maximumAnimationDuration = ATOMIC_VAR_INIT(1.0);
 + (void)setMaximumTimerIntervalTrackingDuration:(NSTimeInterval)maximumTimerIntervalTrackingDuration
 {
 	atomic_store(&_maximumTimerIntervalTrackingDuration, maximumTimerIntervalTrackingDuration);
+}
+
++ (NSTimeInterval)minimumTimerIntervalTrackingDuration
+{
+	return atomic_load(&_minimumTimerIntervalTrackingDuration);
+}
+
++ (void)setMinimumTimerIntervalTrackingDuration:(NSTimeInterval)minimumTimerIntervalTrackingDuration
+{
+	atomic_store(&_minimumTimerIntervalTrackingDuration, minimumTimerIntervalTrackingDuration);
 }
 
 + (NSArray<NSString *> *)URLBlacklist
@@ -146,17 +157,17 @@ static atomic_nstimeinterval _maximumAnimationDuration = ATOMIC_VAR_INIT(1.0);
 + (void)setDelegate:(id<DTXSyncManagerDelegate>)delegate
 {
 	_delegate = delegate;
-	
+
 	_delegate_syncSystemDidBecomeIdle = [_delegate respondsToSelector:@selector(syncSystemDidBecomeIdle)];
 	_delegate_syncSystemDidBecomeBusy = [_delegate respondsToSelector:@selector(syncSystemDidBecomeBusy)];
 	_delegate_syncSystemDidStartTrackingEventWithDescription = [_delegate respondsToSelector:@selector(syncSystemDidStartTrackingEventWithIdentifier:description:objectDescription:additionalDescription:)];
 	_delegate_syncSystemDidEndTrackingEventWithDescription = [_delegate respondsToSelector:@selector(syncSystemDidEndTrackingEventWithIdentifier:)];
-	
+
 	if(_delegate == nil)
 	{
 		return;
 	}
-	
+
 	BOOL systemBusy = DTXIsSystemBusyNow();
 	if(systemBusy && _delegate_syncSystemDidBecomeBusy)
 	{
@@ -174,26 +185,26 @@ static atomic_nstimeinterval _maximumAnimationDuration = ATOMIC_VAR_INIT(1.0);
 	{
 		__detox_sync_enableVerboseSyncResourceLogging = [NSUserDefaults.standardUserDefaults boolForKey:@"DTXEnableVerboseSyncResources"];
 		_enableVerboseSystemLogging = [NSUserDefaults.standardUserDefaults boolForKey:@"DTXEnableVerboseSyncSystem"];
-		
+
 		__detox_sync_orig_dispatch_sync = dlsym(RTLD_DEFAULT, "dispatch_sync");
 		__detox_sync_orig_dispatch_async = dlsym(RTLD_DEFAULT, "dispatch_async");
 		__detox_sync_orig_dispatch_after = dlsym(RTLD_DEFAULT, "dispatch_after");
-		
+
 		_queue = dtx_dispatch_queue_create_autoreleasing("com.wix.DTXSyncManager", DISPATCH_QUEUE_SERIAL);
 		dispatch_queue_set_specific(_queue, _queueSpecific, _queueSpecific, NULL);
 		NSString* DTXEnableDelayedIdleFire = [NSUserDefaults.standardUserDefaults stringForKey:@"DTXEnableDelayedIdleFire"];
 		NSNumberFormatter* nf = [NSNumberFormatter new];
 		NSNumber* value = [nf numberFromString:DTXEnableDelayedIdleFire];
 		_useDelayedFire = [value doubleValue];
-		
+
 		_resourceMapping = NSMapTable.strongToStrongObjectsMapTable;
 		_registeredResources = [NSMutableSet new];
 		_pendingIdleBlocks = [NSMutableArray new];
-		
+
 		_trackedThreads = [NSMapTable weakToStrongObjectsMapTable];
 
 		[_trackedThreads setObject:@{@"name": @"Main Thread"} forKey:[NSThread mainThread]];
-    
+
     //  Experimental: disable main run-loop sync, due to excessive activity on the main thread.
     BOOL shouldDisableMainRunLoopSync =
         [NSUserDefaults.standardUserDefaults boolForKey:@"DTXDisableMainRunLoopSync"];
@@ -217,7 +228,7 @@ static atomic_nstimeinterval _maximumAnimationDuration = ATOMIC_VAR_INIT(1.0);
 	__detox_sync_orig_dispatch_sync(_queue, ^ {
 		[_registeredResources removeObject:syncResource];
 		[_resourceMapping removeObjectForKey:syncResource];
-		
+
 		TRY_IDLE_BLOCKS();
 	});
 }
@@ -235,13 +246,13 @@ static atomic_nstimeinterval _maximumAnimationDuration = ATOMIC_VAR_INIT(1.0);
 			DTXSyncResourceVerboseLog(@"Provided resource %@ is not registered, ignoring.", resource);
 			return;
 		}
-		
+
 		NSUInteger previousBusyCount = [[_resourceMapping objectForKey:resource] unsignedIntegerValue];
 		NSUInteger busyCount = block();
 		if(previousBusyCount != busyCount)
 		{
 			DTXSyncResourceVerboseLog(@"%@", resource.jsonDescription);
-			
+
 			if(dtx_unlikely(_delegate != nil))
 			{
 				if(previousBusyCount < busyCount && dtx_unlikely(_delegate_syncSystemDidStartTrackingEventWithDescription))
@@ -258,18 +269,18 @@ static atomic_nstimeinterval _maximumAnimationDuration = ATOMIC_VAR_INIT(1.0);
 				}
 			}
 		}
-		
+
 		[_resourceMapping setObject:@(busyCount) forKey:resource];
-		
+
 		TRY_IDLE_BLOCKS();
 	};
-	
+
 	if(dispatch_get_specific(_queueSpecific) == _queueSpecific)
 	{
 		outerBlock();
 		return;
 	}
-	
+
 	__detox_sync_orig_dispatch_sync(_queue, outerBlock);
 }
 
@@ -286,13 +297,13 @@ static atomic_nstimeinterval _maximumAnimationDuration = ATOMIC_VAR_INIT(1.0);
 			DTXSyncResourceVerboseLog(@"Provided resource %@ is not registered, ignoring.", resource);
 			return;
 		}
-		
+
 		NSUInteger previousBusyCount = [[_resourceMapping objectForKey:resource] unsignedIntegerValue];
 		NSUInteger busyCount = block();
 		if(previousBusyCount != busyCount)
 		{
         DTXSyncResourceVerboseLog(@"%@", resource.jsonDescription);
-			
+
 			if(dtx_unlikely(_delegate != nil))
 			{
 				if(previousBusyCount < busyCount && dtx_unlikely(_delegate_syncSystemDidStartTrackingEventWithDescription))
@@ -301,14 +312,14 @@ static atomic_nstimeinterval _maximumAnimationDuration = ATOMIC_VAR_INIT(1.0);
 					NSArray<NSString*(^)(void)>* eventDescriptions = _eventDescriptions ? _eventDescriptions() : nil;
 					NSArray<NSString*(^)(void)>* objectDescriptions = _objectDescriptions ? _objectDescriptions() : nil;
 					NSArray<NSString*(^)(void)>* additionalDescriptions = _additionalDescriptions ? _additionalDescriptions() : nil;
-					
+
 					[identifiers enumerateObjectsUsingBlock:^(NSString*(^_Nonnull identifierBlock)(void), NSUInteger idx, BOOL * _Nonnull stop) {
 						NSString* identifier = identifierBlock();
-						
+
 						NSString* eventDescription = eventDescriptions.count > idx ? eventDescriptions[idx]() : nil;
 						NSString* objectDescription = objectDescriptions.count > idx ? objectDescriptions[idx]() : nil;
 						NSString* additionalDescription = additionalDescriptions.count > idx ? additionalDescriptions[idx]() : nil;
-						
+
 						[_delegate syncSystemDidStartTrackingEventWithIdentifier:identifier
 																	 description:eventDescription
 															   objectDescription:objectDescription
@@ -318,25 +329,25 @@ static atomic_nstimeinterval _maximumAnimationDuration = ATOMIC_VAR_INIT(1.0);
 				else if(previousBusyCount > busyCount && dtx_unlikely(_delegate_syncSystemDidEndTrackingEventWithDescription))
 				{
 					NSArray<NSString*(^)(void)>* identifiers = eventIDs();
-					
+
 					for (NSString*(^identifier)(void) in identifiers) {
 						[_delegate syncSystemDidEndTrackingEventWithIdentifier:identifier()];
 					}
 				}
 			}
 		}
-		
+
 		[_resourceMapping setObject:@(busyCount) forKey:resource];
-		
+
 		TRY_IDLE_BLOCKS();
 	};
-	
+
 	if(dispatch_get_specific(_queueSpecific) == _queueSpecific)
 	{
 		outerBlock();
 		return;
 	}
-	
+
 	__detox_sync_orig_dispatch_sync(_queue, outerBlock);
 }
 
@@ -347,7 +358,7 @@ static atomic_nstimeinterval _maximumAnimationDuration = ATOMIC_VAR_INIT(1.0);
 		dispatch_source_set_timer(_delayedFire, dispatch_time(DISPATCH_TIME_NOW, _useDelayedFire * NSEC_PER_SEC), 0, (1ull * NSEC_PER_SEC) / 10);
 		return;
 	}
-	
+
 	_delayedFire = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, _queue);
 	dispatch_source_set_timer(_delayedFire, dispatch_time(DISPATCH_TIME_NOW, _useDelayedFire * NSEC_PER_SEC), 0, (1ull * NSEC_PER_SEC) / 10);
 	dispatch_source_set_event_handler(_delayedFire, ^{
@@ -362,17 +373,17 @@ DTX_ALWAYS_INLINE
 static BOOL DTXIsSystemBusyNow(void)
 {
 	BOOL systemBusy = NO;
-	
+
 	for(NSNumber* value in _resourceMapping.objectEnumerator)
 	{
 		systemBusy |= (value.unsignedIntegerValue > 0);
-		
+
 		if(systemBusy == YES)
 		{
 			break;
 		}
 	}
-	
+
 	return systemBusy;
 }
 
@@ -382,14 +393,14 @@ static BOOL DTXIsSystemBusyNow(void)
 	{
 		return;
 	}
-	
+
 	__block BOOL systemBusy = NO;
 	dtx_defer {
 		_systemWasBusy = systemBusy;
 	};
-	
+
 	systemBusy = DTXIsSystemBusyNow();
-	
+
 	if(systemBusy == YES)
 	{
 		if(systemBusy != _systemWasBusy)
@@ -414,31 +425,31 @@ static BOOL DTXIsSystemBusyNow(void)
 			}
 		}
 	}
-	
+
 	if(_pendingIdleBlocks.count == 0)
 	{
 		return;
 	}
-	
+
 	if(now == NO)
 	{
 		[self _fireDelayedTimer];
 		return;
 	}
-	
+
 	NSArray<_DTXIdleTupple*>* pendingWork = _pendingIdleBlocks.copy;
 	[_pendingIdleBlocks removeAllObjects];
-	
+
 	NSMapTable<dispatch_queue_t, NSMutableArray<DTXIdleBlock>*>* blockDispatches = [NSMapTable strongToStrongObjectsMapTable];
-	
+
 	for (_DTXIdleTupple* obj in pendingWork) {
 		if(obj.queue == nil)
 		{
 			obj.block();
-			
+
 			continue;
 		}
-		
+
 		NSMutableArray<DTXIdleBlock>* arr = [blockDispatches objectForKey:obj.queue];
 		if(arr == nil)
 		{
@@ -447,7 +458,7 @@ static BOOL DTXIsSystemBusyNow(void)
 		[arr addObject:obj.block];
 		[blockDispatches setObject:arr forKey:obj.queue];
 	}
-	
+
 	for(dispatch_queue_t queue in blockDispatches.keyEnumerator)
 	{
 		NSMutableArray<DTXIdleBlock>* arr = [blockDispatches objectForKey:queue];
@@ -477,31 +488,31 @@ static BOOL DTXIsSystemBusyNow(void)
 		if(queue == nil)
 		{
 			block();
-			
+
 			return;
 		}
-		
+
 		__detox_sync_orig_dispatch_async(queue, block);
-		
+
 		return;
 	}
-	
+
 	dispatch_block_t outerBlock = ^ {
 		_DTXIdleTupple* t = [_DTXIdleTupple new];
 		t.block = block;
 		t.queue = queue;
-		
+
 		[_pendingIdleBlocks addObject:t];
-		
+
 		TRY_IDLE_BLOCKS()
 	};
-	
+
 	if(dispatch_get_specific(_queueSpecific) == _queueSpecific)
 	{
 		__detox_sync_orig_dispatch_async(_queue, outerBlock);
 		return;
 	}
-	
+
 	__detox_sync_orig_dispatch_sync(_queue, outerBlock);
 }
 
@@ -511,7 +522,7 @@ static BOOL DTXIsSystemBusyNow(void)
 	{
 		return;
 	}
-	
+
 	DTXDispatchQueueSyncResource* sr = [DTXDispatchQueueSyncResource dispatchQueueSyncResourceWithQueue:dispatchQueue];
 	sr.queueName = name;
 	[self registerSyncResource:sr];
@@ -523,7 +534,7 @@ static BOOL DTXIsSystemBusyNow(void)
 	{
 		return;
 	}
-	
+
 	DTXDispatchQueueSyncResource* sr = [DTXDispatchQueueSyncResource _existingSyncResourceWithQueue:dispatchQueue cleanup:YES];
 	if(sr)
 	{
@@ -547,7 +558,7 @@ static BOOL DTXIsSystemBusyNow(void)
 	{
 		return;
 	}
-	
+
 	[self _trackCFRunLoop:runLoop name:name];
 }
 
@@ -558,7 +569,7 @@ static BOOL DTXIsSystemBusyNow(void)
 	{
 		return;
 	}
-	
+
 	sr = [DTXRunLoopSyncResource runLoopSyncResourceWithRunLoop:runLoop];
 	sr.runLoopName = name;
 	[self registerSyncResource:sr];
@@ -571,9 +582,9 @@ static BOOL DTXIsSystemBusyNow(void)
 	{
 		return;
 	}
-	
+
 	[self _untrackCFRunLoop:runLoop];
-	
+
 	[DTXTimerSyncResource clearTimersForCFRunLoop:runLoop];
 }
 
@@ -584,7 +595,7 @@ static BOOL DTXIsSystemBusyNow(void)
 	{
 		return;
 	}
-	
+
 	[sr _stopTracking];
 	[self unregisterSyncResource:sr];
 }
@@ -601,7 +612,7 @@ static BOOL DTXIsSystemBusyNow(void)
 	{
 		return;
 	}
-	
+
 	__detox_sync_orig_dispatch_sync(_queue, ^ {
 		NSDictionary* dict = name ? @{@"name": name} : @{};
 		[_trackedThreads setObject:dict forKey:thread];
@@ -614,7 +625,7 @@ static BOOL DTXIsSystemBusyNow(void)
 	{
 		return;
 	}
-	
+
 	__detox_sync_orig_dispatch_sync(_queue, ^ {
 		[_trackedThreads removeObjectForKey:thread];
 	});
@@ -631,7 +642,7 @@ static BOOL DTXIsSystemBusyNow(void)
 	__detox_sync_orig_dispatch_sync(_queue, ^ {
 		rv = [_trackedThreads objectForKey:thread] != nil;
 	});
-	
+
 	return rv;
 }
 
