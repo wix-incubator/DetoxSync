@@ -284,4 +284,22 @@ static void _setupRNSupport(void) {
     });
 }
 
+static BOOL _isNewArchEnabled = NO;
+static dispatch_once_t onceToken;
+
++ (BOOL)isNewArchEnabled
+{
+    dispatch_once(&onceToken, ^{
+        Class delegateClass = NSClassFromString(@"RCTAppDelegate");
+        SEL selector = NSSelectorFromString(@"newArchEnabled");
+        Method originalMethod = class_getInstanceMethod(delegateClass, selector);
+
+        if (delegateClass && originalMethod) {
+            _isNewArchEnabled = ((BOOL (*)(id, SEL))method_getImplementation(originalMethod))(NULL, selector);
+        }
+    });
+
+    return _isNewArchEnabled;
+}
+
 @end
