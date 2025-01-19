@@ -230,7 +230,7 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
         [instance setValue:timerDict forKey:@"_timers"];
         [_observations setObject:timerDict forKey:instance];
     }
-    if(duration >= DTXSyncManager.minimumTimerIntervalTrackingDuration && duration <= DTXSyncManager.maximumTimerIntervalTrackingDuration && repeats == NO) {
+    if(duration > DTXSyncManager.minimumTimerIntervalTrackingDuration && duration <= DTXSyncManager.maximumTimerIntervalTrackingDuration && repeats == NO) {
         DTXSyncResourceVerboseLog(@"⏲ Observing timer \"%@\" duration: %@ repeats: %@", timerID, @(duration), @(repeats));
 
         [timerDict addObservedTimer:[[JSTimer alloc] initWithTimerID:timerID duration:duration isRecurring:repeats]];

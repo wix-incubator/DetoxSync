@@ -66,7 +66,7 @@ static BOOL _delegate_syncSystemDidEndTrackingEventWithDescription = NO;
 
 static atomic_nstimeinterval _maximumAllowedDelayedActionTrackingDuration = ATOMIC_VAR_INIT(__builtin_inf());
 static atomic_nstimeinterval _maximumTimerIntervalTrackingDuration = ATOMIC_VAR_INIT(__builtin_inf());
-static atomic_nstimeinterval _minimumTimerIntervalTrackingDuration = ATOMIC_VAR_INIT(0.018);
+static atomic_nstimeinterval _minimumTimerIntervalTrackingDuration = ATOMIC_VAR_INIT(0);
 static atomic_bool _synchronizationDisabled = ATOMIC_VAR_INIT(NO);
 static atomic_voidptr _URLBlacklist = ATOMIC_VAR_INIT(NULL);
 static atomic_bool _modifyAnimations = ATOMIC_VAR_INIT(YES);
