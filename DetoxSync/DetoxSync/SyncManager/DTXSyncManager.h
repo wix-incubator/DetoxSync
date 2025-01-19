@@ -66,6 +66,8 @@ __attribute__((weak_import))
 @property (class, atomic) NSTimeInterval maximumAllowedDelayedActionTrackingDuration;
 /// Limits the maximum allowed timer tracking duration. Any timer with higher duration is ignored.
 @property (class, atomic) NSTimeInterval maximumTimerIntervalTrackingDuration;
+/// Limits the minimum allowed timer tracking duration. Any timer with lower duration is ignored.
+@property (class, atomic) NSTimeInterval minimumTimerIntervalTrackingDuration;
 /// An array of strings representing URLs or URL regex matchers to disable tracking for.
 @property (class, atomic, copy) NSArray<NSString*>* URLBlacklist NS_SWIFT_NAME(urlBlacklist);
 /// Determines whether or not animations are modified. If @c true, then repeating animations are set to run only once and the animation duration is limited to a maximum of @c DTXSyncManager.maximumAnimationDuration. Enabled by default.
