@@ -134,11 +134,12 @@ static void _setupRNSupport(void) {
         m = class_getClassMethod(cls, NSSelectorFromString(@"runRunLoopThread"));
         dtx_log_info(@"Found legacy class RCTJSCExecutor");
     } else {
-#if RCT_NEW_ARCH_ENABLED
-        cls = NSClassFromString(@"RCTCxxBridge");
-#else
-        cls = NSClassFromString(@"RCTJSThreadManager");
-#endif
+        if (DTXReactNativeSupport.isNewArchEnabled) {
+            cls = NSClassFromString(@"RCTJSThreadManager");
+        } else {
+            cls = NSClassFromString(@"RCTCxxBridge");
+        }
+
         m = class_getClassMethod(cls, NSSelectorFromString(@"runRunLoop"));
         if (m == NULL) {
             m = class_getInstanceMethod(cls, NSSelectorFromString(@"runJSRunLoop"));
