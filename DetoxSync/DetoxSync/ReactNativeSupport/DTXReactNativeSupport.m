@@ -241,30 +241,46 @@ static void _setupRNSupport(void) {
 + (void)waitForReactNativeLoadWithCompletionHandler:(void (^)(void))handler {
     NSParameterAssert(handler != nil);
 
-    __block __weak id observer;
-    __block __weak id observer2;
+    __block __weak id jsObserver;
+    __block __weak id contentObserver;
+    __block __weak id failObserver;
 
-    observer = [[NSNotificationCenter defaultCenter] addObserverForName:@"RCTContentDidAppearNotification"
-                                                                 object:nil
-                                                                  queue:nil
-                                                             usingBlock:^(NSNotification * _Nonnull note) {
-        [[NSNotificationCenter defaultCenter] removeObserver:observer];
+    // JavascriptDidLoad and ContentDidAppear can happen in any order
+    // When we receive a notification (either of them), we set this to 1 (atomically)
+    // If it was already at 1, then we received both, and so we can call the handler
+    static _Thread_local _Atomic int successfulNotificationsReceived;
+    atomic_store(&successfulNotificationsReceived, 0);
 
-        dispatch_async(dispatch_get_main_queue(), ^{
+    jsObserver = [[NSNotificationCenter defaultCenter] addObserverForName:@"RCTJavaScriptDidLoadNotification" object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
+        [[NSNotificationCenter defaultCenter] removeObserver:jsObserver];
+
+        // If the flag was already at 1 then we just received the 2nd, so we call the handler
+        int expected = 0;
+        if (!atomic_compare_exchange_strong(&successfulNotificationsReceived, &expected, 1))
+        {
+            [[NSNotificationCenter defaultCenter] removeObserver:failObserver];
             handler();
-        });
+        }
     }];
 
-    observer2 = [[NSNotificationCenter defaultCenter] addObserverForName:@"RCTJavaScriptDidFailToLoadNotification"
-                                                                  object:nil
-                                                                   queue:nil
-                                                              usingBlock:^(NSNotification * _Nonnull note) {
-        [[NSNotificationCenter defaultCenter] removeObserver:observer];
-        [[NSNotificationCenter defaultCenter] removeObserver:observer2];
+    contentObserver = [[NSNotificationCenter defaultCenter] addObserverForName:@"RCTContentDidAppearNotification" object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
+        [[NSNotificationCenter defaultCenter] removeObserver:contentObserver];
 
-        dispatch_async(dispatch_get_main_queue(), ^{
+        // If the flag was already at 1 then we just received the 2nd, so we call the handler
+        int expected = 0;
+        if (!atomic_compare_exchange_strong(&successfulNotificationsReceived, &expected, 1))
+        {
+            [[NSNotificationCenter defaultCenter] removeObserver:failObserver];
             handler();
-        });
+        }
+    }];
+
+    failObserver = [[NSNotificationCenter defaultCenter] addObserverForName:@"RCTJavaScriptDidFailToLoadNotification" object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
+        [[NSNotificationCenter defaultCenter] removeObserver:jsObserver];
+        [[NSNotificationCenter defaultCenter] removeObserver:contentObserver];
+        [[NSNotificationCenter defaultCenter] removeObserver:failObserver];
+
+        handler();
     }];
 }
 
