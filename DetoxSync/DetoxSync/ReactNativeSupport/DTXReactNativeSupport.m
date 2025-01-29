@@ -10,6 +10,7 @@
 #import "ReactNativeHeaders.h"
 #import "DTXSyncManager-Private.h"
 #import "DTXJSTimerSyncResource.h"
+
 #import "DTXSingleEventSyncResource.h"
 #import "fishhook.h"
 #import <dlfcn.h>
@@ -21,256 +22,301 @@
 
 DTX_CREATE_LOG(DTXSyncReactNativeSupport);
 
+typedef void (^RCTSourceLoadBlock)(NSError *error, id source);
+
 @interface DTXReactNativeSupport ()
 
++ (NSMutableArray*)observedQueues;
+
 + (void)cleanupBeforeReload;
++ (void)setupJavaScriptThread;
++ (void)setupModuleQueues;
++ (void)setupTimers;
++ (void)setupBundleLoader;
++ (void)setupUIApplication;
++ (void)disableFlexNetworkObserver;
 
 @end
 
-atomic_cfrunloop __RNRunLoop;
-static atomic_constvoidptr __RNThread;
-static void (*orig_runRunLoopThread)(id, SEL) = NULL;
-static void swz_runRunLoopThread(id self, SEL _cmd)
-{
-  CFRunLoopRef oldRunloop = atomic_load(&__RNRunLoop);
-  NSThread* oldThread = CFBridgingRelease(atomic_load(&__RNThread));
-  [DTXSyncManager untrackThread:oldThread];
-  [DTXSyncManager untrackCFRunLoop:oldRunloop];
-
-  CFRunLoopRef current = CFRunLoopGetCurrent();
-  atomic_store(&__RNRunLoop, current);
-
-  atomic_store(&__RNThread, CFBridgingRetain([NSThread currentThread]));
-
-  [DTXSyncManager trackThread:[NSThread currentThread] name:@"JavaScript Thread"];
-  [DTXSyncManager trackCFRunLoop:current name:@"JavaScript RunLoop"];
-
-
-  oldThread = nil;
-
-  orig_runRunLoopThread(self, _cmd);
-}
-
+// Static variables
 static NSMutableArray* _observedQueues;
-
+atomic_cfrunloop __RNRunLoop = ATOMIC_VAR_INIT(NULL);
+atomic_constvoidptr __RNThread = ATOMIC_VAR_INIT(NULL);
+static void (*orig_runRunLoopThread)(id, SEL) = NULL;
 static int (*__orig__UIApplication_run_orig)(id self, SEL _cmd);
-static int __detox_sync_UIApplication_run(id self, SEL _cmd)
-{
-  Class cls = NSClassFromString(@"RCTJSCExecutor");
-  Method m = NULL;
-  if(cls != NULL)
-    {
-    //Legacy RN
-    m = class_getClassMethod(cls, NSSelectorFromString(@"runRunLoopThread"));
-    dtx_log_info(@"Found legacy class RCTJSCExecutor");
-    }
-  else
-    {
-    //Modern RN
-    cls = NSClassFromString(@"RCTCxxBridge");
-    m = class_getClassMethod(cls, NSSelectorFromString(@"runRunLoop"));
-    if(m == NULL)
-      {
-      m = class_getInstanceMethod(cls, NSSelectorFromString(@"runJSRunLoop"));
-      dtx_log_info(@"Found modern class RCTCxxBridge, method runJSRunLoop");
-      }
-    else
-      {
-      dtx_log_info(@"Found modern class RCTCxxBridge, method runRunLoop");
-      }
-    }
-
-  if(m != NULL)
-    {
-    orig_runRunLoopThread = (void(*)(id, SEL))method_getImplementation(m);
-    method_setImplementation(m, (IMP)swz_runRunLoopThread);
-    }
-  else
-    {
-    dtx_log_info(@"Method runRunLoop not found");
-    }
-
-  return __orig__UIApplication_run_orig(self, _cmd);
-}
-
-typedef void (^RCTSourceLoadBlock)(NSError *error, id source);
-
 static void (*__orig_loadBundleAtURL_onProgress_onComplete)(id self, SEL _cmd, NSURL* url, id onProgress, RCTSourceLoadBlock onComplete);
-static void __detox_sync_loadBundleAtURL_onProgress_onComplete(id self, SEL _cmd, NSURL* url, id onProgress, RCTSourceLoadBlock onComplete)
-{
-  [DTXReactNativeSupport cleanupBeforeReload];
 
-  dtx_log_info(@"Adding idling resource for RN load");
+#pragma mark - JavaScript Thread Management
 
-  id<DTXSingleEvent> sr = [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:nil eventDescription:@"React Native (bundle load)"];
+static void swz_runRunLoopThread(id self, SEL _cmd) {
+    CFRunLoopRef oldRunloop = atomic_load(&__RNRunLoop);
+    NSThread* oldThread = CFBridgingRelease(atomic_load(&__RNThread));
+    [DTXSyncManager untrackThread:oldThread];
+    [DTXSyncManager untrackCFRunLoop:oldRunloop];
 
-  [DTXReactNativeSupport waitForReactNativeLoadWithCompletionHandler:^{
-    [sr endTracking];
-  }];
+    CFRunLoopRef current = CFRunLoopGetCurrent();
+    atomic_store(&__RNRunLoop, current);
+    atomic_store(&__RNThread, CFBridgingRetain([NSThread currentThread]));
 
-  __orig_loadBundleAtURL_onProgress_onComplete(self, _cmd, url, onProgress, onComplete);
+    [DTXSyncManager trackThread:[NSThread currentThread] name:@"JavaScript Thread"];
+    [DTXSyncManager trackCFRunLoop:current name:@"JavaScript RunLoop"];
+
+    oldThread = nil;
+    orig_runRunLoopThread(self, _cmd);
 }
 
-static void _DTXTrackUIManagerQueue(void)
-{
-  //Cannot just extern this function - we are not linked with RN, so linker will fail. Instead, look for symbol in runtime.
-  dispatch_queue_t (*RCTGetUIManagerQueue)(void) = dlsym(RTLD_DEFAULT, "RCTGetUIManagerQueue");
+static void _DTXTrackUIManagerQueue(void) {
+    dispatch_queue_t (*RCTGetUIManagerQueue)(void) = dlsym(RTLD_DEFAULT, "RCTGetUIManagerQueue");
+    dispatch_queue_t queue = RCTGetUIManagerQueue();
+    if (queue == nil) {
+        return;
+    }
 
-  //Must be performed in +load and not in +setUp in order to correctly catch the ui queue, runloop and display link initialization by RN.
-  dispatch_queue_t queue = RCTGetUIManagerQueue();
-  NSString* queueName = [[NSString alloc] initWithUTF8String:dispatch_queue_get_label(queue) ?: queue.description.UTF8String];
-  DTXSyncResourceVerboseLog(@"Adding sync resource for RCTUIManagerQueue: %@ %p", queueName, queue);
-  [_observedQueues addObject:queue];
-  [DTXSyncManager trackDispatchQueue:queue name:@"RN Module: UIManager"];
+    NSString* queueName = [[NSString alloc] initWithUTF8String:dispatch_queue_get_label(queue) ?: queue.description.UTF8String];
+    DTXSyncResourceVerboseLog(@"Adding sync resource for RCTUIManagerQueue: %@ %p", queueName, queue);
+    [_observedQueues addObject:queue];
+    [DTXSyncManager trackDispatchQueue:queue name:@"RN Module: UIManager"];
 }
 
-__attribute__((constructor))
-static void _setupRNSupport(void)
-{
-  @autoreleasepool
-  {
-  Class cls = NSClassFromString(@"RCTModuleData");
-  if(cls == nil)
-    {
-    return;
-    }
+static int __detox_sync_UIApplication_run(id self, SEL _cmd) {
+    [DTXReactNativeSupport setupJavaScriptThread];
+    return __orig__UIApplication_run_orig(self, _cmd);
+}
 
-  _observedQueues = [NSMutableArray new];
+static void __detox_sync_loadBundleAtURL_onProgress_onComplete(id self, SEL _cmd, NSURL* url, id onProgress, RCTSourceLoadBlock onComplete) {
+    [DTXReactNativeSupport cleanupBeforeReload];
 
-  //Add an idling resource for each module queue.
-  Method m = class_getInstanceMethod(cls, NSSelectorFromString(@"setUpMethodQueue"));
-  void(*orig_setUpMethodQueue_imp)(id, SEL) = (void(*)(id, SEL))method_getImplementation(m);
-  method_setImplementation(m, imp_implementationWithBlock(^(id _self) {
-    orig_setUpMethodQueue_imp(_self, NSSelectorFromString(@"setUpMethodQueue"));
+    dtx_log_info(@"Adding idling resource for RN load");
 
-    dispatch_queue_t queue = object_getIvar(_self, class_getInstanceVariable(cls, "_methodQueue"));
+    id<DTXSingleEvent> sr = [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:nil eventDescription:@"React Native (bundle load)"];
 
-    if(queue != nil && [queue isKindOfClass:NSNull.class] == NO && queue != dispatch_get_main_queue() && [_observedQueues containsObject:queue] == NO)
-      {
-      NSString* queueName = [[NSString alloc] initWithUTF8String:dispatch_queue_get_label(queue) ?: queue.description.UTF8String];
+    [DTXReactNativeSupport waitForReactNativeLoadWithCompletionHandler:^{
+        [sr endTracking];
+    }];
 
-      [_observedQueues addObject:queue];
-
-      DTXSyncResourceVerboseLog(@"Adding sync resource for queue: %@ %p", queueName, queue);
-
-      NSString* moduleName = [_self valueForKey:@"name"];
-      if(moduleName.length == 0)
-        {
-        moduleName = [_self description];
-        }
-
-      [DTXSyncManager trackDispatchQueue:queue name:[NSString stringWithFormat:@"RN Module: %@", moduleName]];
-      }
-  }));
-
-  _DTXTrackUIManagerQueue();
-
-  m = class_getInstanceMethod(UIApplication.class, NSSelectorFromString(@"_run"));
-  __orig__UIApplication_run_orig = (void*)method_getImplementation(m);
-  method_setImplementation(m, (void*)__detox_sync_UIApplication_run);
-
-  DTXSyncResourceVerboseLog(@"Adding sync resource for JS timers");
-
-  DTXJSTimerSyncResource* sr = [DTXJSTimerSyncResource new];
-  [DTXSyncManager registerSyncResource:sr];
-
-  cls = NSClassFromString(@"RCTJavaScriptLoader");
-  if(cls == nil)
-    {
-    return;
-    }
-
-  m = class_getClassMethod(cls, NSSelectorFromString(@"loadBundleAtURL:onProgress:onComplete:"));
-  if(m == NULL)
-    {
-    return;
-    }
-  __orig_loadBundleAtURL_onProgress_onComplete = (void*)method_getImplementation(m);
-  method_setImplementation(m, (void*)__detox_sync_loadBundleAtURL_onProgress_onComplete);
-
-  // Disables `FLEXNetworkObserver` (or `SKFLEXNetworkObserver` as renamed in Flipper version
-  // 0.142), due to buggy swizzling.
-  cls = NSClassFromString(@"FLEXNetworkObserver") ?: NSClassFromString(@"SKFLEXNetworkObserver");
-  if(cls != nil)
-    {
-    m = class_getClassMethod(cls, NSSelectorFromString(@"injectIntoAllNSURLConnectionDelegateClasses"));
-    method_setImplementation(m, imp_implementationWithBlock(^(id _self) {
-      NSLog(@"%@ has been disabled by DetoxSync", NSStringFromClass(cls));
-    }));
-    }
-  }
+    __orig_loadBundleAtURL_onProgress_onComplete(self, _cmd, url, onProgress, onComplete);
 }
 
 @implementation DTXReactNativeSupport
 
-+ (BOOL)hasReactNative
-{
-  return (NSClassFromString(@"RCTBridge") != nil);
+#pragma mark - Property Accessors
+
++ (NSMutableArray*)observedQueues {
+    return _observedQueues;
 }
 
-+ (void)waitForReactNativeLoadWithCompletionHandler:(void (^)(void))handler
-{
-  NSParameterAssert(handler != nil);
+#pragma mark - Initialization
 
-  __block __weak id jsObserver;
-  __block __weak id contentObserver;
-  __block __weak id failObserver;
+__attribute__((constructor))
+static void _setupRNSupport(void) {
+    @autoreleasepool {
+        if (![DTXReactNativeSupport hasReactNative]) {
+            return;
+        }
 
-  // JavascriptDidLoad and ContentDidAppear can happen in any order
-  // When we receive a notification (either of them), we set this to 1 (atomically)
-  // If it was already at 1, then we received both, and so we can call the handler
-  static _Thread_local _Atomic int successfulNotificationsReceived;
-  atomic_store(&successfulNotificationsReceived, 0);
+        _observedQueues = [NSMutableArray new];
 
-  jsObserver = [[NSNotificationCenter defaultCenter] addObserverForName:@"RCTJavaScriptDidLoadNotification" object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
-    [[NSNotificationCenter defaultCenter] removeObserver:jsObserver];
-
-    // If the flag was already at 1 then we just received the 2nd, so we call the handler
-    int expected = 0;
-    if (!atomic_compare_exchange_strong(&successfulNotificationsReceived, &expected, 1))
-      {
-      [[NSNotificationCenter defaultCenter] removeObserver:failObserver];
-      handler();
-      }
-  }];
-
-  contentObserver = [[NSNotificationCenter defaultCenter] addObserverForName:@"RCTContentDidAppearNotification" object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
-    [[NSNotificationCenter defaultCenter] removeObserver:contentObserver];
-
-    // If the flag was already at 1 then we just received the 2nd, so we call the handler
-    int expected = 0;
-    if (!atomic_compare_exchange_strong(&successfulNotificationsReceived, &expected, 1))
-      {
-      [[NSNotificationCenter defaultCenter] removeObserver:failObserver];
-      handler();
-      }
-  }];
-
-  failObserver = [[NSNotificationCenter defaultCenter] addObserverForName:@"RCTJavaScriptDidFailToLoadNotification" object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
-    [[NSNotificationCenter defaultCenter] removeObserver:jsObserver];
-    [[NSNotificationCenter defaultCenter] removeObserver:contentObserver];
-    [[NSNotificationCenter defaultCenter] removeObserver:failObserver];
-
-    handler();
-  }];
+        [DTXReactNativeSupport setupModuleQueues];
+        [DTXReactNativeSupport setupUIApplication];
+        [DTXReactNativeSupport setupTimers];
+        [DTXReactNativeSupport setupBundleLoader];
+        [DTXReactNativeSupport disableFlexNetworkObserver];
+    }
 }
 
-+ (void)cleanupBeforeReload
-{
-  dtx_log_info(@"Cleaning idling resource before RN load");
+#pragma mark - Setup Methods
 
-  for (dispatch_queue_t queue in _observedQueues) {
-    NSString* queueName = [[NSString alloc] initWithUTF8String:dispatch_queue_get_label(queue) ?: queue.description.UTF8String];
-    DTXSyncResourceVerboseLog(@"Remobing sync resource for queue: %@ %p", queueName, queue);
-    [DTXSyncManager untrackDispatchQueue:queue];
-  }
++ (void)setupJavaScriptThread {
+    Class cls = NSClassFromString(@"RCTJSCExecutor");
+    Method m = NULL;
 
-  [_observedQueues removeAllObjects];
+    if (cls != NULL) {
+        m = class_getClassMethod(cls, NSSelectorFromString(@"runRunLoopThread"));
+        dtx_log_info(@"Found legacy class RCTJSCExecutor");
+    } else {
+        if (DTXReactNativeSupport.isNewArchEnabled) {
+            cls = NSClassFromString(@"RCTJSThreadManager");
+        } else {
+            cls = NSClassFromString(@"RCTCxxBridge");
+        }
 
-  // Adding delay before re-tracking so the resource dealloc won't trigger unregisteration (preventing race condition)
-  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 100 * NSEC_PER_MSEC), dispatch_get_main_queue(), ^{
+        m = class_getClassMethod(cls, NSSelectorFromString(@"runRunLoop"));
+        if (m == NULL) {
+            m = class_getInstanceMethod(cls, NSSelectorFromString(@"runJSRunLoop"));
+            dtx_log_info(@"Found modern class %@, method runJSRunLoop", NSStringFromClass(cls));
+        } else {
+            dtx_log_info(@"Found modern class %@, method runRunLoop", NSStringFromClass(cls));
+        }
+    }
+
+    if (m != NULL) {
+        orig_runRunLoopThread = (void(*)(id, SEL))method_getImplementation(m);
+        method_setImplementation(m, (IMP)swz_runRunLoopThread);
+    } else {
+        dtx_log_info(@"Method runRunLoop not found");
+    }
+}
+
++ (void)setupModuleQueues {
+    Class cls = NSClassFromString(@"RCTModuleData");
+    if (cls == nil) {
+        return;
+    }
+
+    Method m = class_getInstanceMethod(cls, NSSelectorFromString(@"setUpMethodQueue"));
+    void(*orig_setUpMethodQueue_imp)(id, SEL) = (void(*)(id, SEL))method_getImplementation(m);
+
+    method_setImplementation(m, imp_implementationWithBlock(^(id _self) {
+        orig_setUpMethodQueue_imp(_self, NSSelectorFromString(@"setUpMethodQueue"));
+
+        dispatch_queue_t queue = object_getIvar(_self, class_getInstanceVariable(cls, "_methodQueue"));
+
+        if (queue != nil &&
+            [queue isKindOfClass:NSNull.class] == NO &&
+            queue != dispatch_get_main_queue() &&
+            ![_observedQueues containsObject:queue]) {
+
+            NSString* queueName = [[NSString alloc] initWithUTF8String:dispatch_queue_get_label(queue) ?: queue.description.UTF8String];
+            [_observedQueues addObject:queue];
+
+            DTXSyncResourceVerboseLog(@"Adding sync resource for queue: %@ %p", queueName, queue);
+
+            NSString* moduleName = [_self valueForKey:@"name"];
+            if (moduleName.length == 0) {
+                moduleName = [_self description];
+            }
+
+            [DTXSyncManager trackDispatchQueue:queue name:[NSString stringWithFormat:@"RN Module: %@", moduleName]];
+        }
+    }));
+
     _DTXTrackUIManagerQueue();
-  });
+}
+
++ (void)setupUIApplication {
+    Method m = class_getInstanceMethod(UIApplication.class, NSSelectorFromString(@"_run"));
+    __orig__UIApplication_run_orig = (void*)method_getImplementation(m);
+    method_setImplementation(m, (void*)__detox_sync_UIApplication_run);
+}
+
++ (void)setupTimers {
+    DTXSyncResourceVerboseLog(@"Adding sync resource for JS timers");
+    DTXJSTimerSyncResource* jsTimerResource = [DTXJSTimerSyncResource new];
+    [DTXSyncManager registerSyncResource:jsTimerResource];
+}
+
++ (void)setupBundleLoader {
+    Class cls = NSClassFromString(@"RCTJavaScriptLoader");
+    if (cls == nil) {
+        return;
+    }
+
+    Method m = class_getClassMethod(cls, NSSelectorFromString(@"loadBundleAtURL:onProgress:onComplete:"));
+    if (m == NULL) {
+        return;
+    }
+
+    __orig_loadBundleAtURL_onProgress_onComplete = (void*)method_getImplementation(m);
+    method_setImplementation(m, (void*)__detox_sync_loadBundleAtURL_onProgress_onComplete);
+}
+
++ (void)disableFlexNetworkObserver {
+    Class cls = NSClassFromString(@"FLEXNetworkObserver") ?: NSClassFromString(@"SKFLEXNetworkObserver");
+    if (cls == nil) {
+        return;
+    }
+
+    Method m = class_getClassMethod(cls, NSSelectorFromString(@"injectIntoAllNSURLConnectionDelegateClasses"));
+    method_setImplementation(m, imp_implementationWithBlock(^(id _self) {
+        NSLog(@"%@ has been disabled by DetoxSync", NSStringFromClass(cls));
+    }));
+}
+
+#pragma mark - Public Methods
+
++ (BOOL)hasReactNative {
+    return (NSClassFromString(@"RCTView") != nil);
+}
+
++ (void)waitForReactNativeLoadWithCompletionHandler:(void (^)(void))handler {
+    NSParameterAssert(handler != nil);
+
+    __block __weak id jsObserver;
+    __block __weak id contentObserver;
+    __block __weak id failObserver;
+
+    // JavascriptDidLoad and ContentDidAppear can happen in any order
+    // When we receive a notification (either of them), we set this to 1 (atomically)
+    // If it was already at 1, then we received both, and so we can call the handler
+    static _Thread_local _Atomic int successfulNotificationsReceived;
+    atomic_store(&successfulNotificationsReceived, 0);
+
+    jsObserver = [[NSNotificationCenter defaultCenter] addObserverForName:@"RCTJavaScriptDidLoadNotification" object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
+        [[NSNotificationCenter defaultCenter] removeObserver:jsObserver];
+
+        // If the flag was already at 1 then we just received the 2nd, so we call the handler
+        int expected = 0;
+        if (!atomic_compare_exchange_strong(&successfulNotificationsReceived, &expected, 1))
+        {
+            [[NSNotificationCenter defaultCenter] removeObserver:failObserver];
+            handler();
+        }
+    }];
+
+    contentObserver = [[NSNotificationCenter defaultCenter] addObserverForName:@"RCTContentDidAppearNotification" object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
+        [[NSNotificationCenter defaultCenter] removeObserver:contentObserver];
+
+        // If the flag was already at 1 then we just received the 2nd, so we call the handler
+        int expected = 0;
+        if (!atomic_compare_exchange_strong(&successfulNotificationsReceived, &expected, 1))
+        {
+            [[NSNotificationCenter defaultCenter] removeObserver:failObserver];
+            handler();
+        }
+    }];
+
+    failObserver = [[NSNotificationCenter defaultCenter] addObserverForName:@"RCTJavaScriptDidFailToLoadNotification" object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
+        [[NSNotificationCenter defaultCenter] removeObserver:jsObserver];
+        [[NSNotificationCenter defaultCenter] removeObserver:contentObserver];
+        [[NSNotificationCenter defaultCenter] removeObserver:failObserver];
+
+        handler();
+    }];
+}
+
++ (void)cleanupBeforeReload {
+    dtx_log_info(@"Cleaning idling resource before RN load");
+
+    for (dispatch_queue_t queue in _observedQueues) {
+        NSString* queueName = [[NSString alloc] initWithUTF8String:dispatch_queue_get_label(queue) ?: queue.description.UTF8String];
+        DTXSyncResourceVerboseLog(@"Removing sync resource for queue: %@ %p", queueName, queue);
+        [DTXSyncManager untrackDispatchQueue:queue];
+    }
+
+    [_observedQueues removeAllObjects];
+
+    // Adding delay before re-tracking so the resource dealloc won't trigger unregisteration (preventing race condition)
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 100 * NSEC_PER_MSEC), dispatch_get_main_queue(), ^{
+        _DTXTrackUIManagerQueue();
+    });
+}
+
+static BOOL _isNewArchEnabled = NO;
+static dispatch_once_t onceToken;
+
++ (BOOL)isNewArchEnabled
+{
+    dispatch_once(&onceToken, ^{
+        Class delegateClass = NSClassFromString(@"RCTAppDelegate");
+        SEL selector = NSSelectorFromString(@"newArchEnabled");
+        Method originalMethod = class_getInstanceMethod(delegateClass, selector);
+
+        if (delegateClass && originalMethod) {
+            _isNewArchEnabled = ((BOOL (*)(id, SEL))method_getImplementation(originalMethod))(NULL, selector);
+        }
+    });
+
+    return _isNewArchEnabled;
 }
 
 @end

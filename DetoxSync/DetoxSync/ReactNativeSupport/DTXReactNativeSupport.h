@@ -14,9 +14,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Returns whether the app has React Native.
 + (BOOL)hasReactNative;
-/// Waits for React Native to load, and calls the completion handler.
+
+/// Waits for React Native to load, and calls the completion handler on the main queue.
 /// @param completionHandler The completion handler to call when React Native has finished loading.
 + (void)waitForReactNativeLoadWithCompletionHandler:(void (^)(void))completionHandler;
+
+// Returns whether the React Native new architecture is enabled.
++ (BOOL)isNewArchEnabled;
 
 @end
 
