@@ -226,3 +226,24 @@ A typical busy resource representation:
 For each JS timer, the timer ID is printed, as returned by `setTimeout()`. You can use this ID to investigate where in your code the timer was started.
 
 The sync resource is considered idle once all tracked timers are either cancelled or fired, and are no longer tracked.
+
+### Animation Updates
+
+This sync resource tracks React Native Fabric animated nodes that need to be updated. When an animated node requires an update (for example, during an ongoing animation), it is automatically tracked by the system, and the sync resource becomes busy.
+
+A typical busy resource representation:
+
+```
+{
+  "name": "animation_updates",
+  "description": {
+    "pending_updates": 3
+  }
+}
+```
+
+The description shows the number of pending animation updates currently being tracked in the system. Each animated node that needs to be updated increments this count, and when it finishes its update, the count is decremented.
+
+The sync resource is considered idle when all animated nodes have completed their updates and there are no more pending updates in the system. This typically happens when all ongoing animations have completed or have been stopped.
+
+**Note**: This specifically tracks Fabric animations through the RCTAnimatedNode system. Other types of animations (like UIView animations or JS-based animations) are tracked through their respective sync resources.
