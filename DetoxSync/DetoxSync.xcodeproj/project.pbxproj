@@ -95,8 +95,6 @@
 		6030DB8C2A015FAE0020D2AD /* REASyncUpdateObserver+DTXSpy.m in Sources */ = {isa = PBXBuildFile; fileRef = 6030DB8A2A015FAE0020D2AD /* REASyncUpdateObserver+DTXSpy.m */; };
 		6030DBA12A0285100020D2AD /* REANodesManager+DTXSpy.h in Headers */ = {isa = PBXBuildFile; fileRef = 6030DB9F2A0285100020D2AD /* REANodesManager+DTXSpy.h */; };
 		6030DBA22A0285100020D2AD /* REANodesManager+DTXSpy.m in Sources */ = {isa = PBXBuildFile; fileRef = 6030DBA02A0285100020D2AD /* REANodesManager+DTXSpy.m */; };
-		6039C8E22D65B1E700528C9B /* RCTAnimatedNode+DTXSpy.h in Headers */ = {isa = PBXBuildFile; fileRef = 6039C8E02D65B1E700528C9B /* RCTAnimatedNode+DTXSpy.h */; };
-		6039C8E32D65B1E700528C9B /* RCTAnimatedNode+DTXSpy.m in Sources */ = {isa = PBXBuildFile; fileRef = 6039C8E12D65B1E700528C9B /* RCTAnimatedNode+DTXSpy.m */; };
 		604A436B271F5004003B22CA /* DTXAddressInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 604A4368271F5004003B22CA /* DTXAddressInfo.h */; };
 		604A436C271F5004003B22CA /* DTXAddressInfo.mm in Sources */ = {isa = PBXBuildFile; fileRef = 604A4369271F5004003B22CA /* DTXAddressInfo.mm */; };
 		604A436D271F5004003B22CA /* Swiftier.h in Headers */ = {isa = PBXBuildFile; fileRef = 604A436A271F5004003B22CA /* Swiftier.h */; };
@@ -388,8 +386,6 @@
 		6030DB8A2A015FAE0020D2AD /* REASyncUpdateObserver+DTXSpy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "REASyncUpdateObserver+DTXSpy.m"; sourceTree = "<group>"; };
 		6030DB9F2A0285100020D2AD /* REANodesManager+DTXSpy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "REANodesManager+DTXSpy.h"; sourceTree = "<group>"; };
 		6030DBA02A0285100020D2AD /* REANodesManager+DTXSpy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "REANodesManager+DTXSpy.m"; sourceTree = "<group>"; };
-		6039C8E02D65B1E700528C9B /* RCTAnimatedNode+DTXSpy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RCTAnimatedNode+DTXSpy.h"; sourceTree = "<group>"; };
-		6039C8E12D65B1E700528C9B /* RCTAnimatedNode+DTXSpy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "RCTAnimatedNode+DTXSpy.m"; sourceTree = "<group>"; };
 		604A4368271F5004003B22CA /* DTXAddressInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTXAddressInfo.h; path = DTXObjectiveCHelpers/DTXAddressInfo.h; sourceTree = SOURCE_ROOT; };
 		604A4369271F5004003B22CA /* DTXAddressInfo.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = DTXAddressInfo.mm; path = DTXObjectiveCHelpers/DTXAddressInfo.mm; sourceTree = SOURCE_ROOT; };
 		604A436A271F5004003B22CA /* Swiftier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Swiftier.h; path = DTXObjectiveCHelpers/Swiftier.h; sourceTree = SOURCE_ROOT; };
@@ -442,8 +438,6 @@
 				6030DBA02A0285100020D2AD /* REANodesManager+DTXSpy.m */,
 				6030DB892A015FAE0020D2AD /* REASyncUpdateObserver+DTXSpy.h */,
 				6030DB8A2A015FAE0020D2AD /* REASyncUpdateObserver+DTXSpy.m */,
-				6039C8E02D65B1E700528C9B /* RCTAnimatedNode+DTXSpy.h */,
-				6039C8E12D65B1E700528C9B /* RCTAnimatedNode+DTXSpy.m */,
 			);
 			path = Spies;
 			sourceTree = "<group>";
@@ -713,7 +707,6 @@
 			files = (
 				60667760271EFB000008A2C6 /* fishhook.h in Headers */,
 				39DE8FA022F707F400780546 /* DTXSyncManager.h in Headers */,
-				6039C8E22D65B1E700528C9B /* RCTAnimatedNode+DTXSpy.h in Headers */,
 				3923B11E23045B1F009D8780 /* DTXJSTimerSyncResource.h in Headers */,
 				39DE8F9F22F707F400780546 /* DTXSyncManager-Private.h in Headers */,
 				604A436B271F5004003B22CA /* DTXAddressInfo.h in Headers */,
@@ -1051,7 +1044,6 @@
 				3923B11F23045B1F009D8780 /* DTXJSTimerSyncResource.m in Sources */,
 				39DE8F9A22F707F400780546 /* DTXSingleEventSyncResource.m in Sources */,
 				39DE8FBB22F707F400780546 /* DTXOrigDispatch.m in Sources */,
-				6039C8E32D65B1E700528C9B /* RCTAnimatedNode+DTXSpy.m in Sources */,
 				6066775F271EFB000008A2C6 /* fishhook.c in Sources */,
 				39DE8FB622F707F400780546 /* UIAnimation+DTXSpy.m in Sources */,
 				6017CCAF274BA83B00E17AB1 /* NSDictionary+Functional.m in Sources */,
