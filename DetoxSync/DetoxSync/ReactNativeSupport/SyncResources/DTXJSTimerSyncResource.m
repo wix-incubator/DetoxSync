@@ -2,9 +2,6 @@
 //  DTXJSTimerSyncResource.m
 //  DetoxSync
 //
-//  Created by Leo Natan (Wix) on 8/14/19.
-//  Copyright © 2019 wix. All rights reserved.
-//
 
 #import "DTXJSTimerSyncResource.h"
 #import "DTXSyncManager-Private.h"
