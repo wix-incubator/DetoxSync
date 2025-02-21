@@ -9,13 +9,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface DTXAnimationUpdateSyncResource : DTXSyncResource
 
-@property (class, nonatomic, strong, readonly) DTXAnimationUpdateSyncResource* sharedInstance;
++ (instancetype)sharedInstance;
 
-- (void)trackNodeNeedsUpdate:(id)node;
-- (void)trackNodePerformedUpdate:(id)node;
-- (void)trackNodeDetached:(id)node;
-- (void)trackNodeRemovedChild:(id)node child:(id)child;
-- (void)trackNodeDetachedFromParent:(id)node parent:(id)parent;
+- (void)trackNodeNeedsUpdate:(nullable id)node;
+- (void)trackNodePerformedUpdate:(nullable id)node;
+- (void)trackNodeDetachedFromParent:(nullable id)node parent:(nullable id)parent;
 
 @end
 

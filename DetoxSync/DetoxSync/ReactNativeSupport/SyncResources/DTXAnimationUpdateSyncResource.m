@@ -6,40 +6,18 @@
 #import "DTXAnimationUpdateSyncResource.h"
 #import "DTXSyncManager-Private.h"
 #import "NSString+SyncResource.h"
-#import "NSArray+Functional.h"
 
 DTX_CREATE_LOG(DTXAnimationUpdateSyncResource);
 
-@interface PendingAnimationNode : NSObject
-
-@property (nonatomic, weak) id node;
-@property (nonatomic, copy) NSString* identifier;
-@property (nonatomic, assign) BOOL isDetaching;
-@property (nonatomic, strong) NSMutableSet* detachingChildren;
-@property (nonatomic, strong) NSMutableSet* detachingParents;
-
-- (instancetype)initWithNode:(id)node;
-
-@end
-
-@implementation PendingAnimationNode
-
-- (instancetype)initWithNode:(id)node {
-    if ((self = [super init])) {
-        _node = node;
-        _identifier = [NSUUID UUID].UUIDString;
-        _isDetaching = NO;
-        _detachingChildren = [NSMutableSet new];
-        _detachingParents = [NSMutableSet new];
-    }
-    return self;
-}
-
-@end
+// Timeout for considering an animation as recurring / too-long (in seconds)
+static const NSTimeInterval kNodeAnimationTimeout = 1.5;
 
 @implementation DTXAnimationUpdateSyncResource {
-    NSMutableArray<PendingAnimationNode*>* _pendingNodes;
-    NSUInteger _busyCount;
+    NSHashTable<id>* _pendingNodes;
+    NSMapTable<id, NSNumber*>* _entryTimes;
+    NSMapTable<id, dispatch_source_t>* _cleanupTimers;
+    NSHashTable<id>* _recentlyDetachedNodes;
+    dispatch_queue_t _cleanupQueue;
 }
 
 + (DTXAnimationUpdateSyncResource*)sharedInstance {
@@ -55,253 +33,185 @@ DTX_CREATE_LOG(DTXAnimationUpdateSyncResource);
 - (instancetype)init {
     self = [super init];
     if (self) {
-        _pendingNodes = [NSMutableArray new];
-        _busyCount = 0;
+        _pendingNodes = [NSHashTable weakObjectsHashTable];
+        _entryTimes = [NSMapTable weakToStrongObjectsMapTable];
+        _cleanupTimers = [NSMapTable weakToStrongObjectsMapTable];
+        _recentlyDetachedNodes = [NSHashTable weakObjectsHashTable];
+        _cleanupQueue = dispatch_queue_create("com.detox.sync.animation.cleanup", DISPATCH_QUEUE_SERIAL);
     }
     return self;
 }
 
-- (void)_removeNodeFromTracking:(id)node {
-    dtx_log_info(@"[AnimationUpdateSyncResource] Removing node %@ from tracking", node);
-
-    // Simple removal from pending nodes
-    _pendingNodes = [[_pendingNodes filter:^BOOL(PendingAnimationNode* pendingNode) {
-        return pendingNode.node != node;
-    }] mutableCopy];
-
-    // Update busy count since we modified the list
-    _busyCount = _pendingNodes.count;
-}
-
-- (void)_cleanupDetachedNodes {
-    NSMutableArray* nodesToRemove = [NSMutableArray new];
-
-    // First identify all nodes that need removal
-    for (PendingAnimationNode* pendingNode in _pendingNodes) {
-        if (!pendingNode.node) {
-            dtx_log_info(@"[AnimationUpdateSyncResource] Found deallocated node to remove");
-            [nodesToRemove addObject:pendingNode];
-            continue;
+- (void)_removeNodeFromPending:(id)node reason:(NSString*)reason {
+    if ([_pendingNodes containsObject:node]) {
+        // Cancel the associated timer
+        dispatch_source_t timer = [_cleanupTimers objectForKey:node];
+        if (timer) {
+            dispatch_source_cancel(timer);
+            [_cleanupTimers removeObjectForKey:node];
         }
 
-        if (pendingNode.isDetaching) {
-            NSMapTable* parentNodes = [pendingNode.node valueForKey:@"_parentNodes"];
-            NSMapTable* childNodes = [pendingNode.node valueForKey:@"_childNodes"];
-
-            if ((!parentNodes || parentNodes.count == 0) && (!childNodes || childNodes.count == 0)) {
-                dtx_log_info(@"[AnimationUpdateSyncResource] Found fully detached node to remove: %@", pendingNode.node);
-                [nodesToRemove addObject:pendingNode];
-            }
-        }
-    }
-
-    // Then remove them if any were found
-    if (nodesToRemove.count > 0) {
-        NSSet* nodesToRemoveSet = [NSSet setWithArray:[nodesToRemove valueForKey:@"node"]];
-
-        _pendingNodes = [[_pendingNodes filter:^BOOL(PendingAnimationNode* pendingNode) {
-            return ![nodesToRemoveSet containsObject:pendingNode.node];
-        }] mutableCopy];
-
-        _busyCount = _pendingNodes.count;
-
-        dtx_log_info(@"[AnimationUpdateSyncResource] Cleaned up %lu nodes, new busy count: %lu",
-                     (unsigned long)nodesToRemove.count, (unsigned long)_busyCount);
+        [_pendingNodes removeObject:node];
+        [_entryTimes removeObjectForKey:node];
+        dtx_log_info(@"[AnimationUpdateSyncResource] Removed node <%@: %p> from pending due to %@: %@",
+                     [node class], node, reason, node);
     }
 }
 
-- (void)_handleChildRemoval:(id)childNode {
-    dtx_log_info(@"[AnimationUpdateSyncResource] Handling removal of child node %@", childNode);
+- (void)_scheduleCleanupForNode:(id)node {
+    dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, dispatch_get_main_queue());
+    dispatch_source_set_timer(timer,
+                              dispatch_time(DISPATCH_TIME_NOW, (int64_t)(kNodeAnimationTimeout * NSEC_PER_SEC)),
+                              DISPATCH_TIME_FOREVER,
+                              (int64_t)(0.1 * NSEC_PER_SEC));
+    dispatch_source_set_event_handler(timer, ^{
+        if ([self->_pendingNodes containsObject:node]) {
+            dtx_log_info(@"[AnimationUpdateSyncResource] Ignoring node <%@: %p> due to timeout (likely recurring animation): %@",
+                         [node class], node, node);
+            [self->_pendingNodes removeObject:node];
+            [self->_entryTimes removeObjectForKey:node];
+            [self->_cleanupTimers removeObjectForKey:node];
 
-    // Remove the child node if we're tracking it
-    [self _removeNodeFromTracking:childNode];
+            [self performUpdateBlock:^NSUInteger{
+                return self->_pendingNodes.count;
+            } eventIdentifier:_DTXStringReturningBlock([NSUUID UUID].UUIDString)
+                    eventDescription:_DTXStringReturningBlock(@"Node Timed Out")
+                   objectDescription:_DTXStringReturningBlock([NSString stringWithFormat:@"Node <%@: %p>", [node class], node])
+               additionalDescription:nil];
+        }
+    });
+    [_cleanupTimers setObject:timer forKey:node];
+    dispatch_resume(timer);
+}
 
-    // Get its children using KVC
-    NSMapTable* childNodes = [childNode valueForKey:@"_childNodes"];
-    if (!childNodes) {
+- (void)trackNodeNeedsUpdate:(nullable id)node {
+    if (node == nil) {
+        dtx_log_info(@"[AnimationUpdateSyncResource] Attempted to track nil node for update, ignoring");
         return;
     }
 
-    // Remove each child that we're tracking
-    NSArray* children = childNodes.objectEnumerator.allObjects;
-    dtx_log_info(@"[AnimationUpdateSyncResource] Found %lu child nodes to clean up", (unsigned long)children.count);
-
-    for (id child in children) {
-        [self _removeNodeFromTracking:child];
-    }
-}
-
-- (PendingAnimationNode*)_findOrCreatePendingNodeForNode:(id)node createIfNeeded:(BOOL)createIfNeeded {
-    dtx_log_info(@"[AnimationUpdateSyncResource] Looking for node %@ in pending nodes (createIfNeeded: %@)",
-                 node, createIfNeeded ? @"YES" : @"NO");
-
-    PendingAnimationNode* pendingNode = [[_pendingNodes filter:^BOOL(PendingAnimationNode* existing) {
-        return existing.node == node;
-    }] firstObject];
-
-    if (!pendingNode && createIfNeeded) {
-        dtx_log_info(@"[AnimationUpdateSyncResource] Creating new pending node for %@", node);
-        pendingNode = [[PendingAnimationNode alloc] initWithNode:node];
-        [_pendingNodes addObject:pendingNode];
-        _busyCount = _pendingNodes.count;
-    } else if (pendingNode) {
-        dtx_log_info(@"[AnimationUpdateSyncResource] Found existing pending node for %@", node);
-    } else {
-        dtx_log_info(@"[AnimationUpdateSyncResource] Node %@ not found and not creating new one", node);
-    }
-
-    return pendingNode;
-}
-
-- (void)trackNodeNeedsUpdate:(id)node {
-    dtx_log_info(@"[AnimationUpdateSyncResource] Node %@ needs update", node);
-    PendingAnimationNode* pendingNode = [self _findOrCreatePendingNodeForNode:node createIfNeeded:YES];
-
-    [self performUpdateBlock:^NSUInteger{
-        [self _cleanupDetachedNodes];
-        dtx_log_info(@"[AnimationUpdateSyncResource] Added node %@ to pending animations (busy count: %lu)",
-                     node, (unsigned long)self->_busyCount);
-        return self->_busyCount;
-    } eventIdentifier:_DTXStringReturningBlock(pendingNode.identifier)
-            eventDescription:_DTXStringReturningBlock(@"Animation Update Started")
-           objectDescription:_DTXStringReturningBlock([NSString stringWithFormat:@"Node <%@: %p>", [node class], node])
-       additionalDescription:nil];
-}
-
-- (void)trackNodePerformedUpdate:(id)node {
-    dtx_log_info(@"[AnimationUpdateSyncResource] Node %@ performed update", node);
-
-    PendingAnimationNode* pendingNode = [self _findOrCreatePendingNodeForNode:node createIfNeeded:NO];
-    if (!pendingNode) {
-        dtx_log_info(@"[AnimationUpdateSyncResource] Node %@ not being tracked, ignoring update", node);
+    if ([_recentlyDetachedNodes containsObject:node]) {
+        dtx_log_info(@"[AnimationUpdateSyncResource] Ignoring update for recently detached node <%@: %p>",
+                     [node class], node);
         return;
     }
 
+    NSMapTable* parentNodes = [node valueForKey:@"_parentNodes"];
+    BOOL hasParents = parentNodes && parentNodes.count > 0;
+
+    if ([_pendingNodes containsObject:node] && !hasParents) {
+        [self _removeNodeFromPending:node reason:@"no parents"];
+        [_recentlyDetachedNodes addObject:node];
+
+        dispatch_async(_cleanupQueue, ^{
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [self->_recentlyDetachedNodes removeObject:node];
+                dtx_log_info(@"[AnimationUpdateSyncResource] Node <%@: %p> cleared from recently detached set",
+                             [node class], node);
+            });
+        });
+
+        [self performUpdateBlock:^NSUInteger{
+            return self->_pendingNodes.count;
+        } eventIdentifier:_DTXStringReturningBlock([NSUUID UUID].UUIDString)
+                eventDescription:_DTXStringReturningBlock(@"Node Removed Due to No Parents")
+               objectDescription:_DTXStringReturningBlock([NSString stringWithFormat:@"Node <%@: %p>", [node class], node])
+           additionalDescription:nil];
+        return;
+    }
+
+    if (!hasParents) {
+        dtx_log_info(@"[AnimationUpdateSyncResource] Node <%@: %p> has no parents, not tracking update",
+                     [node class], node);
+        return;
+    }
+
+    if (![_pendingNodes containsObject:node]) {
+        dtx_log_info(@"[AnimationUpdateSyncResource] Node <%@: %p> needs update", [node class], node);
+        [_pendingNodes addObject:node];
+        [_entryTimes setObject:@(CFAbsoluteTimeGetCurrent()) forKey:node];
+        [self _scheduleCleanupForNode:node];
+
+        [self performUpdateBlock:^NSUInteger{
+            return self->_pendingNodes.count;
+        } eventIdentifier:_DTXStringReturningBlock([NSUUID UUID].UUIDString)
+                eventDescription:_DTXStringReturningBlock(@"Animation Update Started")
+               objectDescription:_DTXStringReturningBlock([NSString stringWithFormat:@"Node <%@: %p>", [node class], node])
+           additionalDescription:nil];
+    }
+}
+
+- (void)trackNodePerformedUpdate:(nullable id)node {
+    if (node == nil) {
+        dtx_log_info(@"[AnimationUpdateSyncResource] Attempted to track nil node for performed update, ignoring");
+        return;
+    }
+
+    dtx_log_info(@"[AnimationUpdateSyncResource] Node <%@: %p> performed update", [node class], node);
+    [self _removeNodeFromPending:node reason:@"update performed"];
+
     [self performUpdateBlock:^NSUInteger{
-        if (!pendingNode.isDetaching) {
-            [self _handleChildRemoval:node];
-            [self _cleanupDetachedNodes];
-        }
-        return self->_busyCount;
-    } eventIdentifier:_DTXStringReturningBlock(NSUUID.UUID.UUIDString)
+        return self->_pendingNodes.count;
+    } eventIdentifier:_DTXStringReturningBlock([NSUUID UUID].UUIDString)
             eventDescription:_DTXStringReturningBlock(@"Animation Update Completed")
            objectDescription:_DTXStringReturningBlock([NSString stringWithFormat:@"Node <%@: %p>", [node class], node])
        additionalDescription:nil];
 }
 
-- (void)trackNodeRemovedChild:(id)node child:(id)child {
-    dtx_log_info(@"[AnimationUpdateSyncResource] Node %@ removing child %@", node, child);
-
-    PendingAnimationNode* parentNode = [self _findOrCreatePendingNodeForNode:node createIfNeeded:NO];
-    if (!parentNode) {
-        dtx_log_info(@"[AnimationUpdateSyncResource] Parent node %@ not being tracked, ignoring child removal", node);
+- (void)trackNodeDetachedFromParent:(nullable id)node parent:(nullable id)parent {
+    if (node == nil) {
+        dtx_log_info(@"[AnimationUpdateSyncResource] Attempted to track detachment of nil node, ignoring");
         return;
     }
 
-    [self performUpdateBlock:^NSUInteger{
-        [parentNode.detachingChildren addObject:[NSValue valueWithNonretainedObject:child]];
-        [self _handleChildRemoval:child];
-        [self _cleanupDetachedNodes];
+    dtx_log_info(@"[AnimationUpdateSyncResource] Node <%@: %p> detaching from parent <%@: %p>",
+                 [node class], node, [parent class], parent);
 
-        NSMapTable* remainingChildren = [node valueForKey:@"_childNodes"];
-        dtx_log_info(@"[AnimationUpdateSyncResource] Node %@ removed child %@ (remaining children: %lu)",
-                     node, child, (unsigned long)(remainingChildren ? remainingChildren.count : 0));
+    NSMapTable* parentNodes = [node valueForKey:@"_parentNodes"];
+    if (!parentNodes || parentNodes.count == 0) {
+        [self _removeNodeFromPending:node reason:@"no remaining parents"];
+        [_recentlyDetachedNodes addObject:node];
 
-        return self->_busyCount;
-    } eventIdentifier:_DTXStringReturningBlock(NSUUID.UUID.UUIDString)
-            eventDescription:_DTXStringReturningBlock(@"Child Node Removed")
-           objectDescription:_DTXStringReturningBlock([NSString stringWithFormat:@"Parent <%@: %p>, Child <%@: %p>", [node class], node, [child class], child])
-       additionalDescription:nil];
-}
+        dispatch_async(_cleanupQueue, ^{
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [self->_recentlyDetachedNodes removeObject:node];
+                dtx_log_info(@"[AnimationUpdateSyncResource] Node <%@: %p> cleared from recently detached set",
+                             [node class], node);
+            });
+        });
 
-- (void)trackNodeDetached:(id)node {
-    dtx_log_info(@"[AnimationUpdateSyncResource] Node %@ detachment started", node);
-
-    PendingAnimationNode* pendingNode = [self _findOrCreatePendingNodeForNode:node createIfNeeded:NO];
-    if (!pendingNode) {
-        dtx_log_info(@"[AnimationUpdateSyncResource] Node %@ not being tracked, ignoring detachment", node);
-        return;
+        [self performUpdateBlock:^NSUInteger{
+            return self->_pendingNodes.count;
+        } eventIdentifier:_DTXStringReturningBlock([NSUUID UUID].UUIDString)
+                eventDescription:_DTXStringReturningBlock(@"Node Fully Detached")
+               objectDescription:_DTXStringReturningBlock([NSString stringWithFormat:@"Node <%@: %p>", [node class], node])
+           additionalDescription:nil];
+    } else {
+        dtx_log_info(@"[AnimationUpdateSyncResource] Node <%@: %p> still has %lu parents, keeping in tracking",
+                     [node class], node, (unsigned long)parentNodes.count);
     }
-
-    [self performUpdateBlock:^NSUInteger{
-        pendingNode.isDetaching = YES;
-        [pendingNode.detachingChildren removeAllObjects];
-        [pendingNode.detachingParents removeAllObjects];
-
-        NSMapTable* parentNodes = [node valueForKey:@"_parentNodes"];
-        NSMapTable* childNodes = [node valueForKey:@"_childNodes"];
-
-        dtx_log_info(@"[AnimationUpdateSyncResource] Node %@ detachment in progress (parents: %lu, children: %lu)",
-                     node,
-                     (unsigned long)(parentNodes ? parentNodes.count : 0),
-                     (unsigned long)(childNodes ? childNodes.count : 0));
-
-        [self _cleanupDetachedNodes];
-        return self->_busyCount;
-    } eventIdentifier:_DTXStringReturningBlock(NSUUID.UUID.UUIDString)
-            eventDescription:_DTXStringReturningBlock(@"Node Detachment Started")
-           objectDescription:_DTXStringReturningBlock([NSString stringWithFormat:@"Node <%@: %p>", [node class], node])
-       additionalDescription:nil];
-}
-
-- (void)trackNodeDetachedFromParent:(id)node parent:(id)parent {
-    dtx_log_info(@"[AnimationUpdateSyncResource] Node %@ detaching from parent %@", node, parent);
-
-    PendingAnimationNode* childNode = [self _findOrCreatePendingNodeForNode:node createIfNeeded:NO];
-    if (!childNode) {
-        dtx_log_info(@"[AnimationUpdateSyncResource] Child node %@ not being tracked, ignoring parent detachment", node);
-        return;
-    }
-
-    [self performUpdateBlock:^NSUInteger{
-        [childNode.detachingParents addObject:[NSValue valueWithNonretainedObject:parent]];
-        [self _cleanupDetachedNodes];
-
-        NSMapTable* remainingParents = [node valueForKey:@"_parentNodes"];
-        dtx_log_info(@"[AnimationUpdateSyncResource] Node %@ detached from parent %@ (remaining parents: %lu)",
-                     node, parent, (unsigned long)(remainingParents ? remainingParents.count : 0));
-
-        return self->_busyCount;
-    } eventIdentifier:_DTXStringReturningBlock(NSUUID.UUID.UUIDString)
-            eventDescription:_DTXStringReturningBlock(@"Node Detached From Parent")
-           objectDescription:_DTXStringReturningBlock([NSString stringWithFormat:@"Child <%@: %p>, Parent <%@: %p>", [node class], node, [parent class], parent])
-       additionalDescription:nil];
 }
 
 - (NSUInteger)_busyCount {
-    unsigned long deallocatedNodes = [[_pendingNodes filter:^BOOL(PendingAnimationNode* node) {
-        return node.node == nil;
-    }] count];
-
-    unsigned long allocatedNodes = [[_pendingNodes filter:^BOOL(PendingAnimationNode* node) {
-        return node.node != nil;
-    }] count];
-
-    unsigned long currentlyDetachingNodes = [[_pendingNodes filter:^BOOL(PendingAnimationNode* node) {
-        return node.node != nil && node.isDetaching;
-    }] count];
-
-    dtx_log_info(@"[AnimationUpdateSyncResource] busyCount: %lu, deallocatedNodes: %lu, allocatedNodes: %lu, currentlyDetachingNodes: %lu",
-                 (unsigned long)self->_busyCount, deallocatedNodes, allocatedNodes, currentlyDetachingNodes);
-
-    return _busyCount;
+    NSUInteger count = _pendingNodes.count;
+    dtx_log_info(@"[AnimationUpdateSyncResource] busyCount: %lu", (unsigned long)count);
+    return count;
 }
 
 - (NSString*)syncResourceDescription {
+    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
     NSMutableArray<NSString*>* descriptions = [NSMutableArray new];
-    for (PendingAnimationNode* pendingNode in _pendingNodes) {
-        if (pendingNode.node) {
-            NSString* status = pendingNode.isDetaching ? @"(detaching)" : @"(updating)";
-            NSMapTable* parentNodes = [pendingNode.node valueForKey:@"_parentNodes"];
-            NSMapTable* childNodes = [pendingNode.node valueForKey:@"_childNodes"];
-
-            [descriptions addObject:[NSString stringWithFormat:@"Node <%@: %p> %@ [parents: %lu, children: %lu]",
-                                     [pendingNode.node class],
-                                     pendingNode.node,
-                                     status,
-                                     (unsigned long)(parentNodes ? parentNodes.count : 0),
-                                     (unsigned long)(childNodes ? childNodes.count : 0)]];
-        }
+    for (id node in _pendingNodes) {
+        NSMapTable* parentNodes = [node valueForKey:@"_parentNodes"];
+        NSMapTable* childNodes = [node valueForKey:@"_childNodes"];
+        NSNumber* entryTime = [_entryTimes objectForKey:node];
+        NSTimeInterval elapsed = entryTime ? (now - entryTime.doubleValue) : 0;
+        [descriptions addObject:[NSString stringWithFormat:@"Node <%@: %p> (pending update) [parents: %lu, children: %lu, elapsed: %.2fs]",
+                                 [node class],
+                                 node,
+                                 (unsigned long)(parentNodes ? parentNodes.count : 0),
+                                 (unsigned long)(childNodes ? childNodes.count : 0),
+                                 elapsed]];
     }
     return [descriptions componentsJoinedByString:@"\n"];
 }
@@ -310,15 +220,16 @@ DTX_CREATE_LOG(DTXAnimationUpdateSyncResource);
     return @{
         NSString.dtx_resourceNameKey: @"animation_updates",
         NSString.dtx_resourceDescriptionKey: @{
-            @"pending_updates": @(_busyCount),
-            @"updating_nodes": @([[_pendingNodes filter:^BOOL(PendingAnimationNode* node) {
-                return !node.isDetaching && node.node != nil;
-            }] count]),
-            @"detaching_nodes": @([[_pendingNodes filter:^BOOL(PendingAnimationNode* node) {
-                return node.isDetaching && node.node != nil;
-            }] count])
+            @"pending_updates": @(_pendingNodes.count)
         }
     };
+}
+
+- (void)dealloc {
+    for (dispatch_source_t timer in [_cleanupTimers objectEnumerator]) {
+        dispatch_source_cancel(timer);
+    }
+    [_cleanupTimers removeAllObjects];
 }
 
 @end
