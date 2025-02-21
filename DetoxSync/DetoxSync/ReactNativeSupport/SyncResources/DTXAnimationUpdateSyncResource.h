@@ -13,6 +13,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)trackNodeNeedsUpdate:(id)node;
 - (void)trackNodePerformedUpdate:(id)node;
+- (void)trackNodeDetached:(id)node;
+- (void)trackNodeRemovedChild:(id)node child:(id)child;
+- (void)trackNodeDetachedFromParent:(id)node parent:(id)parent;
 
 @end
 

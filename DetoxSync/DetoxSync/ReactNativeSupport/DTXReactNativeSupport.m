@@ -209,7 +209,7 @@ static void _setupRNSupport(void) {
 
 + (void)setupAnimationUpdates {
     DTXSyncResourceVerboseLog(@"Adding sync resource for node animations");
-    DTXAnimationUpdateSyncResource* resource = [DTXAnimationUpdateSyncResource new];
+    DTXAnimationUpdateSyncResource* resource = [DTXAnimationUpdateSyncResource sharedInstance];
     [DTXSyncManager registerSyncResource:resource];
 }
 
