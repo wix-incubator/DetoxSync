@@ -66,9 +66,12 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
         method_setImplementation(createTimerForNextFrameMethod, imp_implementationWithBlock(^(id _self, NSNumber* callbackID, NSTimeInterval duration, NSDate* jsSchedulingTime, BOOL repeats) {
             __strong __typeof(weakSelf) strongSelf = weakSelf;
             if (strongSelf) {
+                dtx_log_info(@"[DTXJSTimerSyncResource] Before observing timer %@", callbackID);
                 [strongSelf observeTimerWithInstance:_self timerID:callbackID duration:duration repeats:repeats];
+                orig_createTimerForNextFrame(_self, createTimerForNextFrameSel, callbackID, duration, jsSchedulingTime, repeats);
+            } else {
+                orig_createTimerForNextFrame(_self, createTimerForNextFrameSel, callbackID, duration, jsSchedulingTime, repeats);
             }
-            orig_createTimerForNextFrame(_self, createTimerForNextFrameSel, callbackID, duration, jsSchedulingTime, repeats);
         }));
     } else {
         SEL createTimerSel = NSSelectorFromString(@"createTimer:duration:jsSchedulingTime:repeats:");
@@ -80,18 +83,24 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
             method_setImplementation(createTimerMethod, imp_implementationWithBlock(^(id _self, double timerID, NSTimeInterval duration, double jsDate, BOOL repeats) {
                 __strong __typeof(weakSelf) strongSelf = weakSelf;
                 if (strongSelf) {
+                    dtx_log_info(@"[DTXJSTimerSyncResource] Observing timer %@", @(timerID));
                     [strongSelf observeTimerWithInstance:_self timerID:@(timerID) duration:duration repeats:repeats];
+                    orig_createTimer(_self, createTimerSel, timerID, duration, jsDate, repeats);
+                } else {
+                    orig_createTimer(_self, createTimerSel, timerID, duration, jsDate, repeats);
                 }
-                orig_createTimer(_self, createTimerSel, timerID, duration, jsDate, repeats);
             }));
         } else {
             void (*orig_createTimer)(id, SEL, NSNumber*, NSTimeInterval, NSDate*, BOOL) = (void*)method_getImplementation(createTimerMethod);
             method_setImplementation(createTimerMethod, imp_implementationWithBlock(^(id _self, NSNumber* timerID, NSTimeInterval duration, NSDate* jsDate, BOOL repeats) {
                 __strong __typeof(weakSelf) strongSelf = weakSelf;
                 if (strongSelf) {
+                    dtx_log_info(@"[DTXJSTimerSyncResource] Before observing timer %@", timerID);
                     [strongSelf observeTimerWithInstance:_self timerID:timerID duration:duration repeats:repeats];
+                    orig_createTimer(_self, createTimerSel, timerID, duration, jsDate, repeats);
+                } else {
+                    orig_createTimer(_self, createTimerSel, timerID, duration, jsDate, repeats);
                 }
-                orig_createTimer(_self, createTimerSel, timerID, duration, jsDate, repeats);
             }));
         }
     }
@@ -103,6 +112,7 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
     method_setImplementation(deleteTimerMethod, imp_implementationWithBlock(^(id _self, double timerID) {
         __strong __typeof(weakSelf) strongSelf = weakSelf;
         if (strongSelf) {
+            dtx_log_info(@"[DTXJSTimerSyncResource] Deleting timer %@", @(timerID));
             [strongSelf deleteTimer:@(timerID)];
         }
         orig_deleteTimer(_self, deleteTimerSel, timerID);
@@ -122,20 +132,15 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
             return;
         }
 
-        if (!repeats) { // track non-recurring timers
+        if (!repeats && duration <= kTimerTimeout) {
             dtx_log_info(@"[DTXJSTimerSyncResource] Observing timer %@ with duration %.2f ms", timerID, duration * 1000);
-            self->_pendingTimers[timerID] = @(duration);
+            self->_pendingTimers[timerID] = @((NSUInteger)round(duration * 1000));
             self->_entryTimes[timerID] = [NSDate date];
+            [self scheduleCleanupForTimer:timerID];
 
-            if (duration > 0) {  // schedule cleanup for non-zero durations
-                [self scheduleCleanupForTimer:timerID];
-            } else {
-                dispatch_async(_queue, ^{
-                    [self deleteTimer:timerID];
-                });
-            }
-
+            dtx_log_info(@"[DTXJSTimerSyncResource] Performing update for timer %@", timerID);
             @try {
+                // Perform update block asynchronously on the main queue to avoid blocking
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self performUpdateBlock:^NSUInteger{
                         return [self _busyCount];
@@ -147,7 +152,10 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
             } @catch (NSException *exception) {
                 dtx_log_error(@"[DTXJSTimerSyncResource] Exception in performUpdateBlock: %@", exception);
             }
+        } else {
+            dtx_log_info(@"[DTXJSTimerSyncResource] Ignoring timer %@ (duration: %.2f ms, repeats: %@)", timerID, duration * 1000, repeats ? @"YES" : @"NO");
         }
+        dtx_log_info(@"[DTXJSTimerSyncResource] Dispatched timer observation for %@", timerID);
     });
 }
 
@@ -158,6 +166,7 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
             NSTimeInterval elapsed = [[NSDate date] timeIntervalSinceDate:entryTime];
             dtx_log_info(@"[DTXJSTimerSyncResource] Timer %@ completed after %.2f ms", timerID, elapsed * 1000);
 
+            // Cancel the cleanup timer if it exists
             dispatch_source_t cleanupTimer = self->_cleanupTimers[timerID];
             if (cleanupTimer) {
                 dispatch_source_cancel(cleanupTimer);
@@ -168,7 +177,9 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
             [self->_pendingTimers removeObjectForKey:timerID];
             [self->_entryTimes removeObjectForKey:timerID];
 
+            dtx_log_info(@"[DTXJSTimerSyncResource] Before perform update for timer deletion %@", timerID);
             @try {
+                // Perform update block asynchronously on the main queue to avoid blocking
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self performUpdateBlock:^NSUInteger{
                         return [self _busyCount];
@@ -176,10 +187,13 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
                             eventDescription:_DTXStringReturningBlock(@"Timer Completed")
                            objectDescription:_DTXStringReturningBlock(_prettyTimerDescription(timerID))
                        additionalDescription:nil];
+                    dtx_log_info(@"[DTXJSTimerSyncResource] After performUpdateBlock for timer deletion %@", timerID);
                 });
             } @catch (NSException *exception) {
                 dtx_log_error(@"[DTXJSTimerSyncResource] Exception in performUpdateBlock (delete): %@", exception);
             }
+        } else {
+            dtx_log_info(@"[DTXJSTimerSyncResource] Timer %@ not found in pending timers", timerID);
         }
     });
 }
@@ -199,6 +213,7 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
             [self->_entryTimes removeObjectForKey:timerID];
             [self->_cleanupTimers removeObjectForKey:timerID];
 
+            dtx_log_info(@"[DTXJSTimerSyncResource] Before performing update for timer timeout %@", timerID);
             @try {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self performUpdateBlock:^NSUInteger{
@@ -207,6 +222,7 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
                             eventDescription:_DTXStringReturningBlock(@"Timer Timed Out")
                            objectDescription:_DTXStringReturningBlock(_prettyTimerDescription(timerID))
                        additionalDescription:nil];
+                    dtx_log_info(@"[DTXJSTimerSyncResource] After performUpdateBlock for timer timeout %@", timerID);
                 });
             } @catch (NSException *exception) {
                 dtx_log_error(@"[DTXJSTimerSyncResource] Exception in performUpdateBlock (timeout): %@", exception);
@@ -243,7 +259,7 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
             NSTimeInterval elapsed = entryTime ? ([[NSDate date] timeIntervalSinceDate:entryTime] * 1000) : 0;
             [timerDescriptions addObject:@{
                 @"timer_id": timerID,
-                @"duration": @(duration.doubleValue * 1000),
+                @"duration": duration,
                 @"elapsed": @(elapsed)
             }];
         }
