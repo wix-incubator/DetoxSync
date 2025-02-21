@@ -10,6 +10,7 @@
 #import "ReactNativeHeaders.h"
 #import "DTXSyncManager-Private.h"
 #import "DTXJSTimerSyncResource.h"
+#import "DTXAnimationUpdateSyncResource.h"
 
 #import "DTXSingleEventSyncResource.h"
 #import "fishhook.h"
@@ -119,6 +120,7 @@ static void _setupRNSupport(void) {
         [DTXReactNativeSupport setupModuleQueues];
         [DTXReactNativeSupport setupUIApplication];
         [DTXReactNativeSupport setupTimers];
+        [DTXReactNativeSupport setupAnimationUpdates];
         [DTXReactNativeSupport setupBundleLoader];
         [DTXReactNativeSupport disableFlexNetworkObserver];
     }
@@ -203,6 +205,12 @@ static void _setupRNSupport(void) {
     DTXSyncResourceVerboseLog(@"Adding sync resource for JS timers");
     DTXJSTimerSyncResource* jsTimerResource = [DTXJSTimerSyncResource new];
     [DTXSyncManager registerSyncResource:jsTimerResource];
+}
+
++ (void)setupAnimationUpdates {
+    DTXSyncResourceVerboseLog(@"Adding sync resource for node animations");
+    DTXAnimationUpdateSyncResource* resource = [DTXAnimationUpdateSyncResource sharedInstance];
+    [DTXSyncManager registerSyncResource:resource];
 }
 
 + (void)setupBundleLoader {
