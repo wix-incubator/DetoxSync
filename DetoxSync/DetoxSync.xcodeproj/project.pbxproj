@@ -99,6 +99,8 @@
 		6039C8E32D65B1E700528C9B /* RCTAnimatedNode+DTXSpy.m in Sources */ = {isa = PBXBuildFile; fileRef = 6039C8E12D65B1E700528C9B /* RCTAnimatedNode+DTXSpy.m */; };
 		6039C90A2D67098B00528C9B /* DTXAnimationUpdateSyncResource.h in Headers */ = {isa = PBXBuildFile; fileRef = 6039C9082D67098B00528C9B /* DTXAnimationUpdateSyncResource.h */; };
 		6039C90B2D67098B00528C9B /* DTXAnimationUpdateSyncResource.m in Sources */ = {isa = PBXBuildFile; fileRef = 6039C9092D67098B00528C9B /* DTXAnimationUpdateSyncResource.m */; };
+		6039C9522D69340200528C9B /* DTXJSTimerSyncResourceOldArch.h in Headers */ = {isa = PBXBuildFile; fileRef = 6039C9502D69340200528C9B /* DTXJSTimerSyncResourceOldArch.h */; };
+		6039C9532D69340200528C9B /* DTXJSTimerSyncResourceOldArch.m in Sources */ = {isa = PBXBuildFile; fileRef = 6039C9512D69340200528C9B /* DTXJSTimerSyncResourceOldArch.m */; };
 		604A436B271F5004003B22CA /* DTXAddressInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 604A4368271F5004003B22CA /* DTXAddressInfo.h */; };
 		604A436C271F5004003B22CA /* DTXAddressInfo.mm in Sources */ = {isa = PBXBuildFile; fileRef = 604A4369271F5004003B22CA /* DTXAddressInfo.mm */; };
 		604A436D271F5004003B22CA /* Swiftier.h in Headers */ = {isa = PBXBuildFile; fileRef = 604A436A271F5004003B22CA /* Swiftier.h */; };
@@ -394,6 +396,8 @@
 		6039C8E12D65B1E700528C9B /* RCTAnimatedNode+DTXSpy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "RCTAnimatedNode+DTXSpy.m"; sourceTree = "<group>"; };
 		6039C9082D67098B00528C9B /* DTXAnimationUpdateSyncResource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DTXAnimationUpdateSyncResource.h; sourceTree = "<group>"; };
 		6039C9092D67098B00528C9B /* DTXAnimationUpdateSyncResource.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DTXAnimationUpdateSyncResource.m; sourceTree = "<group>"; };
+		6039C9502D69340200528C9B /* DTXJSTimerSyncResourceOldArch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DTXJSTimerSyncResourceOldArch.h; sourceTree = "<group>"; };
+		6039C9512D69340200528C9B /* DTXJSTimerSyncResourceOldArch.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DTXJSTimerSyncResourceOldArch.m; sourceTree = "<group>"; };
 		604A4368271F5004003B22CA /* DTXAddressInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTXAddressInfo.h; path = DTXObjectiveCHelpers/DTXAddressInfo.h; sourceTree = SOURCE_ROOT; };
 		604A4369271F5004003B22CA /* DTXAddressInfo.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = DTXAddressInfo.mm; path = DTXObjectiveCHelpers/DTXAddressInfo.mm; sourceTree = SOURCE_ROOT; };
 		604A436A271F5004003B22CA /* Swiftier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Swiftier.h; path = DTXObjectiveCHelpers/Swiftier.h; sourceTree = SOURCE_ROOT; };
@@ -467,10 +471,12 @@
 		39DC2F8623044C3E009E652A /* SyncResources */ = {
 			isa = PBXGroup;
 			children = (
-				3923B11C23045B1F009D8780 /* DTXJSTimerSyncResource.h */,
-				3923B11D23045B1F009D8780 /* DTXJSTimerSyncResource.m */,
 				6039C9082D67098B00528C9B /* DTXAnimationUpdateSyncResource.h */,
 				6039C9092D67098B00528C9B /* DTXAnimationUpdateSyncResource.m */,
+				3923B11C23045B1F009D8780 /* DTXJSTimerSyncResource.h */,
+				3923B11D23045B1F009D8780 /* DTXJSTimerSyncResource.m */,
+				6039C9502D69340200528C9B /* DTXJSTimerSyncResourceOldArch.h */,
+				6039C9512D69340200528C9B /* DTXJSTimerSyncResourceOldArch.m */,
 			);
 			path = SyncResources;
 			sourceTree = "<group>";
@@ -740,6 +746,7 @@
 				6017CCA8274BA0C200E17AB1 /* NSArray+Functional.h in Headers */,
 				396C8B1623038CED00979E86 /* CADisplayLink+DTXSpy.h in Headers */,
 				396C8B842304424E00979E86 /* ReactNativeHeaders.h in Headers */,
+				6039C9522D69340200528C9B /* DTXJSTimerSyncResourceOldArch.h in Headers */,
 				39DE8FBC22F707F400780546 /* DTXOrigDispatch.h in Headers */,
 				39A6C13122F9AF8300187B56 /* DTXRunLoopSyncResource.h in Headers */,
 				60A9954927314A1700250FA6 /* NSString+SyncStatus.h in Headers */,
@@ -1054,6 +1061,7 @@
 				399AE33923B27B2000BF1318 /* CFRunLoopDescription.m in Sources */,
 				39DE8F9E22F707F400780546 /* DTXSyncManager.m in Sources */,
 				3946CD5B2567145F000A3606 /* DTXUISyncResource.m in Sources */,
+				6039C9532D69340200528C9B /* DTXJSTimerSyncResourceOldArch.m in Sources */,
 				39DE8FA522F707F400780546 /* UIView+DTXSpy.m in Sources */,
 				39A6C13222F9AF8300187B56 /* DTXRunLoopSyncResource.m in Sources */,
 				3923B11F23045B1F009D8780 /* DTXJSTimerSyncResource.m in Sources */,

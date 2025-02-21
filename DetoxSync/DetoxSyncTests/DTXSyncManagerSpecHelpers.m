@@ -10,7 +10,7 @@
 
 #import <DetoxSync/DTXSyncManager.h>
 
-#import "DTXJSTimerSyncResource.h"
+#import "DTXJSTimerSyncResourceOldArch.h"
 #import "NSString+SyncResource.h"
 #import "NSString+SyncStatus.h"
 #import "RCTFakes.h"
@@ -77,7 +77,7 @@ NSArray<NSDictionary<NSString *,id> *> *DTXMapTimers(NSArray<NSDictionary<NSStri
 }
 
 void DTXConnectWithJSTimerSyncResource(void) {
-  DTXJSTimerSyncResource* resource = [DTXJSTimerSyncResource new];
+    DTXJSTimerSyncResourceOldArch* resource = [DTXJSTimerSyncResourceOldArch new];
   [DTXSyncManager registerSyncResource:resource];
 }
 

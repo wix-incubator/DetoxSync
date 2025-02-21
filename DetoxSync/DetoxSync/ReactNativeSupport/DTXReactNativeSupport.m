@@ -10,6 +10,7 @@
 #import "ReactNativeHeaders.h"
 #import "DTXSyncManager-Private.h"
 #import "DTXJSTimerSyncResource.h"
+#import "DTXJSTimerSyncResourceOldArch.h"
 #import "DTXAnimationUpdateSyncResource.h"
 
 #import "DTXSingleEventSyncResource.h"
@@ -203,8 +204,13 @@ static void _setupRNSupport(void) {
 
 + (void)setupTimers {
     DTXSyncResourceVerboseLog(@"Adding sync resource for JS timers");
-    DTXJSTimerSyncResource* jsTimerResource = [DTXJSTimerSyncResource new];
-    [DTXSyncManager registerSyncResource:jsTimerResource];
+    if ([DTXReactNativeSupport isNewArchEnabled]) {
+        DTXJSTimerSyncResource* jsTimerResource = [DTXJSTimerSyncResource new];
+        [DTXSyncManager registerSyncResource:jsTimerResource];
+    } else {
+        DTXJSTimerSyncResourceOldArch* jsTimerResource = [DTXJSTimerSyncResourceOldArch new];
+        [DTXSyncManager registerSyncResource:jsTimerResource];
+    }
 }
 
 + (void)setupAnimationUpdates {
