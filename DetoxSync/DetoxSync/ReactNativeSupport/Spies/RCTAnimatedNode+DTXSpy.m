@@ -5,6 +5,7 @@
 
 #import "DTXSyncManager-Private.h"
 #import "DTXAnimationUpdateSyncResource.h"
+#import "DTXReactNativeSupport.h"
 
 DTX_CREATE_LOG(RCTAnimatedNodeDTXSpy);
 
@@ -27,7 +28,7 @@ DTX_CREATE_LOG(RCTAnimatedNodeDTXSpy);
         dtx_log_info(@"[RCTAnimatedNode DTXSpy] RCTAnimatedNode class exists: %@",
                      RCTAnimatedNodeClass != nil ? @"YES" : @"NO");
 
-        if (RCTAnimatedNodeClass == nil) {
+        if (RCTAnimatedNodeClass == nil || !DTXReactNativeSupport.isNewArchEnabled) {
             return;
         }
 
