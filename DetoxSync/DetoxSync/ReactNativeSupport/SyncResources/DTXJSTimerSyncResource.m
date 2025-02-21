@@ -243,7 +243,7 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
             NSTimeInterval elapsed = entryTime ? ([[NSDate date] timeIntervalSinceDate:entryTime] * 1000) : 0;
             [timerDescriptions addObject:@{
                 @"timer_id": timerID,
-                @"duration": @((NSInteger)round(duration.doubleValue * 1000)),
+                @"duration": @(duration.doubleValue * 1000),
                 @"elapsed": @(elapsed)
             }];
         }
