@@ -6,7 +6,6 @@
 #import "DTXJSTimerSyncResource.h"
 #import "DTXSyncManager-Private.h"
 #import "NSString+SyncResource.h"
-#import "DTXReactNativeSupport.h"
 
 @import ObjectiveC;
 
@@ -55,52 +54,20 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
     __weak __typeof(self) weakSelf = self;
     Class cls = NSClassFromString(@"RCTTiming");
 
-    if ([DTXReactNativeSupport isNewArchEnabled]) {
-        SEL createTimerForNextFrameSel = NSSelectorFromString(@"createTimerForNextFrame:duration:jsSchedulingTime:repeats:");
-        Method createTimerForNextFrameMethod = class_getInstanceMethod(cls, createTimerForNextFrameSel);
+    SEL createTimerForNextFrameSel = NSSelectorFromString(@"createTimerForNextFrame:duration:jsSchedulingTime:repeats:");
+    Method createTimerForNextFrameMethod = class_getInstanceMethod(cls, createTimerForNextFrameSel);
 
-        void (*orig_createTimerForNextFrame)(id, SEL, NSNumber*, NSTimeInterval, NSDate*, BOOL) = (void*)method_getImplementation(createTimerForNextFrameMethod);
-        method_setImplementation(createTimerForNextFrameMethod, imp_implementationWithBlock(^(id _self, NSNumber* callbackID, NSTimeInterval duration, NSDate* jsSchedulingTime, BOOL repeats) {
-            __strong __typeof(weakSelf) strongSelf = weakSelf;
-            if (strongSelf) {
-                dtx_log_info(@"[DTXJSTimerSyncResource] Before observing timer %@", callbackID);
-                [strongSelf observeTimerWithInstance:_self timerID:callbackID duration:duration repeats:repeats];
-                orig_createTimerForNextFrame(_self, createTimerForNextFrameSel, callbackID, duration, jsSchedulingTime, repeats);
-            } else {
-                orig_createTimerForNextFrame(_self, createTimerForNextFrameSel, callbackID, duration, jsSchedulingTime, repeats);
-            }
-        }));
-    } else {
-        SEL createTimerSel = NSSelectorFromString(@"createTimer:duration:jsSchedulingTime:repeats:");
-        Method createTimerMethod = class_getInstanceMethod(cls, createTimerSel);
-
-        const char* timerArgType = [[cls instanceMethodSignatureForSelector:createTimerSel] getArgumentTypeAtIndex:2];
-        if (strncmp(timerArgType, "d", 1) == 0) {
-            void (*orig_createTimer)(id, SEL, double, NSTimeInterval, double, BOOL) = (void*)method_getImplementation(createTimerMethod);
-            method_setImplementation(createTimerMethod, imp_implementationWithBlock(^(id _self, double timerID, NSTimeInterval duration, double jsDate, BOOL repeats) {
-                __strong __typeof(weakSelf) strongSelf = weakSelf;
-                if (strongSelf) {
-                    dtx_log_info(@"[DTXJSTimerSyncResource] Observing timer %@", @(timerID));
-                    [strongSelf observeTimerWithInstance:_self timerID:@(timerID) duration:duration repeats:repeats];
-                    orig_createTimer(_self, createTimerSel, timerID, duration, jsDate, repeats);
-                } else {
-                    orig_createTimer(_self, createTimerSel, timerID, duration, jsDate, repeats);
-                }
-            }));
+    void (*orig_createTimerForNextFrame)(id, SEL, NSNumber*, NSTimeInterval, NSDate*, BOOL) = (void*)method_getImplementation(createTimerForNextFrameMethod);
+    method_setImplementation(createTimerForNextFrameMethod, imp_implementationWithBlock(^(id _self, NSNumber* callbackID, NSTimeInterval duration, NSDate* jsSchedulingTime, BOOL repeats) {
+        __strong __typeof(weakSelf) strongSelf = weakSelf;
+        if (strongSelf) {
+            dtx_log_info(@"[DTXJSTimerSyncResource] Before observing timer %@", callbackID);
+            [strongSelf observeTimerWithInstance:_self timerID:callbackID duration:duration repeats:repeats];
+            orig_createTimerForNextFrame(_self, createTimerForNextFrameSel, callbackID, duration, jsSchedulingTime, repeats);
         } else {
-            void (*orig_createTimer)(id, SEL, NSNumber*, NSTimeInterval, NSDate*, BOOL) = (void*)method_getImplementation(createTimerMethod);
-            method_setImplementation(createTimerMethod, imp_implementationWithBlock(^(id _self, NSNumber* timerID, NSTimeInterval duration, NSDate* jsDate, BOOL repeats) {
-                __strong __typeof(weakSelf) strongSelf = weakSelf;
-                if (strongSelf) {
-                    dtx_log_info(@"[DTXJSTimerSyncResource] Before observing timer %@", timerID);
-                    [strongSelf observeTimerWithInstance:_self timerID:timerID duration:duration repeats:repeats];
-                    orig_createTimer(_self, createTimerSel, timerID, duration, jsDate, repeats);
-                } else {
-                    orig_createTimer(_self, createTimerSel, timerID, duration, jsDate, repeats);
-                }
-            }));
+            orig_createTimerForNextFrame(_self, createTimerForNextFrameSel, callbackID, duration, jsSchedulingTime, repeats);
         }
-    }
+    }));
 
     SEL deleteTimerSel = NSSelectorFromString(@"deleteTimer:");
     Method deleteTimerMethod = class_getInstanceMethod(cls, deleteTimerSel);
