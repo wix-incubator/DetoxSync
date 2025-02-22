@@ -11,9 +11,6 @@
 
 DTX_CREATE_LOG(DTXJSTimerSyncResource);
 
-// 1500 ms total timeout from creation
-static const NSTimeInterval kTimerTimeout = 1.5;
-
 static NSString* _prettyTimerDescription(NSNumber* timerID)
 {
     return [NSString stringWithFormat:@"JavaScript Timer %@ (Native Implementation)", timerID];
@@ -96,7 +93,7 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
             return;
         }
 
-        if (!repeats && duration <= kTimerTimeout) {
+        if (!repeats && duration <= DTXSyncManager.maximumTimerIntervalTrackingDuration) {
             dtx_log_info(@"[DTXJSTimerSyncResource] Observing timer %@ with duration %.2f ms", timerID, duration * 1000);
             self->_pendingTimers[timerID] = @((NSUInteger)round(duration * 1000));
             self->_entryTimes[timerID] = [NSDate date];
@@ -164,35 +161,47 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
 
 - (void)scheduleCleanupForTimer:(NSNumber *)timerID {
     dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, _queue);
+
+    NSNumber *durationMs = self->_pendingTimers[timerID];
+    if (durationMs == nil) {
+        dtx_log_error(@"[DTXJSTimerSyncResource] Duration not found for timer %@ in scheduleCleanupForTimer", timerID);
+        return;
+    }
+
+    NSTimeInterval durationSeconds = [durationMs doubleValue] / 1000.0;
+    int64_t durationNanos = (int64_t)(durationSeconds * NSEC_PER_SEC);
+
     dispatch_source_set_timer(timer,
-                              dispatch_time(DISPATCH_TIME_NOW, (int64_t)(kTimerTimeout * NSEC_PER_SEC)),
+                              dispatch_time(DISPATCH_TIME_NOW, durationNanos),
                               DISPATCH_TIME_FOREVER,
-                              (int64_t)(0.1 * NSEC_PER_SEC));
+                              0);
+
     dispatch_source_set_event_handler(timer, ^{
         if (self->_pendingTimers[timerID]) {
             NSDate *entryTime = self->_entryTimes[timerID];
             NSTimeInterval elapsed = [[NSDate date] timeIntervalSinceDate:entryTime];
-            dtx_log_info(@"[DTXJSTimerSyncResource] Timer %@ timed out after %.2f ms", timerID, elapsed * 1000);
+            dtx_log_info(@"[DTXJSTimerSyncResource] Timer %@ cleaned up after %.2f ms", timerID, elapsed * 1000);
             [self->_pendingTimers removeObjectForKey:timerID];
             [self->_entryTimes removeObjectForKey:timerID];
             [self->_cleanupTimers removeObjectForKey:timerID];
 
-            dtx_log_info(@"[DTXJSTimerSyncResource] Before performing update for timer timeout %@", timerID);
+            dtx_log_info(@"[DTXJSTimerSyncResource] Before performing update for timer cleanup %@", timerID);
             @try {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self performUpdateBlock:^NSUInteger{
                         return [self _busyCount];
                     } eventIdentifier:_DTXStringReturningBlock([timerID stringValue])
-                            eventDescription:_DTXStringReturningBlock(@"Timer Timed Out")
+                            eventDescription:_DTXStringReturningBlock(@"Timer Cleaned Up")
                            objectDescription:_DTXStringReturningBlock(_prettyTimerDescription(timerID))
                        additionalDescription:nil];
-                    dtx_log_info(@"[DTXJSTimerSyncResource] After performUpdateBlock for timer timeout %@", timerID);
+                    dtx_log_info(@"[DTXJSTimerSyncResource] After performUpdateBlock for timer cleanup %@", timerID);
                 });
             } @catch (NSException *exception) {
-                dtx_log_error(@"[DTXJSTimerSyncResource] Exception in performUpdateBlock (timeout): %@", exception);
+                dtx_log_error(@"[DTXJSTimerSyncResource] Exception in performUpdateBlock (cleanup): %@", exception);
             }
         }
     });
+
     self->_cleanupTimers[timerID] = timer;
     dispatch_resume(timer);
 }
