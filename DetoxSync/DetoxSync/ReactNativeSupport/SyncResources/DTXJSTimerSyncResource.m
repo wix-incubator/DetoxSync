@@ -94,19 +94,15 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
         self->_entryTimes[timerID] = [NSDate date];
         [self scheduleCleanupForTimer:timerID];
 
-        @try {
-            // Perform update block asynchronously on the main queue to avoid blocking
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self performUpdateBlock:^NSUInteger{
-                    return self->_pendingTimers.count;
-                } eventIdentifier:_DTXStringReturningBlock([timerID stringValue])
-                        eventDescription:_DTXStringReturningBlock(@"Timer Created")
-                       objectDescription:_DTXStringReturningBlock(_prettyTimerDescription(timerID))
-                   additionalDescription:nil];
-            });
-        } @catch (NSException *exception) {
-            dtx_log_error(@"[DTXJSTimerSyncResource] Exception in performUpdateBlock: %@", exception);
-        }
+        // Perform update block asynchronously on the main queue to avoid blocking
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self performUpdateBlock:^NSUInteger{
+                return self->_pendingTimers.count;
+            } eventIdentifier:_DTXStringReturningBlock([timerID stringValue])
+                    eventDescription:_DTXStringReturningBlock(@"Timer Created")
+                   objectDescription:_DTXStringReturningBlock(_prettyTimerDescription(timerID))
+               additionalDescription:nil];
+        });
     });
 }
 
@@ -129,19 +125,15 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
         [self->_pendingTimers removeObjectForKey:timerID];
         [self->_entryTimes removeObjectForKey:timerID];
 
-        @try {
-            // Perform update block asynchronously on the main queue to avoid blocking
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self performUpdateBlock:^NSUInteger{
-                    return self->_pendingTimers.count;
-                } eventIdentifier:_DTXStringReturningBlock([timerID stringValue])
-                        eventDescription:_DTXStringReturningBlock(@"Timer Completed")
-                       objectDescription:_DTXStringReturningBlock(_prettyTimerDescription(timerID))
-                   additionalDescription:nil];
-            });
-        } @catch (NSException *exception) {
-            dtx_log_error(@"[DTXJSTimerSyncResource] Exception in performUpdateBlock (delete): %@", exception);
-        }
+        // Perform update block asynchronously on the main queue to avoid blocking
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self performUpdateBlock:^NSUInteger{
+                return self->_pendingTimers.count;
+            } eventIdentifier:_DTXStringReturningBlock([timerID stringValue])
+                    eventDescription:_DTXStringReturningBlock(@"Timer Completed")
+                   objectDescription:_DTXStringReturningBlock(_prettyTimerDescription(timerID))
+               additionalDescription:nil];
+        });
     });
 }
 
@@ -149,11 +141,6 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
     dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, _queue);
 
     NSNumber *durationMs = self->_pendingTimers[timerID];
-    if (durationMs == nil) {
-        dtx_log_error(@"[DTXJSTimerSyncResource] Duration not found for timer %@ in scheduleCleanupForTimer", timerID);
-        return;
-    }
-
     NSTimeInterval durationSeconds = [durationMs doubleValue] / 1000.0;
     int64_t durationNanos = (int64_t)(durationSeconds * NSEC_PER_SEC);
 
@@ -170,18 +157,14 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
             [self->_entryTimes removeObjectForKey:timerID];
             [self->_cleanupTimers removeObjectForKey:timerID];
 
-            @try {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self performUpdateBlock:^NSUInteger{
-                        return self->_pendingTimers.count;
-                    } eventIdentifier:_DTXStringReturningBlock([timerID stringValue])
-                            eventDescription:_DTXStringReturningBlock(@"Timer Cleaned Up")
-                           objectDescription:_DTXStringReturningBlock(_prettyTimerDescription(timerID))
-                       additionalDescription:nil];
-                });
-            } @catch (NSException *exception) {
-                dtx_log_error(@"[DTXJSTimerSyncResource] Exception in performUpdateBlock (cleanup): %@", exception);
-            }
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self performUpdateBlock:^NSUInteger{
+                    return self->_pendingTimers.count;
+                } eventIdentifier:_DTXStringReturningBlock([timerID stringValue])
+                        eventDescription:_DTXStringReturningBlock(@"Timer Cleaned Up")
+                       objectDescription:_DTXStringReturningBlock(_prettyTimerDescription(timerID))
+                   additionalDescription:nil];
+            });
         }
     });
 
