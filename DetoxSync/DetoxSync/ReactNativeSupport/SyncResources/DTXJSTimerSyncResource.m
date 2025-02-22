@@ -93,7 +93,7 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
             return;
         }
 
-        if (!repeats && duration <= DTXSyncManager.maximumTimerIntervalTrackingDuration) {
+        if (!repeats && duration > 0 && duration <= DTXSyncManager.maximumTimerIntervalTrackingDuration) {
             dtx_log_info(@"[DTXJSTimerSyncResource] Observing timer %@ with duration %.2f ms", timerID, duration * 1000);
             self->_pendingTimers[timerID] = @((NSUInteger)round(duration * 1000));
             self->_entryTimes[timerID] = [NSDate date];
