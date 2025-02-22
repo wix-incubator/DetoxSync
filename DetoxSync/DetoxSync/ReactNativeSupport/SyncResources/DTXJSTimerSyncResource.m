@@ -87,7 +87,9 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
             return;
         }
 
-        if (repeats || duration <= 0 || duration > DTXSyncManager.maximumTimerIntervalTrackingDuration) {
+        if (repeats ||
+            duration <= DTXSyncManager.minimumTimerIntervalTrackingDuration ||
+            duration > DTXSyncManager.maximumTimerIntervalTrackingDuration) {
             return;
         }
 
@@ -141,14 +143,12 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
 - (void)scheduleCleanupForTimer:(NSNumber *)timerID {
     dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, _queue);
 
-    NSNumber *durationMs = self->_pendingTimers[timerID];
-    NSTimeInterval durationSeconds = [durationMs doubleValue] / 1000.0;
-    int64_t durationNanos = (int64_t)(durationSeconds * NSEC_PER_SEC);
+    int64_t timerNanos = (int64_t)(DTXSyncManager.maximumTimerIntervalTrackingDuration * NSEC_PER_SEC);
 
     dispatch_source_set_timer(timer,
-                              dispatch_time(DISPATCH_TIME_NOW, durationNanos),
+                              dispatch_time(DISPATCH_TIME_NOW, timerNanos),
                               DISPATCH_TIME_FOREVER,
-                              0);
+                              (int64_t)(0.1 * NSEC_PER_SEC));
 
     dispatch_source_set_event_handler(timer, ^{
         if (self->_pendingTimers[timerID]) {
