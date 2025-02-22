@@ -88,6 +88,7 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
         }
 
         if (repeats || duration <= 0 || duration > DTXSyncManager.maximumTimerIntervalTrackingDuration) {
+            return;
         }
 
         self->_pendingTimers[timerID] = @((NSUInteger)round(duration * 1000));
