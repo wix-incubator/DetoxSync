@@ -205,7 +205,7 @@ static void _setupRNSupport(void) {
 + (void)setupTimers {
     DTXSyncResourceVerboseLog(@"Adding sync resource for JS timers");
     if ([DTXReactNativeSupport isNewArchEnabled]) {
-        DTXJSTimerSyncResource* jsTimerResource = [DTXJSTimerSyncResource new];
+        DTXJSTimerSyncResource* jsTimerResource = [DTXJSTimerSyncResource sharedInstance];
         [DTXSyncManager registerSyncResource:jsTimerResource];
     } else {
         DTXJSTimerSyncResourceOldArch* jsTimerResource = [DTXJSTimerSyncResourceOldArch new];

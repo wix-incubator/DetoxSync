@@ -104,7 +104,7 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
                 // Perform update block asynchronously on the main queue to avoid blocking
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self performUpdateBlock:^NSUInteger{
-                        return [self _busyCount];
+                        return self->_pendingTimers.count;
                     } eventIdentifier:_DTXStringReturningBlock([timerID stringValue])
                             eventDescription:_DTXStringReturningBlock(@"Timer Created")
                            objectDescription:_DTXStringReturningBlock(_prettyTimerDescription(timerID))
@@ -143,7 +143,7 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
                 // Perform update block asynchronously on the main queue to avoid blocking
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self performUpdateBlock:^NSUInteger{
-                        return [self _busyCount];
+                        return self->_pendingTimers.count;
                     } eventIdentifier:_DTXStringReturningBlock([timerID stringValue])
                             eventDescription:_DTXStringReturningBlock(@"Timer Completed")
                            objectDescription:_DTXStringReturningBlock(_prettyTimerDescription(timerID))
@@ -189,7 +189,7 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
             @try {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self performUpdateBlock:^NSUInteger{
-                        return [self _busyCount];
+                        return self->_pendingTimers.count;
                     } eventIdentifier:_DTXStringReturningBlock([timerID stringValue])
                             eventDescription:_DTXStringReturningBlock(@"Timer Cleaned Up")
                            objectDescription:_DTXStringReturningBlock(_prettyTimerDescription(timerID))
@@ -204,23 +204,6 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
 
     self->_cleanupTimers[timerID] = timer;
     dispatch_resume(timer);
-}
-
-- (NSUInteger)_busyCount {
-    return self->_pendingTimers.count;
-}
-
-- (NSString*)syncResourceDescription {
-    __block NSMutableArray<NSString*>* descriptions = [NSMutableArray new];
-    dispatch_sync(_queue, ^{
-        for (NSNumber *timerID in self->_pendingTimers) {
-            NSNumber *duration = self->_pendingTimers[timerID];
-            NSDate *entryTime = self->_entryTimes[timerID];
-            NSTimeInterval elapsed = entryTime ? ([[NSDate date] timeIntervalSinceDate:entryTime] * 1000) : 0;
-            [descriptions addObject:[NSString stringWithFormat:@"Timer %@ (duration: %.2f ms, elapsed: %.2f ms)", timerID, duration.doubleValue * 1000, elapsed]];
-        }
-    });
-    return [descriptions componentsJoinedByString:@"\n"];
 }
 
 - (DTXBusyResource *)jsonDescription {
