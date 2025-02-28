@@ -65,7 +65,7 @@ static void _DTXCFTimerTrampoline(CFRunLoopTimerRef timer, void *info)
 //	NSLog(@"❤️ %p", timer);
 	
 	id<DTXTimerProxy> tp = [DTXTimerSyncResource existingTimerProxyWithTimer:NS(timer)];
-	[tp fire:(__bridge NSTimer*)timer];
+	[tp fire];
 }
 
 static CFRunLoopTimerRef (*__orig_CFRunLoopTimerCreate)(CFAllocatorRef allocator, CFAbsoluteTime fireDate, CFTimeInterval interval, CFOptionFlags flags, CFIndex order, CFRunLoopTimerCallBack callout, CFRunLoopTimerContext *context);
@@ -85,6 +85,9 @@ CFRunLoopTimerRef __detox_sync_CFRunLoopTimerCreate(CFAllocatorRef allocator, CF
 static CFRunLoopTimerRef (*__orig_CFRunLoopTimerCreateWithHandler)(CFAllocatorRef allocator, CFAbsoluteTime fireDate, CFTimeInterval interval, CFOptionFlags flags, CFIndex order, void (^block) (CFRunLoopTimerRef timer));
 CFRunLoopTimerRef __detox_sync_CFRunLoopTimerCreateWithHandler(CFAllocatorRef allocator, CFAbsoluteTime fireDate, CFTimeInterval interval, CFOptionFlags flags, CFIndex order, void (^block) (id timer))
 {
+	NSLog(@"🤔 CFRunLoopTimerCreateWithHandler");
+
+	// What is this doing? We don't seem to be creating a trampoline here - I feel like we should be?
 	return (__bridge_retained CFRunLoopTimerRef)[[NSTimer alloc] initWithFireDate:CFBridgingRelease(CFDateCreate(allocator, fireDate)) interval:interval repeats:interval > 0 block:block];
 }
 
@@ -107,9 +110,9 @@ void __detox_sync_CFRunLoopRemoveTimer(CFRunLoopRef rl, CFRunLoopTimerRef timer,
 //	NSLog(@"🤦‍♂️ removeTimer: %@", NS(timer));
 	
 	id<DTXTimerProxy> trampoline = [DTXTimerSyncResource existingTimerProxyWithTimer:NS(timer)];
-	[trampoline untrack];
-	
 	__orig_CFRunLoopRemoveTimer(rl, timer, mode);
+
+	[trampoline untrack];
 }
 
 static void (*__orig_CFRunLoopTimerInvalidate)(CFRunLoopTimerRef timer);
@@ -118,9 +121,9 @@ void __detox_sync_CFRunLoopTimerInvalidate(CFRunLoopTimerRef timer)
 //	NSLog(@"🤦‍♂️ invalidate: %@", NS(timer));
 	
 	id<DTXTimerProxy> trampoline = [DTXTimerSyncResource existingTimerProxyWithTimer:NS(timer)];
-	[trampoline untrack];
-	
 	__orig_CFRunLoopTimerInvalidate(timer);
+
+	[trampoline untrack];
 }
 
 static void (*__orig___NSCFTimer_invalidate)(NSTimer* timer);
@@ -129,11 +132,20 @@ void __detox_sync___NSCFTimer_invalidate(NSTimer* timer)
 	//	NSLog(@"🤦‍♂️ invalidate: %@", timer);
 	
 	id<DTXTimerProxy> trampoline = [DTXTimerSyncResource existingTimerProxyWithTimer:timer];
-	[trampoline untrack];
-	
 	__orig___NSCFTimer_invalidate(timer);
+
+	[trampoline untrack];
 }
 
+- (void)dealloc
+{
+    id<DTXTimerProxy> trampoline = [DTXTimerSyncResource existingTimerProxyWithTimer:self];
+
+    if(trampoline) {
+        NSLog(@"🤦‍♂️ dealloc, but trampoline was still active: %@", self);
+        [trampoline untrack];
+    }
+}
 
 + (void)load
 {
