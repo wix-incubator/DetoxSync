@@ -87,7 +87,12 @@
 
 - (void)__detox_sync_addAnimation:(CAAnimation *)anim forKey:(NSString *)key
 {
-	[DTXUISyncResource.sharedInstance trackLayerPendingAnimation:self];
+	// iOS 18+ compatibility: Skip animation tracking on iOS 18+ due to crashes
+	if (@available(iOS 18.0, *)) {
+		// Skip animation tracking
+	} else {
+		[DTXUISyncResource.sharedInstance trackLayerPendingAnimation:self];
+	}
 	
 	[self __detox_sync_adjustAnimationToAllowableRange:anim];
 	

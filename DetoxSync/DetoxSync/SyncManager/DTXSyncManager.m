@@ -389,7 +389,12 @@ static BOOL DTXIsSystemBusyNow(void)
 
 + (void)_tryIdleBlocksNow:(BOOL)now
 {
-	if(_pendingIdleBlocks.count == 0 && dtx_likely(_enableVerboseSystemLogging == NO) && dtx_likely(_delegate_syncSystemDidBecomeBusy == NO) && dtx_likely(_delegate_syncSystemDidBecomeIdle == NO))
+	// iOS 18+ compatibility: Completely disable sync functionality on iOS 18+
+	if (@available(iOS 18.0, *)) {
+		return;
+	}
+	
+	if(_pendingIdleBlocks == nil || (_pendingIdleBlocks.count == 0 && dtx_likely(_enableVerboseSystemLogging == NO) && dtx_likely(_delegate_syncSystemDidBecomeBusy == NO) && dtx_likely(_delegate_syncSystemDidBecomeIdle == NO)))
 	{
 		return;
 	}
@@ -426,7 +431,7 @@ static BOOL DTXIsSystemBusyNow(void)
 		}
 	}
 
-	if(_pendingIdleBlocks.count == 0)
+	if(_pendingIdleBlocks == nil || _pendingIdleBlocks.count == 0)
 	{
 		return;
 	}

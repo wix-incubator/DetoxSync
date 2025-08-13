@@ -37,10 +37,15 @@ static const void* _DTXGestureRecognizerSRKey = &_DTXGestureRecognizerSRKey;
 
 - (void)__detox_sync__setDirty
 {
-	if([NSStringFromClass(self.class) hasPrefix:@"SwiftUI."] == NO && self.state != UIGestureRecognizerStateFailed)
-	{
-		DTXSingleEventSyncResource* sr = [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"Gesture Recognizer"];
-		objc_setAssociatedObject(self, _DTXGestureRecognizerSRKey, sr, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	// iOS 18+ compatibility: Skip sync resource creation on iOS 18+ due to crashes
+	if (@available(iOS 18.0, *)) {
+		// Just call the original method without sync tracking
+	} else {
+		if([NSStringFromClass(self.class) hasPrefix:@"SwiftUI."] == NO && self.state != UIGestureRecognizerStateFailed)
+		{
+			DTXSingleEventSyncResource* sr = [DTXSingleEventSyncResource singleUseSyncResourceWithObjectDescription:self.description eventDescription:@"Gesture Recognizer"];
+			objc_setAssociatedObject(self, _DTXGestureRecognizerSRKey, sr, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+		}
 	}
 	
 	[self __detox_sync__setDirty];
@@ -57,16 +62,26 @@ static const void* _DTXGestureRecognizerSRKey = &_DTXGestureRecognizerSRKey;
 {
 	[self __detox_sync__resetGestureRecognizer];
 	
-	[self __detox_sync_resetSyncResource];
+	// iOS 18+ compatibility: Skip sync resource cleanup on iOS 18+ 
+	if (@available(iOS 18.0, *)) {
+		// Skip sync resource cleanup
+	} else {
+		[self __detox_sync_resetSyncResource];
+	}
 }
 
 - (void)__detox_sync_setState:(UIGestureRecognizerState)state
 {
 	[self __detox_sync_setState:state];
 	
-	if(state == UIGestureRecognizerStateFailed)
-	{
-		[self __detox_sync_resetSyncResource];
+	// iOS 18+ compatibility: Skip sync resource cleanup on iOS 18+
+	if (@available(iOS 18.0, *)) {
+		// Skip sync resource cleanup
+	} else {
+		if(state == UIGestureRecognizerStateFailed)
+		{
+			[self __detox_sync_resetSyncResource];
+		}
 	}
 }
 
