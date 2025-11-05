@@ -90,20 +90,6 @@
 	return shared;
 }
 
-/// Check if a timer should be counted as busy (i.e., blocks synchronization)
-static BOOL _DTXShouldCountTimer(_DTXTimerTrampoline* trampoline)
-{
-	// Ignore all CADisplayLink timers - they're screen-refresh based, not event-based
-	// CADisplayLinks fire at 60/120 fps and don't represent actual work pending
-	if(trampoline.displayLink != nil)
-	{
-		return NO;
-	}
-
-	// All other timers (NSTimer, CFRunLoopTimer) count as busy
-	return YES;
-}
-
 /// Ugly hack for rare occasions where NSTimer gets released, but its associated objects are not released.
 static NSUInteger _DTXCleanTimersAndReturnCount(NSMutableSet* _timers, NSMutableArray<NSString*(^)(void)>* eventIdentifiers)
 {	
@@ -115,14 +101,7 @@ static NSUInteger _DTXCleanTimersAndReturnCount(NSMutableSet* _timers, NSMutable
 		}
 	}
 
-	// Count only timers that should block synchronization (exclude CADisplayLink)
-	NSUInteger activeCount = 0;
-	for (_DTXTimerTrampoline* trampoline in _timers) {
-		if(_DTXShouldCountTimer(trampoline)) {
-			activeCount++;
-		}
-	}
-	return activeCount;
+    return _timers.count;
 }
 
 - (void)clearTimerTrampolinesForCFRunLoop:(CFRunLoopRef)cfRunLoop
