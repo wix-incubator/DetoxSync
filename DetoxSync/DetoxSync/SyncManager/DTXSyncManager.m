@@ -240,6 +240,9 @@ static atomic_nstimeinterval _maximumAnimationDuration = ATOMIC_VAR_INIT(1.0);
 							syncResource:(DTXSyncResource*)resource
 								   block:(NSUInteger(NS_NOESCAPE ^)(void))block
 {
+	// Calling resource.jsonDescription inside outerBlock triggers dispatch operations
+	DTXBusyResource* jsonDesc = __detox_sync_enableVerboseSyncResourceLogging ? resource.jsonDescription : nil;
+	
 	dispatch_block_t outerBlock = ^ {
 		if([_registeredResources containsObject:resource] == NO)
 		{
@@ -251,7 +254,7 @@ static atomic_nstimeinterval _maximumAnimationDuration = ATOMIC_VAR_INIT(1.0);
 		NSUInteger busyCount = block();
 		if(previousBusyCount != busyCount)
 		{
-			DTXSyncResourceVerboseLog(@"%@", resource.jsonDescription);
+			DTXSyncResourceVerboseLog(@"%@", jsonDesc);
 
 			if(dtx_unlikely(_delegate != nil))
 			{
@@ -291,6 +294,9 @@ static atomic_nstimeinterval _maximumAnimationDuration = ATOMIC_VAR_INIT(1.0);
 									  syncResource:(DTXSyncResource*)resource
 											 block:(NSUInteger(NS_NOESCAPE ^)(void))block
 {
+	// Calling resource.jsonDescription inside outerBlock triggers dispatch operations
+	DTXBusyResource* jsonDesc = __detox_sync_enableVerboseSyncResourceLogging ? resource.jsonDescription : nil;
+	
 	dispatch_block_t outerBlock = ^ {
 		if([_registeredResources containsObject:resource] == NO)
 		{
@@ -302,7 +308,7 @@ static atomic_nstimeinterval _maximumAnimationDuration = ATOMIC_VAR_INIT(1.0);
 		NSUInteger busyCount = block();
 		if(previousBusyCount != busyCount)
 		{
-        DTXSyncResourceVerboseLog(@"%@", resource.jsonDescription);
+			DTXSyncResourceVerboseLog(@"%@", jsonDesc);
 
 			if(dtx_unlikely(_delegate != nil))
 			{
