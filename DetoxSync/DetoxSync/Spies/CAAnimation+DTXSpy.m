@@ -16,11 +16,21 @@ static const void* _DTXCAAnimationProxyKey = &_DTXCAAnimationProxyKey;
 
 #pragma mark - Weak Reference Proxy
 
-@interface _DTXAnimationDelegateProxy : NSObject <CAAnimationDelegate>
+@interface _DTXAnimationDelegateProxy : NSProxy <CAAnimationDelegate>
 @property (nonatomic, weak) id<CAAnimationDelegate> originalDelegate;
+@property (nonatomic, strong) Class originalClass;
 @end
 
 @implementation _DTXAnimationDelegateProxy
+
+- (instancetype)initWithDelegate:(id<CAAnimationDelegate>)delegate
+{
+    _originalDelegate = delegate;
+    _originalClass = [delegate class];
+    return self;
+}
+
+#pragma mark - CAAnimationDelegate methods (intercepted)
 
 - (void)animationDidStart:(CAAnimation *)anim
 {
@@ -42,7 +52,54 @@ static const void* _DTXCAAnimationProxyKey = &_DTXCAAnimationProxyKey;
     [anim __detox_sync_untrackAnimation];
 }
 
-// Forward any other delegate methods
+#pragma mark - Transparent proxy methods (mimic original delegate identity)
+
+- (Class)class
+{
+    return self.originalClass ?: [super class];
+}
+
+- (BOOL)isKindOfClass:(Class)aClass
+{
+    id<CAAnimationDelegate> delegate = self.originalDelegate;
+    if (delegate) {
+        return [delegate isKindOfClass:aClass];
+    }
+    return self.originalClass ? [self.originalClass isSubclassOfClass:aClass] : NO;
+}
+
+- (BOOL)isMemberOfClass:(Class)aClass
+{
+    return self.originalClass == aClass;
+}
+
+- (BOOL)isEqual:(id)object
+{
+    id<CAAnimationDelegate> delegate = self.originalDelegate;
+    if (delegate) {
+        return [delegate isEqual:object];
+    }
+    return self == object;
+}
+
+- (NSUInteger)hash
+{
+    id<CAAnimationDelegate> delegate = self.originalDelegate;
+    if (delegate) {
+        return [delegate hash];
+    }
+    return (NSUInteger)self;
+}
+
+- (BOOL)conformsToProtocol:(Protocol *)aProtocol
+{
+    id<CAAnimationDelegate> delegate = self.originalDelegate;
+    if (delegate) {
+        return [delegate conformsToProtocol:aProtocol];
+    }
+    return self.originalClass ? class_conformsToProtocol(self.originalClass, aProtocol) : NO;
+}
+
 - (BOOL)respondsToSelector:(SEL)aSelector
 {
     if (aSelector == @selector(animationDidStart:) ||
@@ -54,25 +111,65 @@ static const void* _DTXCAAnimationProxyKey = &_DTXCAAnimationProxyKey;
     if (delegate) {
         return [delegate respondsToSelector:aSelector];
     }
-    return [super respondsToSelector:aSelector];
+    return NO;
+}
+
+#pragma mark - NSProxy forwarding
+
+- (NSMethodSignature *)methodSignatureForSelector:(SEL)sel
+{
+    id<CAAnimationDelegate> delegate = self.originalDelegate;
+    if (delegate) {
+        return [(NSObject *)delegate methodSignatureForSelector:sel];
+    }
+    return [NSMethodSignature signatureWithObjCTypes:"v@:"];
+}
+
+- (void)forwardInvocation:(NSInvocation *)invocation
+{
+    id<CAAnimationDelegate> delegate = self.originalDelegate;
+    if (delegate && [delegate respondsToSelector:invocation.selector]) {
+        [invocation invokeWithTarget:delegate];
+    }
 }
 
 - (id)forwardingTargetForSelector:(SEL)aSelector
 {
+    // Don't forward the methods we intercept
+    if (aSelector == @selector(animationDidStart:) ||
+        aSelector == @selector(animationDidStop:finished:)) {
+        return nil;
+    }
+    
     id<CAAnimationDelegate> delegate = self.originalDelegate;
     if (delegate && [delegate respondsToSelector:aSelector]) {
         return delegate;
     }
-    return [super forwardingTargetForSelector:aSelector];
+    return nil;
+}
+
+- (NSString *)description
+{
+    id<CAAnimationDelegate> delegate = self.originalDelegate;
+    if (delegate) {
+        return [(NSObject *)delegate description];
+    }
+    NSString *className = self.originalClass ? NSStringFromClass(self.originalClass) : @"_DTXAnimationDelegateProxy";
+    return [NSString stringWithFormat:@"<%@: %p (delegate deallocated)>", className, self];
+}
+
+- (NSString *)debugDescription
+{
+    id<CAAnimationDelegate> delegate = self.originalDelegate;
+    if (delegate) {
+        return [(NSObject *)delegate debugDescription];
+    }
+    return [self description];
 }
 
 @end
 
 #pragma mark - CAAnimation Extension
-
-@interface CAAnimation ()
-- (BOOL)_setCARenderAnimation:(void*)arg1 layer:(id)arg2;
-@end
 
 @implementation CAAnimation (DTXSpy)
 
@@ -121,14 +218,13 @@ static const void* _DTXCAAnimationProxyKey = &_DTXCAAnimationProxyKey;
     }
     
     // Don't wrap if already a proxy
-    if ([delegate isKindOfClass:[_DTXAnimationDelegateProxy class]]) {
+    if ([object_getClass(delegate) isSubclassOfClass:[_DTXAnimationDelegateProxy class]]) {
         [self __detox_sync_setDelegate:delegate];
         return;
     }
     
     // Create proxy with weak reference to original delegate
-    _DTXAnimationDelegateProxy *proxy = [[_DTXAnimationDelegateProxy alloc] init];
-    proxy.originalDelegate = delegate;
+    _DTXAnimationDelegateProxy *proxy = [[_DTXAnimationDelegateProxy alloc] initWithDelegate:delegate];
     
     // Store proxy with strong reference on the animation (so it stays alive)
     objc_setAssociatedObject(self, _DTXCAAnimationProxyKey, proxy, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
