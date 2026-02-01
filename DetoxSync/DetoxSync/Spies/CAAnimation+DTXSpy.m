@@ -12,105 +12,129 @@
 @import ObjectiveC;
 
 static const void* _DTXCAAnimationIsTrackingKey = &_DTXCAAnimationIsTrackingKey;
+static const void* _DTXCAAnimationProxyKey = &_DTXCAAnimationProxyKey;
 
-@interface _DTXCAAnimationDelegateHelper : NSObject @end
-@implementation _DTXCAAnimationDelegateHelper
+#pragma mark - Weak Reference Proxy
 
-- (void)__detox_sync_animationDidStart:(CAAnimation *)anim
+@interface _DTXAnimationDelegateProxy : NSObject <CAAnimationDelegate>
+@property (nonatomic, weak) id<CAAnimationDelegate> originalDelegate;
+@end
+
+@implementation _DTXAnimationDelegateProxy
+
+- (void)animationDidStart:(CAAnimation *)anim
 {
-	[anim __detox_sync_trackAnimation];
-	
-	[self __detox_sync_animationDidStart:anim];
+    [anim __detox_sync_trackAnimation];
+    
+    id<CAAnimationDelegate> delegate = self.originalDelegate;
+    if (delegate && [delegate respondsToSelector:@selector(animationDidStart:)]) {
+        [delegate animationDidStart:anim];
+    }
 }
 
-- (void)__detox_sync_animationDidStop:(CAAnimation *)anim finished:(BOOL)flag
+- (void)animationDidStop:(CAAnimation *)anim finished:(BOOL)flag
 {
-	[self __detox_sync_animationDidStop:anim finished:flag];
-	
-	[anim __detox_sync_untrackAnimation];
+    id<CAAnimationDelegate> delegate = self.originalDelegate;
+    if (delegate && [delegate respondsToSelector:@selector(animationDidStop:finished:)]) {
+        [delegate animationDidStop:anim finished:flag];
+    }
+    
+    [anim __detox_sync_untrackAnimation];
+}
+
+// Forward any other delegate methods
+- (BOOL)respondsToSelector:(SEL)aSelector
+{
+    if (aSelector == @selector(animationDidStart:) ||
+        aSelector == @selector(animationDidStop:finished:)) {
+        return YES;
+    }
+    
+    id<CAAnimationDelegate> delegate = self.originalDelegate;
+    if (delegate) {
+        return [delegate respondsToSelector:aSelector];
+    }
+    return [super respondsToSelector:aSelector];
+}
+
+- (id)forwardingTargetForSelector:(SEL)aSelector
+{
+    id<CAAnimationDelegate> delegate = self.originalDelegate;
+    if (delegate && [delegate respondsToSelector:aSelector]) {
+        return delegate;
+    }
+    return [super forwardingTargetForSelector:aSelector];
 }
 
 @end
 
+#pragma mark - CAAnimation Extension
+
 @interface CAAnimation ()
-
 - (BOOL)_setCARenderAnimation:(void*)arg1 layer:(id)arg2;
-
 @end
 
 @implementation CAAnimation (DTXSpy)
 
 - (BOOL)__detox_sync_isTracking
 {
-	return [objc_getAssociatedObject(self, _DTXCAAnimationIsTrackingKey) boolValue];
+    return [objc_getAssociatedObject(self, _DTXCAAnimationIsTrackingKey) boolValue];
 }
 
 - (void)__detox_sync_setTracking:(BOOL)tracking
 {
-	objc_setAssociatedObject(self, _DTXCAAnimationIsTrackingKey, @(tracking), OBJC_ASSOCIATION_RETAIN);
+    objc_setAssociatedObject(self, _DTXCAAnimationIsTrackingKey, @(tracking), OBJC_ASSOCIATION_RETAIN);
 }
 
 - (void)__detox_sync_trackAnimation
 {
-	[self __detox_sync_untrackAnimation];
-	
-	[DTXUISyncResource.sharedInstance trackCAAnimation:self];
-	[self __detox_sync_setTracking:YES];
+    [self __detox_sync_untrackAnimation];
+    
+    [DTXUISyncResource.sharedInstance trackCAAnimation:self];
+    [self __detox_sync_setTracking:YES];
 }
 
 - (void)__detox_sync_untrackAnimation
 {
-	if(self.__detox_sync_isTracking == YES)
-	{
-		[DTXUISyncResource.sharedInstance untrackCAAnimation:self];
-		[self __detox_sync_setTracking:NO];
-	}
+    if(self.__detox_sync_isTracking == YES)
+    {
+        [DTXUISyncResource.sharedInstance untrackCAAnimation:self];
+        [self __detox_sync_setTracking:NO];
+    }
 }
 
 + (void)load
 {
-	@autoreleasepool
-	{
-		DTXSwizzleMethod(CAAnimation.class, @selector(setDelegate:), @selector(__detox_sync_setDelegate:), NULL);
-	}
-}
-
-- (void)__detox_sync_prepareDelegateIfNeeded:(id<CAAnimationDelegate>)delegate
-{
-	Method mmm = class_getInstanceMethod(delegate.class, NSSelectorFromString(@"__detox_sync_canary"));
-	if(mmm != NULL)
-	{
-		return;
-	}
-	
-	NSError* error;
-	
-	Method m2_helper = class_getInstanceMethod(_DTXCAAnimationDelegateHelper.class, @selector(__detox_sync_animationDidStart:));
-	if(class_getInstanceMethod(delegate.class, @selector(animationDidStart:)) == NULL)
-	{
-		class_addMethod(delegate.class, @selector(animationDidStart:), imp_implementationWithBlock(^(id _self, id anim) { }), method_getTypeEncoding(m2_helper));
-	}
-	class_addMethod(delegate.class, @selector(__detox_sync_animationDidStart:), method_getImplementation(m2_helper), method_getTypeEncoding(m2_helper));
-	
-	DTXSwizzleMethod(delegate.class, @selector(animationDidStart:), @selector(__detox_sync_animationDidStart:), &error);
-	
-	m2_helper = class_getInstanceMethod(_DTXCAAnimationDelegateHelper.class, @selector(__detox_sync_animationDidStop:finished:));
-	if(class_getInstanceMethod(delegate.class, @selector(animationDidStop:finished:)) == NULL)
-	{
-		class_addMethod(delegate.class, @selector(animationDidStop:finished:), imp_implementationWithBlock(^(id _self, id anim) { }), method_getTypeEncoding(m2_helper));
-	}
-	class_addMethod(delegate.class, @selector(__detox_sync_animationDidStop:finished:), method_getImplementation(m2_helper), method_getTypeEncoding(m2_helper));
-	
-	DTXSwizzleMethod(delegate.class, @selector(animationDidStop:finished:), @selector(__detox_sync_animationDidStop:finished:), &error);
-	
-	class_addMethod(delegate.class, NSSelectorFromString(@"__detox_sync_canary"), imp_implementationWithBlock(^ (id _self) { }), "v8@0:4");
+    @autoreleasepool
+    {
+        DTXSwizzleMethod(CAAnimation.class, @selector(setDelegate:), @selector(__detox_sync_setDelegate:), NULL);
+    }
 }
 
 - (void)__detox_sync_setDelegate:(id<CAAnimationDelegate>)delegate
 {
-	[self __detox_sync_prepareDelegateIfNeeded:delegate];
-	
-	[self __detox_sync_setDelegate:delegate];
+    if (delegate == nil) {
+        // Clear the proxy reference
+        objc_setAssociatedObject(self, _DTXCAAnimationProxyKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        [self __detox_sync_setDelegate:nil];
+        return;
+    }
+    
+    // Don't wrap if already a proxy
+    if ([delegate isKindOfClass:[_DTXAnimationDelegateProxy class]]) {
+        [self __detox_sync_setDelegate:delegate];
+        return;
+    }
+    
+    // Create proxy with weak reference to original delegate
+    _DTXAnimationDelegateProxy *proxy = [[_DTXAnimationDelegateProxy alloc] init];
+    proxy.originalDelegate = delegate;
+    
+    // Store proxy with strong reference on the animation (so it stays alive)
+    objc_setAssociatedObject(self, _DTXCAAnimationProxyKey, proxy, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    
+    // Set proxy as the delegate
+    [self __detox_sync_setDelegate:proxy];
 }
 
 @end
