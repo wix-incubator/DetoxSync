@@ -128,7 +128,7 @@
 	id syncCompletionHandler = completionHandler == nil ? nil : ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
 		completionHandler(data, response, error);
 		
-		NSURLSessionDataTask* task = weakTask;
+		NSURLSessionDataTask* task = weakTask ?: rv;
 		if(task != nil)
 		{
 			[task __detox_sync_untrackTask];
@@ -149,7 +149,7 @@
 	id syncCompletionHandler = completionHandler == nil ? nil : ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
 		completionHandler(data, response, error);
 		
-		NSURLSessionDataTask* task = weakTask;
+		NSURLSessionDataTask* task = weakTask ?: rv;
 		if(task != nil)
 		{
 			[task __detox_sync_untrackTask];
