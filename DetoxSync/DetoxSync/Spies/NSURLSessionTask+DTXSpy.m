@@ -77,9 +77,16 @@ static const void* _DTXNetworkTaskSRKey = &_DTXNetworkTaskSRKey;
 
 - (void)__detox_sync_untrackTask
 {
-	id<DTXSingleEvent> sr = objc_getAssociatedObject(self, _DTXNetworkTaskSRKey);
-	[sr endTracking];
-	objc_setAssociatedObject(self, _DTXNetworkTaskSRKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	@synchronized(self) {
+		id<DTXSingleEvent> sr = objc_getAssociatedObject(self, _DTXNetworkTaskSRKey);
+		if(sr == nil)
+		{
+			return;
+		}
+		
+		objc_setAssociatedObject(self, _DTXNetworkTaskSRKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+		[sr endTracking];
+	}
 }
 
 - (void)__detox_sync_connection:(id)arg1 didFinishLoadingWithError:(id)arg2;

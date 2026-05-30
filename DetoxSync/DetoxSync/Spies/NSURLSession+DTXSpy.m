@@ -20,6 +20,7 @@
 	SEL cmd = @selector(URLSession:dataTask:didReceiveResponse:completionHandler:);
 	if([superclass instancesRespondToSelector:cmd])
 	{
+		__weak NSURLSessionDataTask* weakDataTask = dataTask;
 		id detoxSyncCompletionHandler = ^(NSURLSessionResponseDisposition disposition) {
 			completionHandler(disposition);
 			
@@ -27,8 +28,14 @@
 			switch (disposition) {
 				case NSURLSessionResponseBecomeDownload:
 				case NSURLSessionResponseBecomeStream:
-					[dataTask __detox_sync_untrackTask];
+				{
+					NSURLSessionDataTask* task = weakDataTask;
+					if(task != nil)
+					{
+						[task __detox_sync_untrackTask];
+					}
 					break;
+				}
 				default:
 					break;
 			}
@@ -116,14 +123,20 @@
 - (NSURLSessionDataTask *)__detox_sync_dataTaskWithRequest:(NSURLRequest *)request completionHandler:(void (^)(NSData * _Nullable, NSURLResponse * _Nullable, NSError * _Nullable))completionHandler
 {
 	__block NSURLSessionDataTask* rv;
+	__weak NSURLSessionDataTask* weakTask;
 	
 	id syncCompletionHandler = completionHandler == nil ? nil : ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
 		completionHandler(data, response, error);
 		
-		[rv __detox_sync_untrackTask];
+		NSURLSessionDataTask* task = weakTask ?: rv;
+		if(task != nil)
+		{
+			[task __detox_sync_untrackTask];
+		}
 	};
 	
 	rv = [self __detox_sync_dataTaskWithRequest:request completionHandler:syncCompletionHandler];
+	weakTask = rv;
 	
 	return rv;
 }
@@ -131,14 +144,20 @@
 - (NSURLSessionDataTask *)__detox_sync_dataTaskWithURL:(NSURL *)url completionHandler:(void (^)(NSData * _Nullable, NSURLResponse * _Nullable, NSError * _Nullable))completionHandler
 {
 	__block NSURLSessionDataTask* rv;
+	__weak NSURLSessionDataTask* weakTask;
 	
 	id syncCompletionHandler = completionHandler == nil ? nil : ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
 		completionHandler(data, response, error);
 		
-		[rv __detox_sync_untrackTask];
+		NSURLSessionDataTask* task = weakTask ?: rv;
+		if(task != nil)
+		{
+			[task __detox_sync_untrackTask];
+		}
 	};
 	
 	rv = [self __detox_sync_dataTaskWithURL:url completionHandler:syncCompletionHandler];
+	weakTask = rv;
 	
 	return rv;
 }
