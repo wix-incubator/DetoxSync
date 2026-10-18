@@ -116,28 +116,37 @@ const void* __DTXTimerTrampolineKey = &__DTXTimerTrampolineKey;
 {
 	//This is to ensure the timer is still valid after fire.
 	CFRunLoopRef runloop = CFRunLoopGetCurrent();
-	CFRunLoopMode mode = CFRunLoopCopyCurrentMode(runloop);
-	CFRunLoopPerformBlock(runloop, mode, ^{
+	CFRunLoopMode current = CFRunLoopCopyCurrentMode(runloop);
+	//A common-mode timer can fire while the run loop is in a transient mode, such as
+	//UITrackingRunLoopMode during a drag. A block queued only in that mode stays pending,
+	//and keeps the app busy, until the run loop next runs that mode, which may be never.
+	const void* modeValues[] = { current ?: kCFRunLoopDefaultMode, kCFRunLoopCommonModes };
+	CFSetRef modes = CFSetCreate(kCFAllocatorDefault, modeValues, 2, &kCFTypeSetCallBacks);
+	if(current != NULL)
+	{
+		CFRelease(current);
+	}
+	CFRunLoopPerformBlock(runloop, modes, ^{
 		if(CFRunLoopTimerIsValid((__bridge CFRunLoopTimerRef)timer) == NO)
 		{
 			[self untrack];
 			
-			CFRelease(mode);
+			CFRelease(modes);
 			
 			return;
 		}
 		
-		CFRunLoopPerformBlock(runloop, mode, ^{
+		CFRunLoopPerformBlock(runloop, modes, ^{
 			if(CFRunLoopTimerIsValid((__bridge CFRunLoopTimerRef)timer) == NO)
 			{
 				[self untrack];
 				
-				CFRelease(mode);
+				CFRelease(modes);
 				
 				return;
 			}
 			
-			CFRelease(mode);
+			CFRelease(modes);
 		});
 	});
 	
