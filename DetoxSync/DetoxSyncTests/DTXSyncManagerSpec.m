@@ -12,6 +12,8 @@
 
 #import "NSString+SyncStatus.h"
 #import "NSString+SyncResource.h"
+#import "DTXJSTimerSyncResource.h"
+#import "RCTFakes.h"
 
 SpecBegin(DTXSyncManager)
 
@@ -173,6 +175,75 @@ it(@"should report ui busy resource", ^{
       @"view_controller_will_disappear_count": @1,
     }
   }));
+});
+
+it(@"should answer status queries while js timers are being created and deleted (wix/Detox#4966)", ^{
+  // Another spec may have left the old-architecture js_timers resource behind.
+  DTXDisconnectJSTimerSyncResource();
+  [DTXJSTimerSyncResource sharedInstance];
+
+  RCTTiming *fakeTiming = [[RCTTiming alloc] init];
+  dispatch_queue_t hammerQueue = dispatch_queue_create("hammer", DISPATCH_QUEUE_CONCURRENT);
+  dispatch_group_t hammerGroup = dispatch_group_create();
+  __block volatile BOOL stop = NO;
+
+  for (NSUInteger thread = 0; thread < 4; thread++) {
+    dispatch_group_async(hammerGroup, hammerQueue, ^{
+      double timerID = (thread + 1) * 1000000;
+      while (!stop) {
+        timerID += 1;
+        [fakeTiming createTimerForNextFrame:@(timerID) duration:0.05 jsSchedulingTime:[NSDate date] repeats:NO];
+        if ((NSUInteger)timerID % 3 != 0) {
+          // The others are left to be cleaned up by the resource's own timeout.
+          [fakeTiming deleteTimer:timerID];
+        }
+        // Keeps the timer queue from building up a backlog that outlasts the spec.
+        usleep(5000);
+      }
+    });
+  }
+
+  __block BOOL allAnswered = YES;
+  __block BOOL allTimersListed = YES;
+  waitUntilTimeout(60, ^(DoneCallback done) {
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+      // Long enough for the resource's own 1.5s timeouts to fire while timers are being created.
+      NSDate *end = [NSDate dateWithTimeIntervalSinceNow:3];
+      while ([end timeIntervalSinceNow] > 0) {
+        dispatch_semaphore_t answered = dispatch_semaphore_create(0);
+        [DTXSyncManager statusWithCompletionHandler:^(NSDictionary<NSString *,id> *status) {
+          // A busy js_timers resource must list its timers, Detox rejects an empty list.
+          for (NSDictionary *resource in status[NSString.dtx_busyResourcesKey]) {
+            if ([resource[NSString.dtx_resourceNameKey] isEqualToString:@"js_timers"]) {
+              NSArray *timers = resource[NSString.dtx_resourceDescriptionKey][@"timers"];
+              if (timers.count == 0) {
+                allTimersListed = NO;
+              }
+            }
+          }
+          dispatch_semaphore_signal(answered);
+        }];
+
+        if (dispatch_semaphore_wait(answered, dispatch_time(DISPATCH_TIME_NOW, 10 * NSEC_PER_SEC)) != 0) {
+          allAnswered = NO;
+          break;
+        }
+      }
+      done();
+    });
+  });
+
+  stop = YES;
+  dispatch_group_wait(hammerGroup, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
+
+  // Let the leftover timers time out, so they don't show up in the js_timers resource of the following specs.
+  NSDate *drainEnd = [NSDate dateWithTimeIntervalSinceNow:20];
+  while ([drainEnd timeIntervalSinceNow] > 0 && [DTXAwaitStatus() busyResourcesWithName:@"js_timers"].count > 0) {
+    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+  }
+
+  expect(allAnswered).to.beTruthy();
+  expect(allTimersListed).to.beTruthy();
 });
 
 SpecEnd

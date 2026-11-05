@@ -6,6 +6,9 @@
 #import "DTXJSTimerSyncResource.h"
 #import "DTXSyncManager-Private.h"
 #import "NSString+SyncResource.h"
+#import "DTXOrigDispatch.h"
+
+#import <os/lock.h>
 
 @import ObjectiveC;
 
@@ -19,12 +22,25 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
     return [NSString stringWithFormat:@"JavaScript Timer %@ (Native Implementation)", timerID];
 }
 
+// Hops to the main queue without going through the swizzled dispatch_async, which calls back into the sync manager's
+// queue and would deadlock against a status query (wix/Detox#4966).
+static void _dispatchToMainQueue(dispatch_block_t block)
+{
+    if (__detox_sync_orig_dispatch_async != NULL) {
+        __detox_sync_orig_dispatch_async(dispatch_get_main_queue(), block);
+    } else {
+        dispatch_async(dispatch_get_main_queue(), block);
+    }
+}
+
 @implementation DTXJSTimerSyncResource {
     NSHashTable<id> *_observedInstances;
     NSMutableDictionary<NSNumber *, NSNumber *> *_pendingTimers;
     NSMutableDictionary<NSNumber *, NSDate *> *_entryTimes;
     NSMutableDictionary<NSNumber *, dispatch_source_t> *_cleanupTimers;
     dispatch_queue_t _queue;
+    os_unfair_lock _snapshotLock;
+    NSArray<NSDictionary *> *_snapshot;
 }
 
 + (instancetype)sharedInstance {
@@ -45,6 +61,8 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
         _entryTimes = [NSMutableDictionary new];
         _cleanupTimers = [NSMutableDictionary new];
         _queue = dispatch_queue_create("com.detox.sync.JSTimerSync", DISPATCH_QUEUE_SERIAL);
+        _snapshotLock = OS_UNFAIR_LOCK_INIT;
+        _snapshot = @[];
         [self setupTimerObservation];
     }
     return self;
@@ -99,11 +117,14 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
             self->_pendingTimers[timerID] = @((NSUInteger)round(duration * 1000));
             self->_entryTimes[timerID] = [NSDate date];
             [self scheduleCleanupForTimer:timerID];
+            NSArray<NSDictionary *> *snapshot = [self _makeSnapshot];
 
             @try {
-                dispatch_async(dispatch_get_main_queue(), ^{
+                NSUInteger pendingCount = self->_pendingTimers.count;
+                _dispatchToMainQueue(^{
                     [self performUpdateBlock:^NSUInteger{
-                        return self->_pendingTimers.count;
+                        [self _publishSnapshot:snapshot];
+                        return pendingCount;
                     } eventIdentifier:_DTXStringReturningBlock([timerID stringValue])
                             eventDescription:_DTXStringReturningBlock(@"Timer Created")
                            objectDescription:_DTXStringReturningBlock(_prettyTimerDescription(timerID))
@@ -133,11 +154,14 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
 
             [self->_pendingTimers removeObjectForKey:timerID];
             [self->_entryTimes removeObjectForKey:timerID];
+            NSArray<NSDictionary *> *snapshot = [self _makeSnapshot];
 
             @try {
-                dispatch_async(dispatch_get_main_queue(), ^{
+                NSUInteger pendingCount = self->_pendingTimers.count;
+                _dispatchToMainQueue(^{
                     [self performUpdateBlock:^NSUInteger{
-                        return self->_pendingTimers.count;
+                        [self _publishSnapshot:snapshot];
+                        return pendingCount;
                     } eventIdentifier:_DTXStringReturningBlock([timerID stringValue])
                             eventDescription:_DTXStringReturningBlock(@"Timer Completed")
                            objectDescription:_DTXStringReturningBlock(_prettyTimerDescription(timerID))
@@ -164,11 +188,14 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
             [self->_pendingTimers removeObjectForKey:timerID];
             [self->_entryTimes removeObjectForKey:timerID];
             [self->_cleanupTimers removeObjectForKey:timerID];
+            NSArray<NSDictionary *> *snapshot = [self _makeSnapshot];
 
             @try {
-                dispatch_async(dispatch_get_main_queue(), ^{
+                NSUInteger pendingCount = self->_pendingTimers.count;
+                _dispatchToMainQueue(^{
                     [self performUpdateBlock:^NSUInteger{
-                        return self->_pendingTimers.count;
+                        [self _publishSnapshot:snapshot];
+                        return pendingCount;
                     } eventIdentifier:_DTXStringReturningBlock([timerID stringValue])
                             eventDescription:_DTXStringReturningBlock(@"Timer Timed Out")
                            objectDescription:_DTXStringReturningBlock(_prettyTimerDescription(timerID))
@@ -183,20 +210,45 @@ static NSString* _prettyTimerDescription(NSNumber* timerID)
     dispatch_resume(timer);
 }
 
+// Must be called on _queue after every change to the pending timers.
+- (NSArray<NSDictionary *> *)_makeSnapshot {
+    NSMutableArray *snapshot = [NSMutableArray new];
+    for (NSNumber *timerID in _pendingTimers) {
+        NSDate *entryTime = _entryTimes[timerID];
+        [snapshot addObject:@{
+            @"timer_id": timerID,
+            @"duration": _pendingTimers[timerID],
+            @"entry_time": entryTime ?: [NSNull null]
+        }];
+    }
+    return snapshot;
+}
+
+// Called from the update block, which the sync manager runs on its own queue together with the busy count change.
+// This keeps jsonDescription consistent with the busy state: a busy resource always lists its timers.
+- (void)_publishSnapshot:(NSArray<NSDictionary *> *)snapshot {
+    os_unfair_lock_lock(&_snapshotLock);
+    _snapshot = snapshot;
+    os_unfair_lock_unlock(&_snapshotLock);
+}
+
+// Never blocks on _queue: it is called from the sync manager's queue while _queue may be waiting on it.
 - (DTXBusyResource *)jsonDescription {
-    __block NSMutableArray *timerDescriptions = [NSMutableArray new];
-    dispatch_sync(_queue, ^{
-        for (NSNumber *timerID in self->_pendingTimers) {
-            NSNumber *duration = self->_pendingTimers[timerID];
-            NSDate *entryTime = self->_entryTimes[timerID];
-            NSTimeInterval elapsed = entryTime ? ([[NSDate date] timeIntervalSinceDate:entryTime] * 1000) : 0;
-            [timerDescriptions addObject:@{
-                @"timer_id": timerID,
-                @"duration": duration,
-                @"elapsed": @(elapsed)
-            }];
-        }
-    });
+    os_unfair_lock_lock(&_snapshotLock);
+    NSArray<NSDictionary *> *snapshot = _snapshot;
+    os_unfair_lock_unlock(&_snapshotLock);
+
+    NSDate *now = [NSDate date];
+    NSMutableArray *timerDescriptions = [NSMutableArray new];
+    for (NSDictionary *timer in snapshot) {
+        NSDate *entryTime = timer[@"entry_time"];
+        NSTimeInterval elapsed = [entryTime isKindOfClass:NSDate.class] ? ([now timeIntervalSinceDate:entryTime] * 1000) : 0;
+        [timerDescriptions addObject:@{
+            @"timer_id": timer[@"timer_id"],
+            @"duration": timer[@"duration"],
+            @"elapsed": @(elapsed)
+        }];
+    }
 
     return @{
         NSString.dtx_resourceNameKey: @"js_timers",

@@ -36,6 +36,10 @@ NSArray<NSDictionary<NSString *,id> *> *DTXMapTimers(NSArray<NSDictionary<NSStri
 /// Connects \c DTXSyncManager with JS-timers sync resource.
 void DTXConnectWithJSTimerSyncResource(void);
 
+/// Disconnects \c DTXSyncManager from the JS-timers sync resource that was connected by
+/// \c DTXConnectWithJSTimerSyncResource, if any.
+void DTXDisconnectJSTimerSyncResource(void);
+
 /// Create fake JS timer with given params.
 void DTXCreateFakeJSTimer(double callbackID, NSTimeInterval duration, double schedulingTime,
                           BOOL repeats);
