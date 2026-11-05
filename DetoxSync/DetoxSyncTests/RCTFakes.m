@@ -19,4 +19,9 @@
 - (void)createTimer:(double)callbackID duration:(NSTimeInterval)jsDuration
    jsSchedulingTime:(double)jsSchedulingTime repeats:(BOOL)repeats {}
 
+- (void)createTimerForNextFrame:(NSNumber *)callbackID duration:(NSTimeInterval)jsDuration
+               jsSchedulingTime:(NSDate *)jsSchedulingTime repeats:(BOOL)repeats {}
+
+- (void)deleteTimer:(double)timerID {}
+
 @end

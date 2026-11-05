@@ -20,6 +20,7 @@
 @interface DTXSyncManager (ForTesting)
 
 + (void)registerSyncResource:(DTXSyncResource*)syncResource;
++ (void)unregisterSyncResource:(DTXSyncResource*)syncResource;
 
 @end
 
@@ -76,9 +77,19 @@ NSArray<NSDictionary<NSString *,id> *> *DTXMapTimers(NSArray<NSDictionary<NSStri
   }];
 }
 
+static DTXJSTimerSyncResourceOldArch *connectedJSTimerSyncResource;
+
 void DTXConnectWithJSTimerSyncResource(void) {
-    DTXJSTimerSyncResourceOldArch* resource = [DTXJSTimerSyncResourceOldArch new];
-  [DTXSyncManager registerSyncResource:resource];
+  DTXDisconnectJSTimerSyncResource();
+  connectedJSTimerSyncResource = [DTXJSTimerSyncResourceOldArch new];
+  [DTXSyncManager registerSyncResource:connectedJSTimerSyncResource];
+}
+
+void DTXDisconnectJSTimerSyncResource(void) {
+  if (connectedJSTimerSyncResource) {
+    [DTXSyncManager unregisterSyncResource:connectedJSTimerSyncResource];
+    connectedJSTimerSyncResource = nil;
+  }
 }
 
 void DTXCreateFakeJSTimer(double callbackID, NSTimeInterval duration, double schedulingTime,
