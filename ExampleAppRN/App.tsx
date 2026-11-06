@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import {StyleSheet, View, Text, Button} from 'react-native';
+import StressPanel from './StressPanel';
 
 type State = {counter: number};
 
@@ -96,6 +97,7 @@ export default class App extends Component<{}, State> {
         <Button title="Busy Bridge" onPress={() => this.onBusyBridge()} />
         <Text>Counter: {this.state.counter}</Text>
         <Button title="Network Requests" onPress={() => this.onNetwork()} />
+        <StressPanel />
       </View>
     );
   }
