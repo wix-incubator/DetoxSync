@@ -53,3 +53,16 @@ On this branch the DetoxSync sources are those of master, where the status call 
 - `TIMER_STRESS_SUMMARY polls=... jsTimersBusy=... emptyTimers=... hangs=... maxLatencyMs=... pendingMs=...`
   every 5 s. `jsTimersBusy` counts responses where `js_timers` was busy (shows the race window is exercised);
   `pendingMs` is the age of the currently outstanding call (0 if none).
+
+## A/B runner script
+
+`scripts/run-timer-stress.sh <path to .app> <label> [runs=10] [seconds=60] [outdir]` creates a fresh
+simulator (`TimerStress-<label>`; override with `SIM_DEVICE_TYPE`, default `iPhone 18 Pro`, and
+`SIM_RUNTIME`, default newest iOS runtime), then for each run reinstalls the app, launches it with
+`-TimerStressAutoStart YES`, waits, pulls `Documents/timer-stress.log` into `run-N.log` (console output goes
+to `run-N.console.log`), terminates the app, and appends a row to `summary.tsv` (hangs, empty timers, last
+summary's polls / jsTimersBusy / maxLatencyMs, `JS_TIMER_RESOURCE`, status `ok|hang|crashed|crashed_or_no_summary`). A hang is
+detected from the file log, so it works even though the app keeps running with a stuck status call.
+The simulator is shut down and deleted on exit. Results default to `./timer-stress-results/<label>-<timestamp>`
+(git-ignored). A final `TOTALS` line is printed. Build one app per variant (fix and master DetoxSync sources)
+with separate derived data paths and run the script once for each.
